@@ -21,7 +21,7 @@ namespace InGame
                 Debug.LogError($"{typeof(SceneParameterMain)} is null");
                 return;
             }
-
+            
             gameController.Init(_sceneParameterMain).Forget();
         }
 

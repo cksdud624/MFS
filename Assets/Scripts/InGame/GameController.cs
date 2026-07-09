@@ -1,14 +1,31 @@
 using Common.Scene.Parameter;
 using Cysharp.Threading.Tasks;
+using InGame.Context;
+using InGame.Object;
 using UnityEngine;
 
 namespace InGame
 {
     public class GameController : MonoBehaviour
     {
+        private InGameContext _inGameContext;
+        private ObjectSpawner _objectSpawner;
+        
         public async UniTask Init(SceneParameterMain sceneParameterMain)
         {
-            await UniTask.CompletedTask;
+            _inGameContext = new();
+            _objectSpawner = gameObject.AddComponent<ObjectSpawner>();
+            await _objectSpawner.Init(_inGameContext);
+            
+            //플레이어 스폰
+            await _objectSpawner.SpawnPlayer();
+            
+            LoadCompleted();
+        }
+
+        private void LoadCompleted()
+        {
+            
         }
     }
 }

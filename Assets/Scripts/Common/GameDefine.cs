@@ -9,5 +9,21 @@ namespace Common
             BootStrap = 0,
             Main = 1
         }
+
+        public enum ObjectType
+        {
+            Object,
+            Character
+        }
+
+        public enum ObjectState
+        {
+            Raw,
+            Loading,
+            Ready,
+            Playing,
+            Sleep,
+            Error
+        }
     }
 }
