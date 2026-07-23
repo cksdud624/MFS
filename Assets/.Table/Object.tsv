@@ -1,0 +1,3 @@
+Id	IsCharacter	MoveSpeed
+long	bool	float
+1001	true	1

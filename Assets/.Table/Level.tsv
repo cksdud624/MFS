@@ -1,3 +1,0 @@
-Id	Level	HeatPoint_Man	HeatPoint_Exp	AttackDamage_Man	AttackDamage_Exp	Defense_Man	Defense_Exp
-long	long	long	int	long	int	long	int
-10000001	1	1	0	1	0	1	0

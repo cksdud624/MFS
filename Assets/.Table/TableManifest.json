@@ -1,8 +1,12 @@
 {
     "tables": [
         {
-            "fileName": "Level",
-            "hash": "50fbe56fafada0ba4018e17f04986e1c"
+            "fileName": "Object",
+            "hash": "d1f6b915ba293b649ee2390604180d01"
+        },
+        {
+            "fileName": "Character",
+            "hash": "5baf61c008e0c77213e197d2670e6516"
         }
     ]
 }

@@ -23,7 +23,35 @@ namespace Common
             Ready,
             Playing,
             Sleep,
+            Destroyed,
             Error
         }
+
+        public enum Direction
+        {
+            Right,
+            Left,
+        }
+
+        public enum FSMState
+        {
+            Ground,
+            Air,
+            Action,
+            Damage,
+            Event,
+        }
+
+        #region Animation
+        public enum AnimationType
+        {
+            Idle,
+            Move,
+            Jump,
+            DoubleJump,
+            Dash,
+            BackDash,
+        }
+        #endregion
     }
 }

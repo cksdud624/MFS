@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using static Common.AssetKeys;
+using static Common.GameDefine;
 using Object = UnityEngine.Object;
 
 namespace Common
@@ -53,33 +54,23 @@ namespace Common
     {
         public enum LoadTarget
         {
-            Model,
-            AvatarMask,
-            WeaponAnimationClip,
-            WeaponBlendTree
+            Character,
+            Animation,
         }
 
-        private const string Model = "Assets/AddressableAssets/Prefab/Model/";
-        private const string AvatarMask = "Assets/AddressableAssets/AvatarMask/";
-        private const string WeaponAnimationClip = "Assets/AddressableAssets/AnimationClip/Weapon/";
-        private const string WeaponBlendTree = "Assets/AddressableAssets/BlendTree/Weapon/";
+        private const string Character = "Assets/AddressableAssets/Prefab/Character/";
+        private const string Animation = "Assets/AddressableAssets/Animation/";
 
         public static string GetAddressableKey(LoadTarget target, string assetName)
         {
             string key;
             switch (target)
             {
-                case LoadTarget.Model:
-                    key = Model + assetName + ".prefab";
+                case LoadTarget.Character:
+                    key = Character + assetName + ".prefab";
                     break;
-                case LoadTarget.AvatarMask:
-                    key = AvatarMask + assetName + ".mask";
-                    break;
-                case LoadTarget.WeaponAnimationClip:
-                    key = WeaponAnimationClip + assetName + ".anim";
-                    break;
-                case LoadTarget.WeaponBlendTree:
-                    key = WeaponBlendTree + assetName + ".controller";
+                case LoadTarget.Animation:
+                    key = Animation + assetName + ".anim";
                     break;
                 default:
                     key = string.Empty;

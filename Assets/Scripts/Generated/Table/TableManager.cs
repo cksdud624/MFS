@@ -5,12 +5,15 @@ namespace Generated.Table
 {
 	public class TableManager : MonoBehaviour
 	{
-		public LevelRecord LevelRecord {get; private set;}
+		public ObjectRecord ObjectRecord {get; private set;}
+		public CharacterRecord CharacterRecord {get; private set;}
 
 		public async UniTask Init()
 		{
-			LevelRecord = new ();
-			await LevelRecord.Init();
+			ObjectRecord = new ();
+			await ObjectRecord.Init();
+			CharacterRecord = new ();
+			await CharacterRecord.Init();
 		}
 	}
 }
