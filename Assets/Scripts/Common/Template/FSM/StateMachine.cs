@@ -7,6 +7,7 @@ namespace Common.Template.FSM
     {
         private readonly Dictionary<TKey, IState> _states = new();
 
+        public TKey PreviousKey { get; private set; }
         public TKey CurrentKey { get; private set; }
         public IState CurrentState { get; private set; }
 
@@ -22,6 +23,7 @@ namespace Common.Template.FSM
             if (CurrentState == next) return;
 
             CurrentState?.OnExit();
+            PreviousKey = CurrentKey;
             CurrentKey = key;
             CurrentState = next;
             CurrentState.OnEnter();

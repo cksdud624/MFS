@@ -15,5 +15,8 @@ namespace InGame.Context
 
         public event Action OnJump;
         public void NotifyJump() => OnJump?.Invoke();
+
+        public event Action OnDash;
+        public void NotifyDash() => OnDash?.Invoke();
     }
 }

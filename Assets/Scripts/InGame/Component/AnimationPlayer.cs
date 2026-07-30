@@ -1,7 +1,9 @@
 using Common;
 using Cysharp.Threading.Tasks;
 using InGame.Context;
+using System;
 using System.Collections.Generic;
+using System.Threading;
 using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.Playables;
@@ -19,12 +21,14 @@ namespace InGame.Component
         private AnimationClipPlayable _currentPlayable;
         private readonly Dictionary<AnimationType, AnimationClip> _clips = new();
         private AnimationType _current;
+        private CancellationTokenSource _animationEndCts;
         private ObjectContext _objectContext;
 
         public async UniTask Init(ObjectContext objectContext, long characterId)
         {
             _objectContext = objectContext;
             _objectContext.OnDirectionChanged += OnDirectionChanged;
+            _objectContext.OnAnimationChanged += Play;
 
             var animator = GetComponent<Animator>();
             _animator = animator != null ? animator : gameObject.AddComponent<Animator>();
@@ -61,22 +65,46 @@ namespace InGame.Component
             _spriteRenderer.flipX = direction == Direction.Left;
         }
 
-        public void Play(AnimationType animType)
+        public void Play(AnimationType animType, Action notifyAnimationEnd = null)
         {
             if (!_clips.ContainsKey(animType)) return;
 
             if (_currentPlayable.IsValid())
                 _currentPlayable.Destroy();
 
+            var clip = _clips[animType];
+
+            _animationEndCts?.Cancel();
+            _animationEndCts?.Dispose();
+            _animationEndCts = null;
+
+            if (!clip.isLooping && notifyAnimationEnd != null)
+            {
+                _animationEndCts = new CancellationTokenSource();
+                WaitForAnimationEnd(clip.length, notifyAnimationEnd, _animationEndCts.Token).Forget();
+            }
+
             _current = animType;
-            _currentPlayable = AnimationClipPlayable.Create(_graph, _clips[animType]);
+            _currentPlayable = AnimationClipPlayable.Create(_graph, clip);
             _output.SetSourcePlayable(_currentPlayable);
+        }
+
+        private async UniTaskVoid WaitForAnimationEnd(float duration, Action notifyAnimationEnd, CancellationToken cancellationToken)
+        {
+            await UniTask.Delay(TimeSpan.FromSeconds(duration), cancellationToken: cancellationToken);
+            notifyAnimationEnd?.Invoke();
         }
 
         private void OnDestroy()
         {
             if (_objectContext != null)
+            {
                 _objectContext.OnDirectionChanged -= OnDirectionChanged;
+                _objectContext.OnAnimationChanged -= Play;
+            }
+
+            _animationEndCts?.Cancel();
+            _animationEndCts?.Dispose();
 
             if (_graph.IsValid())
                 _graph.Destroy();

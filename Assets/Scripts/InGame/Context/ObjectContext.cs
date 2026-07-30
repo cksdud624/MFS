@@ -4,6 +4,7 @@ using Generated.Table;
 using UnityEngine;
 using ObjectType = Common.GameDefine.ObjectType;
 using Direction = Common.GameDefine.Direction;
+using AnimationType = Common.GameDefine.AnimationType;
 
 
 namespace InGame.Context
@@ -30,6 +31,7 @@ namespace InGame.Context
         public ObjectData ObjectData {get; private set;}
         public CharacterData CharacterData {get; private set;}
 
+        //캐릭터가 보고 있는 방향
         public Direction Direction { get; private set; } = Direction.Right;
         public event Action<Direction> OnDirectionChanged;
         public void SetDirection(Direction direction)
@@ -39,12 +41,15 @@ namespace InGame.Context
             OnDirectionChanged?.Invoke(direction);
         }
 
+        //이동
         public event Action<float> OnMoveVelocityChanged;
         public void SetMoveVelocity(float velocityX) => OnMoveVelocityChanged?.Invoke(velocityX);
 
+        //점프
         public event Action<float> OnJumpVelocityChanged;
         public void SetJumpVelocity(float velocityY) => OnJumpVelocityChanged?.Invoke(velocityY);
 
+        //땅에 있는지
         public bool IsGrounded { get; private set; } = true;
         public event Action<bool> OnGroundedChanged;
         public void SetGrounded(bool grounded)
@@ -52,6 +57,46 @@ namespace InGame.Context
             if (IsGrounded == grounded) return;
             IsGrounded = grounded;
             OnGroundedChanged?.Invoke(grounded);
+        }
+        
+        //가능한 점프 횟수
+        public int JumpCount { get; private set; }
+        public event Action<int> OnJumpCountChanged;
+
+        public bool SetJumpCount(int jumpCount)
+        {
+            if (JumpCount == jumpCount || jumpCount < 0)
+                return false;
+            JumpCount = jumpCount;
+            OnJumpCountChanged?.Invoke(JumpCount);
+            return true;
+        }
+
+        //대시 중인지
+        public bool IsDashing { get; private set; }
+        public event Action<bool> OnDashingChanged;
+        public void SetDashing(bool dashing)
+        {
+            if (IsDashing == dashing) return;
+            IsDashing = dashing;
+            OnDashingChanged?.Invoke(dashing);
+        }
+        
+        //대시
+        public event Action<Vector2> OnDashVelocityChanged;
+        public void SetDashVelocity(Vector2 velocity) => OnDashVelocityChanged?.Invoke(velocity);
+
+        //대시 중 대시 재입력 (연속 대시)
+        public event Action OnDashRestart;
+        public void RequestDashRestart() => OnDashRestart?.Invoke();
+
+        //현재 재생 중인 애니메이션
+        public AnimationType Animation { get; private set; } = AnimationType.Idle;
+        public event Action<AnimationType, Action> OnAnimationChanged;
+        public void SetAnimation(AnimationType animationType, Action onAnimationEnd = null)
+        {
+            Animation = animationType;
+            OnAnimationChanged?.Invoke(animationType, onAnimationEnd);
         }
     }
 }

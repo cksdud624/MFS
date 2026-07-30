@@ -19,6 +19,7 @@ namespace InGame.Component.Controller
             _inputAction.Player.Move.performed += OnMove;
             _inputAction.Player.Move.canceled += OnMove;
             _inputAction.Player.Jump.performed += OnJump;
+            _inputAction.Player.Dash.performed += OnDash;
 
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
@@ -33,6 +34,7 @@ namespace InGame.Component.Controller
             _inputAction.Player.Move.performed -= OnMove;
             _inputAction.Player.Move.canceled -= OnMove;
             _inputAction.Player.Jump.performed -= OnJump;
+            _inputAction.Player.Dash.performed -= OnDash;
             _inputAction.Dispose();
             _inputAction = null;
         }
@@ -50,6 +52,8 @@ namespace InGame.Component.Controller
         }
 
         private void OnJump(InputAction.CallbackContext context) => InputContext.NotifyJump();
+
+        private void OnDash(InputAction.CallbackContext context) => InputContext.NotifyDash();
         #endregion
 
         private void OnDestroy()

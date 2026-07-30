@@ -48,7 +48,7 @@ namespace Common
             Idle,
             Move,
             Jump,
-            DoubleJump,
+            Fly,
             Dash,
             BackDash,
         }

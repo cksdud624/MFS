@@ -13,8 +13,12 @@ namespace InGame.Component
         private BoxCollider2D _collider;
         private ObjectContext _objectContext;
         private float _velocityX;
+        private bool _isDashing;
+        private Vector2 _dashVelocity;
 
         private const float GroundNormalThreshold = 0.5f;
+        private const float JumpYVelocityCorrection = 1f;
+        
         private readonly HashSet<Collider2D> _groundContacts = new();
 
         public async UniTask Init(ObjectContext objectContext)
@@ -22,6 +26,8 @@ namespace InGame.Component
             _objectContext = objectContext;
             _objectContext.OnMoveVelocityChanged += OnMoveVelocityChanged;
             _objectContext.OnJumpVelocityChanged += OnJumpVelocityChanged;
+            _objectContext.OnDashingChanged += OnDashingChanged;
+            _objectContext.OnDashVelocityChanged += OnDashVelocityChanged;
 
             var rb = GetComponent<Rigidbody2D>();
             Rigidbody = rb != null ? rb : gameObject.AddComponent<Rigidbody2D>();
@@ -49,9 +55,31 @@ namespace InGame.Component
             Rigidbody.linearVelocity = new Vector2(Rigidbody.linearVelocity.x, velocityY);
         }
 
+        private void OnDashingChanged(bool dashing)
+        {
+            _isDashing = dashing;
+            if (dashing) return;
+
+            float velocityY = _dashVelocity.y switch
+            {
+                > 0f => _dashVelocity.y / 2f,
+                < 0f => -_dashVelocity.y / 2f,
+                _ => Rigidbody.linearVelocity.y
+            };
+            Rigidbody.linearVelocity = new Vector2(Rigidbody.linearVelocity.x, velocityY);
+        }
+
+        private void OnDashVelocityChanged(Vector2 velocity)
+        {
+            _dashVelocity = velocity;
+            Rigidbody.linearVelocity = velocity;
+        }
+
         public void OnFixedUpdate()
         {
-            Rigidbody.linearVelocity = new Vector2(_velocityX, Rigidbody.linearVelocity.y);
+            Rigidbody.linearVelocity = _isDashing
+                ? _dashVelocity
+                : new Vector2(_velocityX, Rigidbody.linearVelocity.y);
             _objectContext.SetGrounded(_groundContacts.Count > 0);
         }
 
@@ -82,6 +110,8 @@ namespace InGame.Component
             {
                 _objectContext.OnMoveVelocityChanged -= OnMoveVelocityChanged;
                 _objectContext.OnJumpVelocityChanged -= OnJumpVelocityChanged;
+                _objectContext.OnDashingChanged -= OnDashingChanged;
+                _objectContext.OnDashVelocityChanged -= OnDashVelocityChanged;
             }
         }
     }

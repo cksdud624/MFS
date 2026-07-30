@@ -2,6 +2,7 @@ using Common.Template.FSM;
 using InGame.Context;
 using UnityEngine;
 using FSMState = Common.GameDefine.FSMState;
+using AnimationType = Common.GameDefine.AnimationType;
 
 namespace InGame.Component.State
 {
@@ -34,5 +35,14 @@ namespace InGame.Component.State
 
             ObjectContext.SetMoveVelocity(velocityX);
         }
+        
+        #region Events
+
+        protected void OnJumpAnimationEnd()
+        {
+            ObjectContext.SetAnimation(AnimationType.Fly);
+            Debug.Log("Jump Animation End");
+        }
+        #endregion
     }
 }
