@@ -14,7 +14,7 @@ namespace InGame.Component.State
         }
         
         //테이블로 차후 관리해야하는 부분
-        private readonly float _dashSpeed = 12f;
+        private readonly float _dashSpeed = 5f;
         private readonly float _dashDuration = 0.2f;
 
         private float _elapsed;

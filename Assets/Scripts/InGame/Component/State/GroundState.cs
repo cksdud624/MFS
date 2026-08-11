@@ -13,7 +13,7 @@ namespace InGame.Component.State
         {
         }
 
-        private readonly float _jumpPower = 5f;
+        private readonly float _jumpPower = 2.5f;
 
         public override void OnEnter()
         {

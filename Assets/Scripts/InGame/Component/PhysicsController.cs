@@ -4,6 +4,7 @@ using Common.Template.Interface;
 using Cysharp.Threading.Tasks;
 using InGame.Context;
 using UnityEngine;
+using Direction = Common.GameDefine.Direction;
 
 namespace InGame.Component
 {
@@ -17,7 +18,17 @@ namespace InGame.Component
         private Vector2 _dashVelocity;
 
         private const float GroundNormalThreshold = 0.5f;
-        private const float JumpYVelocityCorrection = 1f;
+        //낭떠러지 감지용
+        private const float LedgeProbeMargin = 0.02f;
+        private const float LedgeProbeDepth = 0.1f;
+        //콜라이더는 방향에 따라 좌우 대칭으로 뒤집는다
+        private static readonly Vector2 ColliderSize = new(0.2f, 0.35f);
+        private const float ColliderOffsetX = 0.07f;
+        private const float ColliderOffsetY = -0.05f;
+        //공중 관성: MoveSpeed까지 붙는 시간 / 입력을 뗐을 때 멈추는 시간 / 최고 속도 초과분을 깎는 시간
+        private const float AirAccelerationTime = 0.25f;
+        private const float AirDecelerationTime = 1.2f;
+        private const float AirOverSpeedDecelerationTime = 0.3f;
         
         private readonly HashSet<Collider2D> _groundContacts = new();
 
@@ -28,6 +39,7 @@ namespace InGame.Component
             _objectContext.OnJumpVelocityChanged += OnJumpVelocityChanged;
             _objectContext.OnDashingChanged += OnDashingChanged;
             _objectContext.OnDashVelocityChanged += OnDashVelocityChanged;
+            _objectContext.OnDirectionChanged += OnDirectionChanged;
 
             var rb = GetComponent<Rigidbody2D>();
             Rigidbody = rb != null ? rb : gameObject.AddComponent<Rigidbody2D>();
@@ -37,8 +49,8 @@ namespace InGame.Component
 
             var col = GetComponent<BoxCollider2D>();
             _collider = col != null ? col : gameObject.AddComponent<BoxCollider2D>();
-            _collider.size = new Vector2(0.2f, 0.35f);
-            _collider.offset = new Vector2(-0.07f, -0.05f);
+            _collider.size = ColliderSize;
+            ApplyColliderOffset(_objectContext.Direction);
 
             Global.Instance.BindFixedUpdate(this);
 
@@ -75,12 +87,69 @@ namespace InGame.Component
             Rigidbody.linearVelocity = velocity;
         }
 
+        private void OnDirectionChanged(Direction direction) => ApplyColliderOffset(direction);
+
+        private void ApplyColliderOffset(Direction direction)
+        {
+            float offsetX = direction == Direction.Left ? ColliderOffsetX : -ColliderOffsetX;
+            _collider.offset = new Vector2(offsetX, ColliderOffsetY);
+        }
+
         public void OnFixedUpdate()
         {
-            Rigidbody.linearVelocity = _isDashing
-                ? _dashVelocity
-                : new Vector2(_velocityX, Rigidbody.linearVelocity.y);
+            if (_isDashing)
+            {
+                var dashVelocity = _dashVelocity;
+                //지상 대시 중 낭떠러지 끝에 닿으면 전진만 차단
+                if (IsLedgeAhead(dashVelocity.x))
+                    dashVelocity.x = 0f;
+                Rigidbody.linearVelocity = dashVelocity;
+            }
+            else
+            {
+                //지상은 즉시 반응, 공중은 관성을 받는다
+                float velocityX = _objectContext.IsGrounded ? _velocityX : ResolveAirVelocityX();
+                Rigidbody.linearVelocity = new Vector2(velocityX, Rigidbody.linearVelocity.y);
+            }
             _objectContext.SetGrounded(_groundContacts.Count > 0);
+        }
+
+        private float ResolveAirVelocityX()
+        {
+            float currentX = Rigidbody.linearVelocity.x;
+            float moveSpeed = _objectContext.ObjectData.MoveSpeed;
+
+            //대시 등으로 최고 속도를 넘어선 구간은 먼저 빠르게 깎는다
+            if (Mathf.Abs(currentX) > moveSpeed)
+            {
+                //진행 방향과 반대로 입력하면 최고 속도에서 멈추지 않고 그대로 반전까지 이어간다
+                float overSpeedTarget = _velocityX * currentX < 0f
+                    ? _velocityX
+                    : Mathf.Sign(currentX) * moveSpeed;
+                float overSpeedDelta = moveSpeed / AirOverSpeedDecelerationTime * Time.fixedDeltaTime;
+                return Mathf.MoveTowards(currentX, overSpeedTarget, overSpeedDelta);
+            }
+
+            float duration = _velocityX == 0f ? AirDecelerationTime : AirAccelerationTime;
+            float maxDelta = moveSpeed / duration * Time.fixedDeltaTime;
+            return Mathf.MoveTowards(currentX, _velocityX, maxDelta);
+        }
+
+        private bool IsLedgeAhead(float velocityX)
+        {
+            if (velocityX == 0f) return false;
+            if (!_objectContext.IsGrounded) return false;
+
+            var bounds = _collider.bounds;
+            float direction = Mathf.Sign(velocityX);
+            //이번 프레임에 이동할 거리만큼 미리 내다봐서 끝을 넘어가는 것을 막는다
+            float probeDistance = Mathf.Abs(velocityX) * Time.fixedDeltaTime + LedgeProbeMargin;
+            var origin = new Vector2(
+                direction > 0f ? bounds.max.x + probeDistance : bounds.min.x - probeDistance,
+                bounds.min.y + LedgeProbeMargin);
+
+            var hit = Physics2D.Raycast(origin, Vector2.down, LedgeProbeDepth + LedgeProbeMargin);
+            return hit.collider == null || !hit.collider.CompareTag("Map");
         }
 
         private void OnCollisionEnter2D(Collision2D collision)
@@ -112,6 +181,7 @@ namespace InGame.Component
                 _objectContext.OnJumpVelocityChanged -= OnJumpVelocityChanged;
                 _objectContext.OnDashingChanged -= OnDashingChanged;
                 _objectContext.OnDashVelocityChanged -= OnDashVelocityChanged;
+                _objectContext.OnDirectionChanged -= OnDirectionChanged;
             }
         }
     }

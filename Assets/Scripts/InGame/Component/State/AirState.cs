@@ -1,6 +1,5 @@
 using Common.Template.FSM;
 using InGame.Context;
-using UnityEngine;
 using FSMState = Common.GameDefine.FSMState;
 using AnimationType = Common.GameDefine.AnimationType;
 
@@ -13,7 +12,7 @@ namespace InGame.Component.State
         {
         }
 
-        private readonly float _jumpPower = 5f;
+        private readonly float _jumpPower = 2.5f;
         //테이블로 차후 관리해야하는 부분
 
         public override void OnEnter()

@@ -13,7 +13,7 @@ namespace InGame.Component
     {
         //테이블로 차후 관리해야하는 부분
         private const int MaxDashStack = 1;
-        private const float DashChargeInterval = 6f;
+        private const float DashChargeInterval = 0.5f;
 
         private StateMachine<FSMState> _stateMachine;
         private InputContext _inputContext;
