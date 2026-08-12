@@ -1,4 +1,3 @@
-using Common;
 using Cysharp.Threading.Tasks;
 using Generated.Table;
 using InGame.Context;
@@ -15,7 +14,7 @@ namespace InGame.Object
     {
         protected readonly ReactiveProperty<ObjectState> State = new (ObjectState.Raw);
         public ObjectState ObjectState => State.Value;
-        
+
         protected InGameContext InGameContext;
         protected InputContext InputContext;
         protected ObjectContext ObjectContext;
@@ -29,16 +28,20 @@ namespace InGame.Object
         public bool IsPlayer {get; protected set;}
         public ObjectType ObjectType => ObjectContext?.ObjectType ?? ObjectType.Object;
 
-        public async UniTask Init(InGameContext inGameContext, ObjectData objectData, bool isPlayer = false)
+        public virtual async UniTask Init(InGameContext inGameContext, ObjectData objectData, bool isPlayer = false)
         {
             InGameContext = inGameContext;
             IsPlayer = isPlayer;
             InputContext = new ();
-            ObjectContext = new(ObjectType.Object, objectData);
+            ObjectContext = new(objectData);
             AnimationPlayer = gameObject.AddComponent<AnimationPlayer>();
             await AnimationPlayer.Init(ObjectContext, objectData.Id);
-            CameraController = gameObject.AddComponent<CameraController>();
-            await CameraController.Init();
+            //카메라는 플레이어만 따라간다
+            if (isPlayer)
+            {
+                CameraController = gameObject.AddComponent<CameraController>();
+                await CameraController.Init();
+            }
             PhysicsController = gameObject.AddComponent<PhysicsController>();
             await PhysicsController.Init(ObjectContext);
             ObjectStateController = gameObject.AddComponent<ObjectStateController>();
@@ -53,15 +56,10 @@ namespace InGame.Object
                 return;
             }
 
-            if(IsPlayer)
-            {
-                Controller = gameObject.AddComponent<ControllerPlayer>();
-                Controller.Init(InputContext, ObjectContext);
-            }
-            else
-            {
-                throw new System.NotImplementedException("AI Controller is not implemented yet.");
-            }
+            Controller = IsPlayer
+                ? (ControllerBase)gameObject.AddComponent<ControllerPlayer>()
+                : gameObject.AddComponent<ControllerAI>();
+            Controller.Init(InGameContext, InputContext, ObjectContext);
         }
 
         public void DetachController()

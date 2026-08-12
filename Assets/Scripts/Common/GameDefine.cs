@@ -42,6 +42,14 @@ namespace Common
             Event,
         }
 
+        //AI 행동 상태
+        public enum AIState
+        {
+            Idle,
+            Patrol,
+            Chase,
+        }
+
         #region Animation
         public enum AnimationType
         {

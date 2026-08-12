@@ -21,6 +21,8 @@ namespace InGame.Component
         //낭떠러지 감지용
         private const float LedgeProbeMargin = 0.02f;
         private const float LedgeProbeDepth = 0.1f;
+        //벽 감지용
+        private const float WallProbeDistance = 0.05f;
         //콜라이더는 방향에 따라 좌우 대칭으로 뒤집는다
         private static readonly Vector2 ColliderSize = new(0.2f, 0.35f);
         private const float ColliderOffsetX = 0.07f;
@@ -135,7 +137,8 @@ namespace InGame.Component
             return Mathf.MoveTowards(currentX, _velocityX, maxDelta);
         }
 
-        private bool IsLedgeAhead(float velocityX)
+        /// <summary>진행 방향 바로 앞이 낭떠러지인지. 지상에서만 판정한다</summary>
+        public bool IsLedgeAhead(float velocityX)
         {
             if (velocityX == 0f) return false;
             if (!_objectContext.IsGrounded) return false;
@@ -150,6 +153,22 @@ namespace InGame.Component
 
             var hit = Physics2D.Raycast(origin, Vector2.down, LedgeProbeDepth + LedgeProbeMargin);
             return hit.collider == null || !hit.collider.CompareTag("Map");
+        }
+
+        /// <summary>진행 방향 바로 앞이 벽인지</summary>
+        public bool IsWallAhead(float directionX)
+        {
+            if (directionX == 0f) return false;
+
+            var bounds = _collider.bounds;
+            float direction = Mathf.Sign(directionX);
+            //자기 콜라이더에 맞지 않도록 바깥에서 쏜다
+            var origin = new Vector2(
+                direction > 0f ? bounds.max.x + LedgeProbeMargin : bounds.min.x - LedgeProbeMargin,
+                bounds.center.y);
+
+            var hit = Physics2D.Raycast(origin, new Vector2(direction, 0f), WallProbeDistance);
+            return hit.collider != null && hit.collider.CompareTag("Map");
         }
 
         private void OnCollisionEnter2D(Collision2D collision)

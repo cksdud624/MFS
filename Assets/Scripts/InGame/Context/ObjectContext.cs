@@ -11,11 +11,12 @@ namespace InGame.Context
 {
     public class ObjectContext
     {
-        public ObjectContext(ObjectType objectType, ObjectData objectData)
+        public ObjectContext(ObjectData objectData)
         {
-            ObjectType = objectType;
+            //오브젝트 타입은 테이블 데이터에서 결정한다
+            ObjectType = objectData.IsCharacter ? ObjectType.Character : ObjectType.Object;
             ObjectData = objectData;
-            if (objectType is ObjectType.Character)
+            if (ObjectType is ObjectType.Character)
             {
                 var character = Global.Instance.TableManager.CharacterRecord.GetRecord(objectData.Id);
                 if (character == null)

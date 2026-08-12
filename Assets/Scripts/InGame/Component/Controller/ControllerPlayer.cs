@@ -10,9 +10,9 @@ namespace InGame.Component.Controller
     {
         private PlayerInputAction _inputAction;
 
-        public override void Init(InputContext inputContext, ObjectContext objectContext)
+        public override void Init(InGameContext inGameContext, InputContext inputContext, ObjectContext objectContext)
         {
-            base.Init(inputContext, objectContext);
+            base.Init(inGameContext, inputContext, objectContext);
             _inputAction = new PlayerInputAction();
             _inputAction.Enable();
 
