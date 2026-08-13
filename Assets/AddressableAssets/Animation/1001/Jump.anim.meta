@@ -1,15 +1,8 @@
 fileFormatVersion: 2
-guid: a6fdf3b62c5b8de418436d0859a8b671
+guid: ac6740f986ba42146a209dd9f28b7b3d
 NativeFormatImporter:
   externalObjects: {}
   mainObjectFileID: 7400000
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 195707
-  packageName: Warrior Free Asset
-  packageVersion: 1.0
-  assetPath: Assets/Warrior free set/Aniamtion/jump.anim
-  uploadId: 434362

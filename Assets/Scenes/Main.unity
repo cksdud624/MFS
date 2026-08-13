@@ -1126,14 +1126,14 @@ Transform:
   m_GameObject: {fileID: 268530544}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -7.2902703, y: 3.1793702, z: 0}
+  m_LocalPosition: {x: -0.6500001, y: 5.53, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 335196090}
   - {fileID: 4582083376996042088}
   - {fileID: 4582083375543290232}
-  m_Father: {fileID: 1550184600}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &289334789
 GameObject:
@@ -7472,7 +7472,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1550184600}
   m_Layer: 0
-  m_Name: Main Camera & Reflection Camera & Player Follow Objects
+  m_Name: Main Camera & NoPostCamera & Player Follow Objects
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -7492,7 +7492,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 206960163}
-  - {fileID: 268530545}
   - {fileID: 1290643246}
   - {fileID: 297849772}
   - {fileID: 1844280214}
@@ -10245,4 +10244,5 @@ SceneRoots:
   - {fileID: 360893075}
   - {fileID: 2124497981}
   - {fileID: 1811221690}
+  - {fileID: 268530545}
   - {fileID: 1550184600}
