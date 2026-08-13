@@ -24,7 +24,6 @@ namespace InGame.Component.Controller.AI
         public override void OnFixedUpdate()
         {
             //아직은.. 패트롤이 필요없기 때문에 일단 여기서 대기
-            return;
             if (TryChangeToChase()) return;
 
             _timer += Time.fixedDeltaTime;
