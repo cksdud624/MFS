@@ -13,8 +13,8 @@ TagManager:
   - Water
   - UI
   - HitBox
-  - 
-  - 
+  - Mirror
+  - NoPostProcessing
   - 
   - 
   - 
@@ -39,8 +39,53 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: BackgroundFar
+    uniqueID: 588966343
+    locked: 0
+  - name: BackgroundFar_1
+    uniqueID: 3043611423
+    locked: 0
+  - name: BackgroundFar_2
+    uniqueID: 1062420457
+    locked: 0
+  - name: BackgroundMid
+    uniqueID: 2124736139
+    locked: 0
+  - name: BackgroundMid_1
+    uniqueID: 720578559
+    locked: 0
+  - name: BackgroundMid_2
+    uniqueID: 20682521
+    locked: 0
+  - name: BackgroundNear
+    uniqueID: 747918289
+    locked: 0
+  - name: BackgroundNear_1
+    uniqueID: 1135434697
+    locked: 0
+  - name: 'BackgroundNear_2 '
+    uniqueID: 3924986351
+    locked: 0
+  - name: Foreground
+    uniqueID: 425985727
+    locked: 0
+  - name: Foreground 1
+    uniqueID: 3231309169
+    locked: 0
+  - name: Foreground 2
+    uniqueID: 3047477451
+    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Extreme Foreground
+    uniqueID: 3423631607
+    locked: 0
+  - name: Extreme Foreground_1
+    uniqueID: 3758946545
+    locked: 0
+  - name: Extreme Foreground_2
+    uniqueID: 4061473345
     locked: 0
   m_RenderingLayers:
   - Default

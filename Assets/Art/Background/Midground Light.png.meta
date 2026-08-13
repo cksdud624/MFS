@@ -1,0 +1,923 @@
+fileFormatVersion: 2
+guid: e1c9771a1fa8e8d4aab31f4d95a26fa8
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -447003008845463895
+    second: Midground Light_0
+  - first:
+      213: 2131615850683791064
+    second: Midground Light_1
+  - first:
+      213: 5310271191965686399
+    second: Midground Light_2
+  - first:
+      213: 3529075959098088580
+    second: Midground Light_3
+  - first:
+      213: -7356492833180064442
+    second: Midground Light_4
+  - first:
+      213: -5800149409748257276
+    second: Midground Light_5
+  - first:
+      213: 1572057249909385972
+    second: Midground Light_6
+  - first:
+      213: -5615000231092413670
+    second: Midground Light_7
+  - first:
+      213: -3826537095688601885
+    second: Midground Light_8
+  - first:
+      213: 7841020705973204649
+    second: Midground Light_9
+  - first:
+      213: 4564966800914854906
+    second: Midground Light_10
+  - first:
+      213: 8216980626605935692
+    second: Midground Light_11
+  - first:
+      213: 8618864476879138175
+    second: Midground Light_12
+  - first:
+      213: 8796428131531470339
+    second: Midground Light_13
+  - first:
+      213: 8642974084522437618
+    second: Midground Light_14
+  - first:
+      213: 7899985834963339490
+    second: Midground Light_15
+  - first:
+      213: 6406977645714197644
+    second: Midground Light_16
+  - first:
+      213: -7439163425759185771
+    second: Midground Light_17
+  - first:
+      213: 350457262291741106
+    second: Midground Light_18
+  - first:
+      213: 5485239084144974384
+    second: Midground Light_19
+  - first:
+      213: 1420078410991112269
+    second: Midground Light_20
+  - first:
+      213: -6863203577608521327
+    second: Midground Light_21
+  - first:
+      213: -5884085496793597862
+    second: Midground Light_22
+  - first:
+      213: 5828664910978510254
+    second: Midground Light_23
+  - first:
+      213: -4235611965229415145
+    second: Midground Light_24
+  - first:
+      213: -7230815286962435235
+    second: Midground Light_25
+  - first:
+      213: -1747941558455670161
+    second: Midground Light_26
+  - first:
+      213: 692070416889711224
+    second: Midground Light_27
+  - first:
+      213: -8890821307833476102
+    second: Midground Light_28
+  - first:
+      213: -3999866607079084021
+    second: Midground Light_29
+  - first:
+      213: 7403342176406295141
+    second: Midground Light_30
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 4096
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Midground Light_0
+      rect:
+        serializedVersion: 2
+        x: 2148
+        y: 1033
+        width: 40
+        height: 51
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9ae3c3cb12debc9f0800000000000000
+      internalID: -447003008845463895
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_1
+      rect:
+        serializedVersion: 2
+        x: 2187
+        y: 1032
+        width: 46
+        height: 53
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8d679998255059d10800000000000000
+      internalID: 2131615850683791064
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_2
+      rect:
+        serializedVersion: 2
+        x: 2241
+        y: 1032
+        width: 158
+        height: 53
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f7ada1a938fd1b940800000000000000
+      internalID: 5310271191965686399
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_3
+      rect:
+        serializedVersion: 2
+        x: 2397
+        y: 1032
+        width: 16
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 48c996f03ebc9f030800000000000000
+      internalID: 3529075959098088580
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_4
+      rect:
+        serializedVersion: 2
+        x: 2101
+        y: 967
+        width: 86
+        height: 52
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 645689d9ebc78e990800000000000000
+      internalID: -7356492833180064442
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_5
+      rect:
+        serializedVersion: 2
+        x: 2196
+        y: 967
+        width: 250
+        height: 52
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 40673c3a7dab18fa0800000000000000
+      internalID: -5800149409748257276
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_6
+      rect:
+        serializedVersion: 2
+        x: 2444
+        y: 967
+        width: 15
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4fa2d6b5db111d510800000000000000
+      internalID: 1572057249909385972
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_7
+      rect:
+        serializedVersion: 2
+        x: 2230
+        y: 743
+        width: 137
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a1b10041a038312b0800000000000000
+      internalID: -5615000231092413670
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_8
+      rect:
+        serializedVersion: 2
+        x: 3114
+        y: 743
+        width: 137
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3ee30ab09c865eac0800000000000000
+      internalID: -3826537095688601885
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_9
+      rect:
+        serializedVersion: 2
+        x: 2113
+        y: 615
+        width: 50
+        height: 61
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a6f300e9c6e0dc60800000000000000
+      internalID: 7841020705973204649
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_10
+      rect:
+        serializedVersion: 2
+        x: 2168
+        y: 615
+        width: 46
+        height: 61
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: af33bf38e150a5f30800000000000000
+      internalID: 4564966800914854906
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_11
+      rect:
+        serializedVersion: 2
+        x: 2216
+        y: 614
+        width: 51
+        height: 63
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c4c0d1f2854980270800000000000000
+      internalID: 8216980626605935692
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_12
+      rect:
+        serializedVersion: 2
+        x: 2273
+        y: 614
+        width: 49
+        height: 63
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f7d2d97b39b5c9770800000000000000
+      internalID: 8618864476879138175
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_13
+      rect:
+        serializedVersion: 2
+        x: 2328
+        y: 615
+        width: 55
+        height: 61
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 306bf28b7c0331a70800000000000000
+      internalID: 8796428131531470339
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_14
+      rect:
+        serializedVersion: 2
+        x: 3426
+        y: 632
+        width: 215
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2fbedde232302f770800000000000000
+      internalID: 8642974084522437618
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_15
+      rect:
+        serializedVersion: 2
+        x: 3656
+        y: 632
+        width: 184
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2e88b9fc24362ad60800000000000000
+      internalID: 7899985834963339490
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_16
+      rect:
+        serializedVersion: 2
+        x: 1910
+        y: 490
+        width: 23
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c8cc9a029382ae850800000000000000
+      internalID: 6406977645714197644
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_17
+      rect:
+        serializedVersion: 2
+        x: 2111
+        y: 424
+        width: 125
+        height: 183
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 594bb855748c2c890800000000000000
+      internalID: -7439163425759185771
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_18
+      rect:
+        serializedVersion: 2
+        x: 2260
+        y: 426
+        width: 121
+        height: 179
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b9ead3f5031dd400800000000000000
+      internalID: 350457262291741106
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_19
+      rect:
+        serializedVersion: 2
+        x: 1961
+        y: 479
+        width: 11
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 03adc8e82eb7f1c40800000000000000
+      internalID: 5485239084144974384
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_20
+      rect:
+        serializedVersion: 2
+        x: 1914
+        y: 468
+        width: 34
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d4093587ac125b310800000000000000
+      internalID: 1420078410991112269
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_21
+      rect:
+        serializedVersion: 2
+        x: 1931
+        y: 447
+        width: 19
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 199347f75b001c0a0800000000000000
+      internalID: -6863203577608521327
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_22
+      rect:
+        serializedVersion: 2
+        x: 1963
+        y: 453
+        width: 13
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a58f6977a67875ea0800000000000000
+      internalID: -5884085496793597862
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_23
+      rect:
+        serializedVersion: 2
+        x: 1954
+        y: 430
+        width: 20
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ead68addad393e050800000000000000
+      internalID: 5828664910978510254
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_24
+      rect:
+        serializedVersion: 2
+        x: 2671
+        y: 399
+        width: 149
+        height: 50
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7154b1edb551835c0800000000000000
+      internalID: -4235611965229415145
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_25
+      rect:
+        serializedVersion: 2
+        x: 2899
+        y: 422
+        width: 90
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d5bc3289ecbf6ab90800000000000000
+      internalID: -7230815286962435235
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_26
+      rect:
+        serializedVersion: 2
+        x: 2031
+        y: 352
+        width: 29
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f6a6b10e9601eb7e0800000000000000
+      internalID: -1747941558455670161
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_27
+      rect:
+        serializedVersion: 2
+        x: 2081
+        y: 352
+        width: 450
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 87a844e906aba9900800000000000000
+      internalID: 692070416889711224
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_28
+      rect:
+        serializedVersion: 2
+        x: 2599
+        y: 352
+        width: 290
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: afb9c1940257d9480800000000000000
+      internalID: -8890821307833476102
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_29
+      rect:
+        serializedVersion: 2
+        x: 3001
+        y: 352
+        width: 36
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b00ba18538e9d78c0800000000000000
+      internalID: -3999866607079084021
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Midground Light_30
+      rect:
+        serializedVersion: 2
+        x: 3067
+        y: 352
+        width: 773
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5625d5f1c74fdb660800000000000000
+      internalID: 7403342176406295141
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Midground Light_0: -447003008845463895
+      Midground Light_1: 2131615850683791064
+      Midground Light_10: 4564966800914854906
+      Midground Light_11: 8216980626605935692
+      Midground Light_12: 8618864476879138175
+      Midground Light_13: 8796428131531470339
+      Midground Light_14: 8642974084522437618
+      Midground Light_15: 7899985834963339490
+      Midground Light_16: 6406977645714197644
+      Midground Light_17: -7439163425759185771
+      Midground Light_18: 350457262291741106
+      Midground Light_19: 5485239084144974384
+      Midground Light_2: 5310271191965686399
+      Midground Light_20: 1420078410991112269
+      Midground Light_21: -6863203577608521327
+      Midground Light_22: -5884085496793597862
+      Midground Light_23: 5828664910978510254
+      Midground Light_24: -4235611965229415145
+      Midground Light_25: -7230815286962435235
+      Midground Light_26: -1747941558455670161
+      Midground Light_27: 692070416889711224
+      Midground Light_28: -8890821307833476102
+      Midground Light_29: -3999866607079084021
+      Midground Light_3: 3529075959098088580
+      Midground Light_30: 7403342176406295141
+      Midground Light_4: -7356492833180064442
+      Midground Light_5: -5800149409748257276
+      Midground Light_6: 1572057249909385972
+      Midground Light_7: -5615000231092413670
+      Midground Light_8: -3826537095688601885
+      Midground Light_9: 7841020705973204649
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
