@@ -58,19 +58,16 @@ namespace Common
             Animation,
         }
 
-        private const string Character = "Assets/AddressableAssets/Prefab/Character/";
-        private const string Animation = "Assets/AddressableAssets/Animation/";
-
         public static string GetAddressableKey(LoadTarget target, string assetName)
         {
             string key;
             switch (target)
             {
                 case LoadTarget.Character:
-                    key = Character + assetName + ".prefab";
+                    key = AssetPathCharacter + assetName + AssetExtensionPrefab;
                     break;
                 case LoadTarget.Animation:
-                    key = Animation + assetName + ".anim";
+                    key = AssetPathAnimation + assetName + AssetExtensionAnimation;
                     break;
                 default:
                     key = string.Empty;

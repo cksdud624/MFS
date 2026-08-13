@@ -5,21 +5,17 @@ using Cysharp.Threading.Tasks;
 using InGame.Component.State;
 using InGame.Context;
 using UnityEngine;
-using FSMState = Common.GameDefine.FSMState;
+using static Common.GameDefine;
 
 namespace InGame.Component
 {
     public class ObjectStateController : MonoBehaviour, IFixedUpdateable
     {
-        //테이블로 차후 관리해야하는 부분
-        private const int MaxDashStack = 1;
-        private const float DashChargeInterval = 0.5f;
-
         private StateMachine<FSMState> _stateMachine;
         private InputContext _inputContext;
         private ObjectContext _objectContext;
 
-        private int _dashStack = MaxDashStack;
+        private int _dashStack = DashMaxStack;
         private float _dashChargeTimer;
 
         public async UniTask Init(InputContext inputContext, ObjectContext objectContext)
@@ -51,7 +47,7 @@ namespace InGame.Component
 
         private void UpdateDashCharge()
         {
-            if (_dashStack >= MaxDashStack) return;
+            if (_dashStack >= DashMaxStack) return;
 
             _dashChargeTimer += Time.fixedDeltaTime;
             if (_dashChargeTimer < DashChargeInterval) return;

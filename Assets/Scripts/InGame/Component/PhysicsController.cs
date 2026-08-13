@@ -4,7 +4,7 @@ using Common.Template.Interface;
 using Cysharp.Threading.Tasks;
 using InGame.Context;
 using UnityEngine;
-using Direction = Common.GameDefine.Direction;
+using static Common.GameDefine;
 
 namespace InGame.Component
 {
@@ -17,21 +17,6 @@ namespace InGame.Component
         private bool _isDashing;
         private Vector2 _dashVelocity;
 
-        private const float GroundNormalThreshold = 0.5f;
-        //낭떠러지 감지용
-        private const float LedgeProbeMargin = 0.02f;
-        private const float LedgeProbeDepth = 0.1f;
-        //벽 감지용
-        private const float WallProbeDistance = 0.05f;
-        //콜라이더는 방향에 따라 좌우 대칭으로 뒤집는다
-        private static readonly Vector2 ColliderSize = new(0.2f, 0.35f);
-        private const float ColliderOffsetX = 0.07f;
-        private const float ColliderOffsetY = -0.05f;
-        //공중 관성: MoveSpeed까지 붙는 시간 / 입력을 뗐을 때 멈추는 시간 / 최고 속도 초과분을 깎는 시간
-        private const float AirAccelerationTime = 0.25f;
-        private const float AirDecelerationTime = 1.2f;
-        private const float AirOverSpeedDecelerationTime = 0.3f;
-        
         private readonly HashSet<Collider2D> _groundContacts = new();
 
         public async UniTask Init(ObjectContext objectContext)
@@ -58,7 +43,8 @@ namespace InGame.Component
 
             await UniTask.CompletedTask;
         }
-
+        
+        #region Events
         private void OnMoveVelocityChanged(float velocityX)
         {
             _velocityX = velocityX;
@@ -90,13 +76,9 @@ namespace InGame.Component
         }
 
         private void OnDirectionChanged(Direction direction) => ApplyColliderOffset(direction);
-
-        private void ApplyColliderOffset(Direction direction)
-        {
-            float offsetX = direction == Direction.Left ? ColliderOffsetX : -ColliderOffsetX;
-            _collider.offset = new Vector2(offsetX, ColliderOffsetY);
-        }
-
+        #endregion
+        
+        #region LifeCycle
         public void OnFixedUpdate()
         {
             if (_isDashing)
@@ -115,7 +97,71 @@ namespace InGame.Component
             }
             _objectContext.SetGrounded(_groundContacts.Count > 0);
         }
+        #endregion
+        
+        #region CheckConditions
+        /// <summary>진행 방향 바로 앞이 낭떠러지인지. 지상에서만 판정한다</summary>
+        public bool IsLedgeAhead(float velocityX)
+        {
+            if (velocityX == 0f) return false;
+            if (!_objectContext.IsGrounded) return false;
 
+            var bounds = _collider.bounds;
+            float direction = Mathf.Sign(velocityX);
+            //이번 프레임에 이동할 거리만큼 미리 내다봐서 끝을 넘어가는 것을 막는다
+            float probeDistance = Mathf.Abs(velocityX) * Time.fixedDeltaTime + LedgeProbeMargin;
+            var origin = new Vector2(
+                direction > 0f ? bounds.max.x + probeDistance : bounds.min.x - probeDistance,
+                bounds.min.y + LedgeProbeMargin);
+
+            var hit = Physics2D.Raycast(origin, Vector2.down, LedgeProbeDepth + LedgeProbeMargin);
+            return hit.collider == null || !hit.collider.CompareTag(TagMap);
+        }
+
+        /// <summary>진행 방향 바로 앞이 벽인지</summary>
+        public bool IsWallAhead(float directionX)
+        {
+            if (directionX == 0f) return false;
+
+            var bounds = _collider.bounds;
+            float direction = Mathf.Sign(directionX);
+            //자기 콜라이더에 맞지 않도록 바깥에서 쏜다
+            var origin = new Vector2(
+                direction > 0f ? bounds.max.x + LedgeProbeMargin : bounds.min.x - LedgeProbeMargin,
+                bounds.center.y);
+
+            var hit = Physics2D.Raycast(origin, new Vector2(direction, 0f), WallProbeDistance);
+            return hit.collider != null && hit.collider.CompareTag(TagMap);
+        }
+        
+        private bool IsGroundContact(Collision2D collision)
+        {
+            if (!collision.collider.CompareTag(TagMap)) return false;
+
+            foreach (var contact in collision.contacts)
+            {
+                if (contact.normal.y > GroundNormalThreshold)
+                    return true;
+            }
+            return false;
+        }
+        #endregion
+
+        #region Collisions
+        private void OnCollisionEnter2D(Collision2D collision)
+        {
+            if (IsGroundContact(collision))
+                _groundContacts.Add(collision.collider);
+        }
+
+        private void OnCollisionExit2D(Collision2D collision) => _groundContacts.Remove(collision.collider);
+        #endregion
+        
+        private void ApplyColliderOffset(Direction direction)
+        {
+            float offsetX = direction == Direction.Left ? ColliderOffsetX : -ColliderOffsetX;
+            _collider.offset = new Vector2(offsetX, ColliderOffsetY);
+        }
         private float ResolveAirVelocityX()
         {
             float currentX = Rigidbody.linearVelocity.x;
@@ -136,61 +182,6 @@ namespace InGame.Component
             float maxDelta = moveSpeed / duration * Time.fixedDeltaTime;
             return Mathf.MoveTowards(currentX, _velocityX, maxDelta);
         }
-
-        /// <summary>진행 방향 바로 앞이 낭떠러지인지. 지상에서만 판정한다</summary>
-        public bool IsLedgeAhead(float velocityX)
-        {
-            if (velocityX == 0f) return false;
-            if (!_objectContext.IsGrounded) return false;
-
-            var bounds = _collider.bounds;
-            float direction = Mathf.Sign(velocityX);
-            //이번 프레임에 이동할 거리만큼 미리 내다봐서 끝을 넘어가는 것을 막는다
-            float probeDistance = Mathf.Abs(velocityX) * Time.fixedDeltaTime + LedgeProbeMargin;
-            var origin = new Vector2(
-                direction > 0f ? bounds.max.x + probeDistance : bounds.min.x - probeDistance,
-                bounds.min.y + LedgeProbeMargin);
-
-            var hit = Physics2D.Raycast(origin, Vector2.down, LedgeProbeDepth + LedgeProbeMargin);
-            return hit.collider == null || !hit.collider.CompareTag("Map");
-        }
-
-        /// <summary>진행 방향 바로 앞이 벽인지</summary>
-        public bool IsWallAhead(float directionX)
-        {
-            if (directionX == 0f) return false;
-
-            var bounds = _collider.bounds;
-            float direction = Mathf.Sign(directionX);
-            //자기 콜라이더에 맞지 않도록 바깥에서 쏜다
-            var origin = new Vector2(
-                direction > 0f ? bounds.max.x + LedgeProbeMargin : bounds.min.x - LedgeProbeMargin,
-                bounds.center.y);
-
-            var hit = Physics2D.Raycast(origin, new Vector2(direction, 0f), WallProbeDistance);
-            return hit.collider != null && hit.collider.CompareTag("Map");
-        }
-
-        private void OnCollisionEnter2D(Collision2D collision)
-        {
-            if (IsGroundContact(collision))
-                _groundContacts.Add(collision.collider);
-        }
-
-        private void OnCollisionExit2D(Collision2D collision) => _groundContacts.Remove(collision.collider);
-
-        private bool IsGroundContact(Collision2D collision)
-        {
-            if (!collision.collider.CompareTag("Map")) return false;
-
-            foreach (var contact in collision.contacts)
-            {
-                if (contact.normal.y > GroundNormalThreshold)
-                    return true;
-            }
-            return false;
-        }
-
         private void OnDestroy()
         {
             Global.Instance?.UnBindFixedUpdate(this);

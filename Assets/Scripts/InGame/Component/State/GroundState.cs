@@ -1,8 +1,7 @@
 using Common.Template.FSM;
 using InGame.Context;
 using UnityEngine;
-using FSMState = Common.GameDefine.FSMState;
-using AnimationType = Common.GameDefine.AnimationType;
+using static Common.GameDefine;
 
 namespace InGame.Component.State
 {
@@ -13,11 +12,9 @@ namespace InGame.Component.State
         {
         }
 
-        private readonly float _jumpPower = 2.5f;
-
         public override void OnEnter()
         {
-            ObjectContext.SetJumpCount(2);
+            ObjectContext.SetJumpCount(GroundJumpCount);
             InputContext.OnMove += OnMove;
             InputContext.OnMove += OnMoveAnimation;
             InputContext.OnJump += OnJump;
@@ -40,7 +37,7 @@ namespace InGame.Component.State
         {
             if (ObjectContext.SetJumpCount(ObjectContext.JumpCount - 1))
             {
-                ObjectContext.SetJumpVelocity(_jumpPower);
+                ObjectContext.SetJumpVelocity(JumpPower);
                 ObjectContext.SetAnimation(AnimationType.Jump, OnJumpAnimationEnd);
             }
         }

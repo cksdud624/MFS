@@ -1,3 +1,8 @@
+using Cysharp.Threading.Tasks;
+using Generated.Table;
+using InGame.Component;
+using InGame.Context;
+
 namespace InGame.Object
 {
     /// <summary>
@@ -6,5 +11,15 @@ namespace InGame.Object
     /// </summary>
     public class CharacterBase : ObjectBase
     {
+        protected HitBoxController HitBoxController;
+
+        public override async UniTask Init(InGameContext inGameContext, ObjectData objectData, bool isPlayer = false)
+        {
+            await base.Init(inGameContext, objectData, isPlayer);
+
+            //공격 판정은 캐릭터만 사용한다
+            HitBoxController = gameObject.AddComponent<HitBoxController>();
+            await HitBoxController.Init(ObjectContext);
+        }
     }
 }

@@ -1,8 +1,7 @@
 using Common.Template.FSM;
 using InGame.Context;
 using UnityEngine;
-using AIState = Common.GameDefine.AIState;
-using Direction = Common.GameDefine.Direction;
+using static Common.GameDefine;
 
 namespace InGame.Component.Controller.AI
 {
@@ -12,9 +11,6 @@ namespace InGame.Component.Controller.AI
     /// </summary>
     public class AIPatrolState : AIStateBase
     {
-        //테이블로 차후 관리해야하는 부분
-        private const float PatrolDuration = 3f;
-
         private float _timer;
         private float _directionX;
 

@@ -1,6 +1,6 @@
 using Common.Template.FSM;
 using InGame.Context;
-using AIState = Common.GameDefine.AIState;
+using static Common.GameDefine;
 
 namespace InGame.Component.Controller.AI
 {

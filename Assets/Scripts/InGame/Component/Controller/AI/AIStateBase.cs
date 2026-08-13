@@ -1,6 +1,6 @@
 using Common.Template.FSM;
 using InGame.Context;
-using AIState = Common.GameDefine.AIState;
+using static Common.GameDefine;
 
 namespace InGame.Component.Controller.AI
 {
@@ -10,11 +10,6 @@ namespace InGame.Component.Controller.AI
         protected readonly InputContext InputContext;
         protected readonly ObjectContext ObjectContext;
         protected readonly ControllerAI Controller;
-
-        //테이블로 차후 관리해야하는 부분
-        protected const float DetectRange = 5f;   //추격을 시작하는 거리
-        protected const float LoseRange = 8f;     //추격을 포기하는 거리
-        protected const float AttackRange = 0.5f; //멈춰서 공격하는 거리
 
         protected AIStateBase(StateMachine<AIState> stateMachine, InputContext inputContext, ObjectContext objectContext, ControllerAI controller)
         {

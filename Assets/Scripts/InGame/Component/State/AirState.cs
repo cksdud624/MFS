@@ -1,7 +1,6 @@
 using Common.Template.FSM;
 using InGame.Context;
-using FSMState = Common.GameDefine.FSMState;
-using AnimationType = Common.GameDefine.AnimationType;
+using static Common.GameDefine;
 
 namespace InGame.Component.State
 {
@@ -12,15 +11,12 @@ namespace InGame.Component.State
         {
         }
 
-        private readonly float _jumpPower = 2.5f;
-        //테이블로 차후 관리해야하는 부분
-
         public override void OnEnter()
         {
             switch (StateMachine.PreviousKey)
             {
                 case FSMState.Ground:
-                    ObjectContext.SetJumpCount(1);
+                    ObjectContext.SetJumpCount(FallJumpCount);
                     break;
             }
 
@@ -41,7 +37,7 @@ namespace InGame.Component.State
         {
             if (ObjectContext.SetJumpCount(ObjectContext.JumpCount - 1))
             {
-                ObjectContext.SetJumpVelocity(_jumpPower);
+                ObjectContext.SetJumpVelocity(JumpPower);
                 ObjectContext.SetAnimation(AnimationType.Jump, OnJumpAnimationEnd);
             }
         }

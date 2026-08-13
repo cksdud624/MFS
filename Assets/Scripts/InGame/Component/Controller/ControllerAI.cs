@@ -4,8 +4,7 @@ using Common.Template.Interface;
 using InGame.Component.Controller.AI;
 using InGame.Context;
 using UnityEngine;
-using AIState = Common.GameDefine.AIState;
-using Direction = Common.GameDefine.Direction;
+using static Common.GameDefine;
 
 namespace InGame.Component.Controller
 {
@@ -77,7 +76,6 @@ namespace InGame.Component.Controller
             float diffX = target.position.x - transform.position.x;
             return Mathf.Abs(diffX) < TargetDirectionDeadZone ? 0f : Mathf.Sign(diffX);
         }
-        private const float TargetDirectionDeadZone = 0.05f;
         #endregion
 
         #region Input
