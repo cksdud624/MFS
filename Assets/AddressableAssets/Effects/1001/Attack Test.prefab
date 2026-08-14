@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5972520023442101283}
   - component: {fileID: 6657236559437053204}
   m_Layer: 0
-  m_Name: Attack Prefab
+  m_Name: Attack Test
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
