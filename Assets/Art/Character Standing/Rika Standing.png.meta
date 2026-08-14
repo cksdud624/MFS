@@ -3,8 +3,8 @@ guid: cc5ee7bc9f4b6654e9fcb020b8595a2d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -9117620630120489010
-    second: Rika Character Standing 4k_0
+      213: 109928391905357465
+    second: Rika Standing_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -100,7 +100,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Rika Character Standing 4k_0
+      name: Rika Standing_0
       rect:
         serializedVersion: 2
         x: 207
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ecf15e81854b77180800000000000000
-      internalID: -9117620630120489010
+      spriteID: 99eaf3e3a4b868100800000000000000
+      internalID: 109928391905357465
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Rika Character Standing 4k_0: -9117620630120489010
+      Rika Standing_0: 109928391905357465
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -7,17 +7,14 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Star
+  m_Name: Night Star
   m_Shader: {fileID: 4800000, guid: e4db76afd6db52146ae2d29084a94f76, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
-  - _ENABLEALPHATINT_ON
-  - _ENABLEOUTEROUTLINE_ON
-  - _ENABLEPIXELOUTLINE_ON
+  - _ENABLEBRIGHTNESS_ON
+  - _ENABLEPINGPONGGLOW_ON
   - _ENABLESINEROTATE_ON
-  - _ENABLESQUISH_ON
-  - _ENABLEUVROTATE_ON
   - _SHADERFADING_NONE
   - _SHADERSPACE_UV
   - _TEXTURELAYER1SHEETTOGGLE_ON
@@ -150,7 +147,7 @@ Material:
     - _BakedMaterial: 0
     - _BlackTintFade: 1
     - _BlackTintPower: 4
-    - _Brightness: 1
+    - _Brightness: 8
     - _BurnEdgeNoiseFactor: 0.5
     - _BurnFade: 1
     - _BurnInsideContrast: 2
@@ -193,9 +190,9 @@ Material:
     - _DirectionalGlowFadeWidth: 0.1
     - _EnableAddColor: 0
     - _EnableAddHue: 0
-    - _EnableAlphaTint: 1
+    - _EnableAlphaTint: 0
     - _EnableBlackTint: 0
-    - _EnableBrightness: 0
+    - _EnableBrightness: 1
     - _EnableBurn: 0
     - _EnableCamouflage: 0
     - _EnableCheckerboard: 0
@@ -221,9 +218,9 @@ Material:
     - _EnableInnerOutline: 0
     - _EnableMetal: 0
     - _EnableNegative: 0
-    - _EnableOuterOutline: 1
-    - _EnablePingPongGlow: 0
-    - _EnablePixelOutline: 1
+    - _EnableOuterOutline: 0
+    - _EnablePingPongGlow: 1
+    - _EnablePixelOutline: 0
     - _EnablePixelate: 0
     - _EnablePoison: 0
     - _EnableRainbow: 0
@@ -246,12 +243,12 @@ Material:
     - _EnableSourceGlowDissolve: 0
     - _EnableSplitToning: 0
     - _EnableSqueeze: 0
-    - _EnableSquish: 1
+    - _EnableSquish: 0
     - _EnableStrongTint: 0
     - _EnableTextureLayer1: 0
     - _EnableTextureLayer2: 0
     - _EnableUVDistort: 0
-    - _EnableUVRotate: 1
+    - _EnableUVRotate: 0
     - _EnableUVScale: 0
     - _EnableUVScroll: 0
     - _EnableVibrate: 0
@@ -331,8 +328,8 @@ Material:
     - _OuterOutlineTextureToggle: 0
     - _OuterOutlineWidth: 0.04
     - _PingPongGlowContrast: 1
-    - _PingPongGlowFade: 0.04
-    - _PingPongGlowFrequency: 3
+    - _PingPongGlowFade: 0.36
+    - _PingPongGlowFrequency: 0.1
     - _PixelOutlineAlphaLimit: 0.5
     - _PixelOutlineFade: 1
     - _PixelOutlineOutlineOnlyToggle: 0
@@ -571,8 +568,8 @@ Material:
     - _OuterOutlineNoiseScale: {r: 4, g: 4, b: 0, a: 0}
     - _OuterOutlineNoiseSpeed: {r: 0, g: 0.1, b: 0, a: 0}
     - _OuterOutlineTextureSpeed: {r: 0.5, g: 0, b: 0, a: 0}
-    - _PingPongGlowFrom: {r: 8, g: 8, b: 8, a: 0}
-    - _PingPongGlowTo: {r: 8, g: 8, b: 8, a: 0}
+    - _PingPongGlowFrom: {r: 4.394428, g: 0.51130056, b: 4.292001, a: 0}
+    - _PingPongGlowTo: {r: 0.019643834, g: 0.12874365, b: 6.2471585, a: 0}
     - _PixelOutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _PixelOutlineTextureSpeed: {r: 0.5, g: 0, b: 0, a: 0}
     - _PoisonColor: {r: 0.3137255, g: 2.996078, b: 0.3137255, a: 0}
