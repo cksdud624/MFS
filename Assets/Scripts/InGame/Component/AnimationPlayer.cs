@@ -65,6 +65,9 @@ namespace InGame.Component
             _spriteRenderer.flipX = direction == Direction.Left;
         }
 
+        /// <summary>Order in Layer</summary>
+        public void SetSortingOrder(int sortingOrder) => _spriteRenderer.sortingOrder = sortingOrder;
+
         public void Play(AnimationType animType, Action notifyAnimationEnd = null)
         {
             if (!_clips.ContainsKey(animType)) return;

@@ -52,6 +52,9 @@ namespace InGame.Object
             await ObjectStateController.Init(InputContext, ObjectContext);
         }
 
+        /// <summary>Order in Layer. 구간이 겹치지 않도록 스포너가 정해서 넘겨준다</summary>
+        public void SetSortingOrder(int sortingOrder) => AnimationPlayer.SetSortingOrder(sortingOrder);
+
         public void AttachController()
         {
             if(Controller != null)

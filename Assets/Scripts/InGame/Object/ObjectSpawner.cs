@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using Generated.Table;
 using InGame.Context;
 using UnityEngine;
+using static Common.GameDefine;
 
 namespace InGame.Object
 {
@@ -12,6 +13,10 @@ namespace InGame.Object
 
         private List<ObjectBase> _objects = new ();
         private List<CharacterBase> _characters = new ();
+
+        //구간 안에서 번호가 겹치지 않도록 생성한 개수를 센다
+        private int _objectOrder;
+        private int _characterOrder;
 
         public async UniTask Init(InGameContext inGameContext)
         {
@@ -56,12 +61,25 @@ namespace InGame.Object
 
             spawned.transform.position = position ?? Vector2.zero;
             await spawned.Init(_inGameContext, objectData, isPlayer);
+            spawned.SetSortingOrder(GetSortingOrder(spawned));
 
             _objects.Add(spawned);
             if (spawned is CharacterBase character)
                 _characters.Add(character);
 
             return spawned;
+        }
+
+        /// <summary>플레이어는 항상 맨 앞, 나머지는 종류별 구간 안에서 생성 순서대로 쌓는다</summary>
+        private int GetSortingOrder(ObjectBase spawned)
+        {
+            if (spawned.IsPlayer)
+                return SortingOrderPlayer;
+
+            if (spawned is CharacterBase)
+                return SortingOrderCharacter + _characterOrder++ % SortingOrderRange;
+
+            return SortingOrderObject + _objectOrder++ % SortingOrderRange;
         }
     }
 }

@@ -85,6 +85,17 @@ namespace Common
         #region Tag / Layer
         public const string TagMap = "Map";
         public const string LayerHitBox = "HitBox";
+        //캐릭터끼리는 서로 밀지 않도록 이 레이어에 둔다. 충돌 매트릭스에서 자기 자신과의 충돌을 꺼둔 상태
+        public const string LayerIndependent = "Independent";
+        #endregion
+
+        #region Sorting
+        //Order in Layer 구간. 일반 오브젝트 → 캐릭터 → 플레이어 순으로 앞에 그린다
+        public const int SortingOrderObject = 0;       //0 ~ 999
+        public const int SortingOrderCharacter = 1000; //1000 ~ 1999
+        public const int SortingOrderPlayer = 2000;
+        //한 구간에 들어갈 수 있는 개수. 넘어가면 다음 구간을 침범하므로 처음으로 돌린다
+        public const int SortingOrderRange = 1000;
         #endregion
 
         #region Physics
