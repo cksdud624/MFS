@@ -24,6 +24,8 @@ namespace InGame.Component
         public async UniTask Init(ObjectContext objectContext)
         {
             _objectContext = objectContext;
+            _objectContext.OnAttackStart += BeginAttack;
+            _objectContext.OnAttackHit += DetectAttack;
 
             int hitBoxLayer = LayerMask.NameToLayer(LayerHitBox);
             if (hitBoxLayer < 0)
@@ -45,6 +47,14 @@ namespace InGame.Component
 
         /// <summary>공격(또는 콤보 한 단계)의 시작. 중복 히트 기록을 비운다</summary>
         public void BeginAttack() => _hitTargets.Clear();
+
+        /// <summary>기본 공격 판정. 데미지 처리가 생기기 전까지는 맞은 대상만 알린다</summary>
+        private void DetectAttack()
+        {
+            var targets = Detect(AttackHitBoxOffset, AttackHitBoxSize);
+            for (int i = 0; i < targets.Count; i++)
+                Debug.Log($"{name} hit {targets[i].transform.root.name}");
+        }
 
         /// <summary>
         /// 지금 위치에서 박스를 쏴서 이번 공격에 아직 맞지 않은 대상만 돌려준다.
@@ -81,6 +91,14 @@ namespace InGame.Component
         {
             float sign = _objectContext.Direction == Direction.Right ? 1f : -1f;
             return (Vector2)transform.position + new Vector2(offset.x * sign, offset.y);
+        }
+
+        private void OnDestroy()
+        {
+            if (_objectContext == null) return;
+
+            _objectContext.OnAttackStart -= BeginAttack;
+            _objectContext.OnAttackHit -= DetectAttack;
         }
 
 #if UNITY_EDITOR

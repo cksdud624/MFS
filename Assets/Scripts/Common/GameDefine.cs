@@ -43,6 +43,13 @@ namespace Common
             Event,
         }
 
+        //Action 상태에서 무엇을 하는지
+        public enum ActionType
+        {
+            Dash,
+            Attack,
+        }
+
         //AI 행동 상태
         public enum AIState
         {
@@ -59,8 +66,7 @@ namespace Common
             Move,
             Jump,
             Fly,
-            Dash,
-            BackDash,
+            Attack,
         }
         #endregion
 
@@ -127,6 +133,16 @@ namespace Common
         public const float DashDuration = 0.2f;
         public const int DashMaxStack = 1;
         public const float DashChargeInterval = 0.5f;
+        #endregion
+
+        #region Attack
+        //테이블로 차후 관리해야하는 부분
+        //공격 상태를 유지하는 시간 / 그 중 판정이 나가는 시점
+        public const float AttackDuration = 0.4f;
+        public const float AttackHitDelay = 0.15f;
+        //판정 박스. offset.x는 캐릭터가 보는 방향 기준이라 왼쪽을 볼 때 자동으로 뒤집힌다
+        public static readonly Vector2 AttackHitBoxOffset = new(0.25f, 0f);
+        public static readonly Vector2 AttackHitBoxSize = new(0.4f, 0.3f);
         #endregion
 
         #region HitBox

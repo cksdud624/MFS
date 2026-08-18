@@ -24,6 +24,7 @@ namespace InGame.Component
             _objectContext = objectContext;
             _objectContext.OnGroundedChanged += OnGroundedChanged;
             _inputContext.OnDash += OnDash;
+            _inputContext.OnAttack += OnAttack;
 
             _stateMachine = new StateMachine<FSMState>();
             _stateMachine.AddState(FSMState.Ground, new GroundState(_stateMachine, inputContext, objectContext));
@@ -72,12 +73,30 @@ namespace InGame.Component
                 case FSMState.Event:
                     return;
                 case FSMState.Action:
+                    //공격 중에 대시를 넣으면 대시로 캔슬된다
                     _dashStack--;
+                    _objectContext.SetActionType(ActionType.Dash);
                     _objectContext.RequestDashRestart();
                     return;
             }
-            
+
             _dashStack--;
+            _objectContext.SetActionType(ActionType.Dash);
+            _stateMachine.ChangeState(FSMState.Action);
+        }
+
+        private void OnAttack()
+        {
+            switch (_stateMachine.CurrentKey)
+            {
+                //대시나 이전 공격이 끝나기 전에는 새 공격을 받지 않는다
+                case FSMState.Action:
+                case FSMState.Damage:
+                case FSMState.Event:
+                    return;
+            }
+
+            _objectContext.SetActionType(ActionType.Attack);
             _stateMachine.ChangeState(FSMState.Action);
         }
 
@@ -87,7 +106,10 @@ namespace InGame.Component
             if (_objectContext != null)
                 _objectContext.OnGroundedChanged -= OnGroundedChanged;
             if (_inputContext != null)
+            {
                 _inputContext.OnDash -= OnDash;
+                _inputContext.OnAttack -= OnAttack;
+            }
         }
     }
 }

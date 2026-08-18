@@ -13,11 +13,17 @@ namespace InGame.Component.State
         }
         
         private float _elapsed;
+        //공격 판정은 한 번만 나가야 하므로 이미 나갔는지 기억해둔다
+        private bool _attackHit;
 
         public override void OnEnter()
         {
             ObjectContext.OnDashRestart += HandleDashRestart;
-            ApplyDash();
+
+            if (ObjectContext.ActionType is ActionType.Attack)
+                ApplyAttack();
+            else
+                ApplyDash();
         }
 
         public override void OnExit()
@@ -47,10 +53,34 @@ namespace InGame.Component.State
             ObjectContext.PlayEffect(EffectType.Dash, -dashDirection, DashDuration);
         }
 
+        /// <summary>제자리에서 휘두른다. 판정은 정해진 시점에 OnFixedUpdate가 날린다</summary>
+        private void ApplyAttack()
+        {
+            _elapsed = 0f;
+            _attackHit = false;
+
+            ObjectContext.SetMoveVelocity(0f);
+            ObjectContext.SetAnimation(AnimationType.Attack);
+            ObjectContext.StartAttack();
+        }
+
         public override void OnFixedUpdate()
         {
             _elapsed += Time.fixedDeltaTime;
-            if (_elapsed < DashDuration) return;
+
+            //대시로 캔슬되면 ActionType이 바뀌므로 매번 지금 무엇을 하는 중인지 보고 판단한다
+            if (ObjectContext.ActionType is ActionType.Attack)
+            {
+                if (!_attackHit && _elapsed >= AttackHitDelay)
+                {
+                    _attackHit = true;
+                    ObjectContext.RequestAttackHit();
+                }
+
+                if (_elapsed < AttackDuration) return;
+            }
+            else if (_elapsed < DashDuration) return;
+
             StateMachine.ChangeState(ObjectContext.IsGrounded ? FSMState.Ground : FSMState.Air);
         }
     }

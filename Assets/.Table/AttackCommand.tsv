@@ -1,0 +1,3 @@
+Id,ObjectId,Command,Animation,IsHitRequired,ComboTime,AttackHitBox
+long,long,string,int,bool,float,List<long>
+100101,1001,1,1,true,0.4,10010101

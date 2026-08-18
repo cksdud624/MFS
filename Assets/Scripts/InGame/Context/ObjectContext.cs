@@ -6,6 +6,7 @@ using ObjectType = Common.GameDefine.ObjectType;
 using Direction = Common.GameDefine.Direction;
 using AnimationType = Common.GameDefine.AnimationType;
 using EffectType = Common.GameDefine.EffectType;
+using ActionType = Common.GameDefine.ActionType;
 
 
 namespace InGame.Context
@@ -103,6 +104,18 @@ namespace InGame.Context
         //대시 중 대시 재입력 (연속 대시)
         public event Action OnDashRestart;
         public void RequestDashRestart() => OnDashRestart?.Invoke();
+
+        //Action 상태에서 무엇을 할지. 상태를 바꾸기 전에 정해둔다
+        public ActionType ActionType { get; private set; }
+        public void SetActionType(ActionType actionType) => ActionType = actionType;
+
+        //공격 시작. 여기서 중복 히트 기록을 비운다
+        public event Action OnAttackStart;
+        public void StartAttack() => OnAttackStart?.Invoke();
+
+        //공격 판정이 나가는 시점
+        public event Action OnAttackHit;
+        public void RequestAttackHit() => OnAttackHit?.Invoke();
 
         //이펙트 재생. direction이 0이면 캐릭터가 보는 방향을 쓰고, duration이 0 이하면 파티클 수명대로 재생한다
         public event Action<EffectType, Vector2, float> OnEffectPlay;

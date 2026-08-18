@@ -18,5 +18,8 @@ namespace InGame.Context
 
         public event Action OnDash;
         public void NotifyDash() => OnDash?.Invoke();
+
+        public event Action OnAttack;
+        public void NotifyAttack() => OnAttack?.Invoke();
     }
 }
