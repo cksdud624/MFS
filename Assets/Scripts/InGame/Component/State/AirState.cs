@@ -22,6 +22,7 @@ namespace InGame.Component.State
 
             InputContext.OnMove += OnMove;
             InputContext.OnJump += OnJump;
+            SyncMove();
 
             if (ObjectContext.Animation is not AnimationType.Jump)
                 ObjectContext.SetAnimation(AnimationType.Fly);

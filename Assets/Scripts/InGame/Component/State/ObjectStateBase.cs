@@ -35,7 +35,14 @@ namespace InGame.Component.State
 
             ObjectContext.SetMoveVelocity(velocityX);
         }
-        
+
+        /// <summary>
+        /// 이동 입력을 지금 입력 상태로 다시 맞춘다.
+        /// OnMove를 구독하지 않는 상태(대시 등)에 있는 동안 들어온 입력 변화는 유실되므로
+        /// 이동을 처리하는 상태로 들어올 때 한 번 맞춰줘야 한다.
+        /// </summary>
+        protected void SyncMove() => OnMove(InputContext.MoveDirection);
+
         #region Events
 
         protected void OnJumpAnimationEnd()

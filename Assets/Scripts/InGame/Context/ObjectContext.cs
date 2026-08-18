@@ -5,6 +5,7 @@ using UnityEngine;
 using ObjectType = Common.GameDefine.ObjectType;
 using Direction = Common.GameDefine.Direction;
 using AnimationType = Common.GameDefine.AnimationType;
+using EffectType = Common.GameDefine.EffectType;
 
 
 namespace InGame.Context
@@ -40,6 +41,18 @@ namespace InGame.Context
             if (Direction == direction) return;
             Direction = direction;
             OnDirectionChanged?.Invoke(direction);
+        }
+
+        //콜라이더 오프셋. 테이블 값은 오른쪽을 보는 기준이라 왼쪽을 보면 X만 뒤집는다
+        public Vector2 ColliderOffset
+        {
+            get
+            {
+                var offset = ObjectData.ColliderOffset;
+                if (Direction == Direction.Left)
+                    offset.x = -offset.x;
+                return offset;
+            }
         }
 
         //이동
@@ -90,6 +103,11 @@ namespace InGame.Context
         //대시 중 대시 재입력 (연속 대시)
         public event Action OnDashRestart;
         public void RequestDashRestart() => OnDashRestart?.Invoke();
+
+        //이펙트 재생. direction이 0이면 캐릭터가 보는 방향을 쓰고, duration이 0 이하면 파티클 수명대로 재생한다
+        public event Action<EffectType, Vector2, float> OnEffectPlay;
+        public void PlayEffect(EffectType effectType, Vector2 direction = default, float duration = 0f)
+            => OnEffectPlay?.Invoke(effectType, direction, duration);
 
         //현재 재생 중인 애니메이션
         public AnimationType Animation { get; private set; } = AnimationType.Idle;

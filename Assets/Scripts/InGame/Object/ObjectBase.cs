@@ -21,6 +21,7 @@ namespace InGame.Object
 
         protected ControllerBase Controller;
         protected AnimationPlayer AnimationPlayer;
+        protected EffectPlayer EffectPlayer;
         protected CameraController CameraController;
         protected PhysicsController PhysicsController;
         protected ObjectStateController ObjectStateController;
@@ -36,6 +37,9 @@ namespace InGame.Object
             ObjectContext = new(objectData);
             AnimationPlayer = gameObject.AddComponent<AnimationPlayer>();
             await AnimationPlayer.Init(ObjectContext, objectData.Id);
+            //이펙트 프리팹은 여기서 미리 로드해두고 재생 요청 때 바로 쓴다
+            EffectPlayer = gameObject.AddComponent<EffectPlayer>();
+            await EffectPlayer.Init(ObjectContext, objectData.Id);
             //카메라는 플레이어만 따라간다
             if (isPlayer)
             {

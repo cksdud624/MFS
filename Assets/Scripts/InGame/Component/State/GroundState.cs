@@ -18,6 +18,7 @@ namespace InGame.Component.State
             InputContext.OnMove += OnMove;
             InputContext.OnMove += OnMoveAnimation;
             InputContext.OnJump += OnJump;
+            SyncMove();
             OnMoveAnimation(InputContext.MoveDirection);
         }
 

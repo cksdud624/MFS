@@ -224,21 +224,9 @@ public static class TableUpdater
                     
                 }
                 else if (types[i].Contains("Vector3"))
-                {
-                    record.AppendLine($"\t\t\tstring[] items{i} = tableDatas[{i}].Split(';');");
-                    record.AppendLine($"\t\t\tif (items{i}.Length == 3)");
-                    record.AppendLine("\t\t\t{");
-                    record.AppendLine($"\t\t\t\tfloat.TryParse(items{i}[0], out float resultX{i});");
-                    record.AppendLine($"\t\t\t\tfloat.TryParse(items{i}[1], out float resultY{i});");
-                    record.AppendLine($"\t\t\t\tfloat.TryParse(items{i}[2], out float resultZ{i});");
-                    record.AppendLine($"\t\t\t\t{columns[i]} = new Vector3(resultX{i}, resultY{i}, resultZ{i});");
-                    record.AppendLine("\t\t\t}");
-                    record.AppendLine("\t\t\telse");
-                    record.AppendLine("\t\t\t{");
-                    record.AppendLine($"\t\t\t\t{columns[i]} = Vector3.zero;");
-                    record.AppendLine($"\t\t\t\tDebug.LogError({columns[i]} + \"is not Vector3\");");
-                    record.AppendLine("\t\t\t}");
-                }
+                    AppendVectorParse(record, columns[i], i, 3);
+                else if (types[i].Contains("Vector2"))
+                    AppendVectorParse(record, columns[i], i, 2);
                 else
                     record.AppendLine($"\t\t\t{columns[i]} = {GetParseType(types[i], $"tableDatas[{i}]", i)};");
             }
@@ -252,6 +240,28 @@ public static class TableUpdater
         string jsonPath = Path.Combine(tableDirectoryPath, TableManifestFile);
         File.WriteAllText(jsonPath, json);
         AssetDatabase.Refresh();
+    }
+
+    //Vector 계열은 "x,y" / "x;y;z" 처럼 적힌 값을 성분 수만큼 쪼개서 읽는다. 구분자는 쉼표와 세미콜론 둘 다 받는다
+    private static void AppendVectorParse(StringBuilder record, string column, int index, int componentCount)
+    {
+        string type = $"Vector{componentCount}";
+        string[] axisNames = { "X", "Y", "Z" };
+
+        record.AppendLine($"\t\t\tstring[] items{index} = tableDatas[{index}].Split(',', ';');");
+        record.AppendLine($"\t\t\tif (items{index}.Length == {componentCount})");
+        record.AppendLine("\t\t\t{");
+        for (int axis = 0; axis < componentCount; axis++)
+            record.AppendLine($"\t\t\t\tfloat.TryParse(items{index}[{axis}], out float result{axisNames[axis]}{index});");
+        string arguments = string.Join(", ", Enumerable.Range(0, componentCount).Select(axis => $"result{axisNames[axis]}{index}"));
+        record.AppendLine($"\t\t\t\t{column} = new {type}({arguments});");
+        record.AppendLine("\t\t\t}");
+        record.AppendLine("\t\t\telse");
+        record.AppendLine("\t\t\t{");
+        record.AppendLine($"\t\t\t\t{column} = {type}.zero;");
+        //어떤 값이 틀렸는지 알아야 하므로 결과가 아니라 원본 문자열을 남긴다
+        record.AppendLine($"\t\t\t\tDebug.LogError($\"{column} is not {type} : {{tableDatas[{index}]}}\");");
+        record.AppendLine("\t\t\t}");
     }
 
     private static string GetParseType(string type, string valueName, int index)

@@ -64,8 +64,19 @@ namespace Common
         }
         #endregion
 
+        #region Effect
+        //Effects/(오브젝트 id)/(EffectType) 프리팹을 찾는다
+        public enum EffectType
+        {
+            Dash,
+        }
+
+        //중점에서 진행 방향으로 얼마나 띄울지. 프리팹을 고치지 않고 여기서 거리만 맞춘다
+        public const float DashEffectDistance = 1f;
+        #endregion
+
         #region Asset Path
-        public const string AssetPathCharacter = "Assets/AddressableAssets/Prefab/Character/";
+        public const string AssetPathEffect = "Assets/AddressableAssets/Effects/";
         public const string AssetPathAnimation = "Assets/AddressableAssets/Animation/";
         public const string AssetExtensionPrefab = ".prefab";
         public const string AssetExtensionAnimation = ".anim";
@@ -84,10 +95,6 @@ namespace Common
         public const float LedgeProbeDepth = 0.1f;
         //벽 감지용
         public const float WallProbeDistance = 0.05f;
-        //콜라이더는 방향에 따라 좌우 대칭으로 뒤집는다
-        public static readonly Vector2 ColliderSize = new(0.2f, 0.35f);
-        public const float ColliderOffsetX = 0.07f;
-        public const float ColliderOffsetY = -0.05f;
         #endregion
 
         #region Move

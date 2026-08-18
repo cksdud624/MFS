@@ -54,7 +54,7 @@ namespace Common
     {
         public enum LoadTarget
         {
-            Character,
+            Effect,
             Animation,
         }
 
@@ -63,8 +63,8 @@ namespace Common
             string key;
             switch (target)
             {
-                case LoadTarget.Character:
-                    key = AssetPathCharacter + assetName + AssetExtensionPrefab;
+                case LoadTarget.Effect:
+                    key = AssetPathEffect + assetName + AssetExtensionPrefab;
                     break;
                 case LoadTarget.Animation:
                     key = AssetPathAnimation + assetName + AssetExtensionAnimation;

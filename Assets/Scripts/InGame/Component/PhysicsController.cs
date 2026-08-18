@@ -36,8 +36,9 @@ namespace InGame.Component
 
             var col = GetComponent<BoxCollider2D>();
             _collider = col != null ? col : gameObject.AddComponent<BoxCollider2D>();
-            _collider.size = ColliderSize;
-            ApplyColliderOffset(_objectContext.Direction);
+            //콜라이더 크기와 위치는 오브젝트마다 다르므로 테이블 값을 쓴다
+            _collider.size = _objectContext.ObjectData.ColliderSize;
+            ApplyColliderOffset();
 
             Global.Instance.BindFixedUpdate(this);
 
@@ -75,7 +76,7 @@ namespace InGame.Component
             Rigidbody.linearVelocity = velocity;
         }
 
-        private void OnDirectionChanged(Direction direction) => ApplyColliderOffset(direction);
+        private void OnDirectionChanged(Direction direction) => ApplyColliderOffset();
         #endregion
         
         #region LifeCycle
@@ -134,6 +135,8 @@ namespace InGame.Component
             return hit.collider != null && hit.collider.CompareTag(TagMap);
         }
         
+        private void ApplyColliderOffset() => _collider.offset = _objectContext.ColliderOffset;
+
         private bool IsGroundContact(Collision2D collision)
         {
             if (!collision.collider.CompareTag(TagMap)) return false;
@@ -157,11 +160,6 @@ namespace InGame.Component
         private void OnCollisionExit2D(Collision2D collision) => _groundContacts.Remove(collision.collider);
         #endregion
         
-        private void ApplyColliderOffset(Direction direction)
-        {
-            float offsetX = direction == Direction.Left ? ColliderOffsetX : -ColliderOffsetX;
-            _collider.offset = new Vector2(offsetX, ColliderOffsetY);
-        }
         private float ResolveAirVelocityX()
         {
             float currentX = Rigidbody.linearVelocity.x;

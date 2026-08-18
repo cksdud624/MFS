@@ -42,6 +42,9 @@ namespace InGame.Component.State
 
             ObjectContext.SetDashVelocity(dashDirection * DashSpeed);
             ObjectContext.SetDashing(true);
+            //대시가 유지되는 동안만 파티클을 뿜는다
+            //이펙트는 진행 방향 뒤로 끌리는 모양이라 대시 방향을 뒤집어서 넘긴다
+            ObjectContext.PlayEffect(EffectType.Dash, -dashDirection, DashDuration);
         }
 
         public override void OnFixedUpdate()
