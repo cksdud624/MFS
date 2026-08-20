@@ -1,0 +1,4485 @@
+fileFormatVersion: 2
+guid: 43bf525549436e2418bd97fe441aa627
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -8329398615755036038
+    second: Wave Texture test A_0
+  - first:
+      213: 5071496732714943585
+    second: Wave Texture test A_1
+  - first:
+      213: -5995137164082863406
+    second: Wave Texture test A_2
+  - first:
+      213: -8211528384184509093
+    second: Wave Texture test A_3
+  - first:
+      213: 8253969486106668584
+    second: Wave Texture test A_4
+  - first:
+      213: 8864277941204369656
+    second: Wave Texture test A_5
+  - first:
+      213: -1991506076105419611
+    second: Wave Texture test A_6
+  - first:
+      213: -708758682528360905
+    second: Wave Texture test A_7
+  - first:
+      213: 7584512950439778802
+    second: Wave Texture test A_8
+  - first:
+      213: -8279434037252879376
+    second: Wave Texture test A_9
+  - first:
+      213: 3221741823451765324
+    second: Wave Texture test A_10
+  - first:
+      213: -8646795261609306541
+    second: Wave Texture test A_11
+  - first:
+      213: -3505027376125957750
+    second: Wave Texture test A_12
+  - first:
+      213: 8034708939367553058
+    second: Wave Texture test A_13
+  - first:
+      213: 8760193635456167407
+    second: Wave Texture test A_14
+  - first:
+      213: 6433733324348255263
+    second: Wave Texture test A_15
+  - first:
+      213: -3994933456427523837
+    second: Wave Texture test A_16
+  - first:
+      213: -6941353790159523447
+    second: Wave Texture test A_17
+  - first:
+      213: -2447392901493242772
+    second: Wave Texture test A_18
+  - first:
+      213: 5431904766250337120
+    second: Wave Texture test A_19
+  - first:
+      213: 4931634792056726707
+    second: Wave Texture test A_20
+  - first:
+      213: 5807439375941115572
+    second: Wave Texture test A_21
+  - first:
+      213: 5668883676952504454
+    second: Wave Texture test A_22
+  - first:
+      213: 2793189455563739125
+    second: Wave Texture test A_23
+  - first:
+      213: -6280501955767005552
+    second: Wave Texture test A_24
+  - first:
+      213: -527418612632386135
+    second: Wave Texture test A_25
+  - first:
+      213: -5576046754183961270
+    second: Wave Texture test A_26
+  - first:
+      213: -6945546919405026605
+    second: Wave Texture test A_27
+  - first:
+      213: 929258464542789895
+    second: Wave Texture test A_28
+  - first:
+      213: 3861298684112424639
+    second: Wave Texture test A_29
+  - first:
+      213: 284539700982296129
+    second: Wave Texture test A_30
+  - first:
+      213: -6450451863930791738
+    second: Wave Texture test A_31
+  - first:
+      213: 707041019283250020
+    second: Wave Texture test A_32
+  - first:
+      213: 5385288190567823685
+    second: Wave Texture test A_33
+  - first:
+      213: 5965247650306672340
+    second: Wave Texture test A_34
+  - first:
+      213: 2390562269824661841
+    second: Wave Texture test A_35
+  - first:
+      213: 5779875053367104421
+    second: Wave Texture test A_36
+  - first:
+      213: 7292652004246437082
+    second: Wave Texture test A_37
+  - first:
+      213: -1218534764850982362
+    second: Wave Texture test A_38
+  - first:
+      213: -8069484067833416500
+    second: Wave Texture test A_39
+  - first:
+      213: -9068699393179746246
+    second: Wave Texture test A_40
+  - first:
+      213: 3273964241845948203
+    second: Wave Texture test A_41
+  - first:
+      213: -6649243117813206373
+    second: Wave Texture test A_42
+  - first:
+      213: -5851410258544268734
+    second: Wave Texture test A_43
+  - first:
+      213: 5702924675743129077
+    second: Wave Texture test A_44
+  - first:
+      213: 4145914173428209068
+    second: Wave Texture test A_45
+  - first:
+      213: -4061475611676292391
+    second: Wave Texture test A_46
+  - first:
+      213: -5341437166366068208
+    second: Wave Texture test A_47
+  - first:
+      213: -8899769774055138547
+    second: Wave Texture test A_48
+  - first:
+      213: 149102283735487013
+    second: Wave Texture test A_49
+  - first:
+      213: 7502459437460149882
+    second: Wave Texture test A_50
+  - first:
+      213: -1351497470351633759
+    second: Wave Texture test A_51
+  - first:
+      213: 2564533567655575915
+    second: Wave Texture test A_52
+  - first:
+      213: -4094636381414497194
+    second: Wave Texture test A_53
+  - first:
+      213: 1030409417115134635
+    second: Wave Texture test A_54
+  - first:
+      213: -4589826351413626828
+    second: Wave Texture test A_55
+  - first:
+      213: -1557272156929644440
+    second: Wave Texture test A_56
+  - first:
+      213: 1191136835132135677
+    second: Wave Texture test A_57
+  - first:
+      213: -8462337593395618095
+    second: Wave Texture test A_58
+  - first:
+      213: 451033606740950847
+    second: Wave Texture test A_59
+  - first:
+      213: 7607365740258073438
+    second: Wave Texture test A_60
+  - first:
+      213: 5326420233990830078
+    second: Wave Texture test A_61
+  - first:
+      213: 2728714536455287299
+    second: Wave Texture test A_62
+  - first:
+      213: -1768048159177028714
+    second: Wave Texture test A_63
+  - first:
+      213: -7606658536217954837
+    second: Wave Texture test A_64
+  - first:
+      213: 3475694733604077269
+    second: Wave Texture test A_65
+  - first:
+      213: -5925307377100038931
+    second: Wave Texture test A_66
+  - first:
+      213: 4647987538978799873
+    second: Wave Texture test A_67
+  - first:
+      213: -2364761103986281236
+    second: Wave Texture test A_68
+  - first:
+      213: -4379167101795724876
+    second: Wave Texture test A_69
+  - first:
+      213: 3824573013664258402
+    second: Wave Texture test A_70
+  - first:
+      213: 1246364792676580294
+    second: Wave Texture test A_71
+  - first:
+      213: -7946742699791434336
+    second: Wave Texture test A_72
+  - first:
+      213: 4039657287416928431
+    second: Wave Texture test A_73
+  - first:
+      213: -1926113530771018253
+    second: Wave Texture test A_74
+  - first:
+      213: -6657408898757163653
+    second: Wave Texture test A_75
+  - first:
+      213: -752978174509102651
+    second: Wave Texture test A_76
+  - first:
+      213: -3126852048064639189
+    second: Wave Texture test A_77
+  - first:
+      213: 8830351873994804809
+    second: Wave Texture test A_78
+  - first:
+      213: -8988144277522879024
+    second: Wave Texture test A_79
+  - first:
+      213: -8457181880204583346
+    second: Wave Texture test A_80
+  - first:
+      213: 8686839811303834971
+    second: Wave Texture test A_81
+  - first:
+      213: -140063578424735351
+    second: Wave Texture test A_82
+  - first:
+      213: 1744235873089697695
+    second: Wave Texture test A_83
+  - first:
+      213: -773099533089412450
+    second: Wave Texture test A_84
+  - first:
+      213: -3559072809841128865
+    second: Wave Texture test A_85
+  - first:
+      213: 4142333146940828534
+    second: Wave Texture test A_86
+  - first:
+      213: 6302871324803925419
+    second: Wave Texture test A_87
+  - first:
+      213: 7479459803189312997
+    second: Wave Texture test A_88
+  - first:
+      213: -3225792222377553378
+    second: Wave Texture test A_89
+  - first:
+      213: -5913777354436373482
+    second: Wave Texture test A_90
+  - first:
+      213: 807776165793872973
+    second: Wave Texture test A_91
+  - first:
+      213: 40992324923798441
+    second: Wave Texture test A_92
+  - first:
+      213: -3434460055902433757
+    second: Wave Texture test A_93
+  - first:
+      213: -8649482015816900037
+    second: Wave Texture test A_94
+  - first:
+      213: 5238789137261409372
+    second: Wave Texture test A_95
+  - first:
+      213: -7919357334713211690
+    second: Wave Texture test A_96
+  - first:
+      213: 1491958288252096110
+    second: Wave Texture test A_97
+  - first:
+      213: -7537251874293141079
+    second: Wave Texture test A_98
+  - first:
+      213: 7984833112297980364
+    second: Wave Texture test A_99
+  - first:
+      213: 1419142753514598124
+    second: Wave Texture test A_100
+  - first:
+      213: 2111588841742798413
+    second: Wave Texture test A_101
+  - first:
+      213: -5206299773510112259
+    second: Wave Texture test A_102
+  - first:
+      213: 924628424653302334
+    second: Wave Texture test A_103
+  - first:
+      213: 6359669473636281013
+    second: Wave Texture test A_104
+  - first:
+      213: 4429676271102603589
+    second: Wave Texture test A_105
+  - first:
+      213: -5300955881534363524
+    second: Wave Texture test A_106
+  - first:
+      213: 6619758625174449148
+    second: Wave Texture test A_107
+  - first:
+      213: -1408137585101228064
+    second: Wave Texture test A_108
+  - first:
+      213: 700150493237473840
+    second: Wave Texture test A_109
+  - first:
+      213: 8588430960028325047
+    second: Wave Texture test A_110
+  - first:
+      213: -1766559896683140255
+    second: Wave Texture test A_111
+  - first:
+      213: -5950905210865358184
+    second: Wave Texture test A_112
+  - first:
+      213: 446051924707155721
+    second: Wave Texture test A_113
+  - first:
+      213: 2721496747157716233
+    second: Wave Texture test A_114
+  - first:
+      213: -1400814079066251295
+    second: Wave Texture test A_115
+  - first:
+      213: 2605129789094182380
+    second: Wave Texture test A_116
+  - first:
+      213: 731827424042235723
+    second: Wave Texture test A_117
+  - first:
+      213: 7560912928021893193
+    second: Wave Texture test A_118
+  - first:
+      213: 2340061072037522308
+    second: Wave Texture test A_119
+  - first:
+      213: 4298595793403341251
+    second: Wave Texture test A_120
+  - first:
+      213: 1118507526281730392
+    second: Wave Texture test A_121
+  - first:
+      213: -7163363059394328186
+    second: Wave Texture test A_122
+  - first:
+      213: -611042990138691164
+    second: Wave Texture test A_123
+  - first:
+      213: 5172199586780519452
+    second: Wave Texture test A_124
+  - first:
+      213: -4371876738810850445
+    second: Wave Texture test A_125
+  - first:
+      213: -3432099239277558061
+    second: Wave Texture test A_126
+  - first:
+      213: 7592618103882362307
+    second: Wave Texture test A_127
+  - first:
+      213: -337496785236774740
+    second: Wave Texture test A_128
+  - first:
+      213: 4197146296459902804
+    second: Wave Texture test A_129
+  - first:
+      213: 1353749544522746011
+    second: Wave Texture test A_130
+  - first:
+      213: -6049379318088350341
+    second: Wave Texture test A_131
+  - first:
+      213: -3349390114168498835
+    second: Wave Texture test A_132
+  - first:
+      213: -8220253531946012391
+    second: Wave Texture test A_133
+  - first:
+      213: -2740283903517936402
+    second: Wave Texture test A_134
+  - first:
+      213: -8944735070837622828
+    second: Wave Texture test A_135
+  - first:
+      213: -3429853951861894248
+    second: Wave Texture test A_136
+  - first:
+      213: -1777017986083150759
+    second: Wave Texture test A_137
+  - first:
+      213: -371428126978666955
+    second: Wave Texture test A_138
+  - first:
+      213: 4096725923948058765
+    second: Wave Texture test A_139
+  - first:
+      213: -732944761972897706
+    second: Wave Texture test A_140
+  - first:
+      213: -5394435619346380454
+    second: Wave Texture test A_141
+  - first:
+      213: 4968308886566734813
+    second: Wave Texture test A_142
+  - first:
+      213: -673555108670952190
+    second: Wave Texture test A_143
+  - first:
+      213: -3775633755344084596
+    second: Wave Texture test A_144
+  - first:
+      213: 7411478433939991273
+    second: Wave Texture test A_145
+  - first:
+      213: 5510469450468441139
+    second: Wave Texture test A_146
+  - first:
+      213: 7121824376282665330
+    second: Wave Texture test A_147
+  - first:
+      213: -1683836129432327534
+    second: Wave Texture test A_148
+  - first:
+      213: 8280781352298444623
+    second: Wave Texture test A_149
+  - first:
+      213: 3341279845940806079
+    second: Wave Texture test A_150
+  - first:
+      213: -496162457694925724
+    second: Wave Texture test A_151
+  - first:
+      213: 565727696724959869
+    second: Wave Texture test A_152
+  - first:
+      213: 2494118046293975732
+    second: Wave Texture test A_153
+  - first:
+      213: -467486307872730244
+    second: Wave Texture test A_154
+  - first:
+      213: 6322600512466418793
+    second: Wave Texture test A_155
+  - first:
+      213: 5919909122497988467
+    second: Wave Texture test A_156
+  - first:
+      213: 5605291774546341072
+    second: Wave Texture test A_157
+  - first:
+      213: -7436085691206560002
+    second: Wave Texture test A_158
+  - first:
+      213: -5538515582251733201
+    second: Wave Texture test A_159
+  - first:
+      213: -5686763987466213249
+    second: Wave Texture test A_160
+  - first:
+      213: -1181525645195557754
+    second: Wave Texture test A_161
+  - first:
+      213: 3559693304411226039
+    second: Wave Texture test A_162
+  - first:
+      213: 8809014844911614358
+    second: Wave Texture test A_163
+  - first:
+      213: 6829230196553263938
+    second: Wave Texture test A_164
+  - first:
+      213: 4477282479371577976
+    second: Wave Texture test A_165
+  - first:
+      213: 4564348695639048520
+    second: Wave Texture test A_166
+  - first:
+      213: 6434231368793506323
+    second: Wave Texture test A_167
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Wave Texture test A_0
+      rect:
+        serializedVersion: 2
+        x: 20
+        y: 118
+        width: 755
+        height: 214
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a7a6a4b0718086c80800000000000000
+      internalID: -8329398615755036038
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_1
+      rect:
+        serializedVersion: 2
+        x: 162
+        y: 102
+        width: 667
+        height: 230
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 16447019863916640800000000000000
+      internalID: 5071496732714943585
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_2
+      rect:
+        serializedVersion: 2
+        x: 388
+        y: 129
+        width: 487
+        height: 203
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2d2291b438efccca0800000000000000
+      internalID: -5995137164082863406
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_3
+      rect:
+        serializedVersion: 2
+        x: 856
+        y: 189
+        width: 139
+        height: 143
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b5d15ade07aca0e80800000000000000
+      internalID: -8211528384184509093
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_4
+      rect:
+        serializedVersion: 2
+        x: 874
+        y: 155
+        width: 162
+        height: 177
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 82e2d46248dfb8270800000000000000
+      internalID: 8253969486106668584
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_5
+      rect:
+        serializedVersion: 2
+        x: 892
+        y: 168
+        width: 147
+        height: 164
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8f041d392dd340b70800000000000000
+      internalID: 8864277941204369656
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_6
+      rect:
+        serializedVersion: 2
+        x: 980
+        y: 154
+        width: 105
+        height: 178
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5a454b576cfbc54e0800000000000000
+      internalID: -1991506076105419611
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_7
+      rect:
+        serializedVersion: 2
+        x: 1005
+        y: 117
+        width: 109
+        height: 215
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7365c60cbbbf926f0800000000000000
+      internalID: -708758682528360905
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_8
+      rect:
+        serializedVersion: 2
+        x: 1115
+        y: 305
+        width: 11
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2f9105d085a914960800000000000000
+      internalID: 7584512950439778802
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_9
+      rect:
+        serializedVersion: 2
+        x: 1134
+        y: 236
+        width: 18
+        height: 96
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0fb83440c9a891d80800000000000000
+      internalID: -8279434037252879376
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_10
+      rect:
+        serializedVersion: 2
+        x: 1150
+        y: 173
+        width: 44
+        height: 159
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c4a9cd07e1de5bc20800000000000000
+      internalID: 3221741823451765324
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_11
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 105
+        width: 737
+        height: 177
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3561f32b589600880800000000000000
+      internalID: -8646795261609306541
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_12
+      rect:
+        serializedVersion: 2
+        x: 1108
+        y: 281
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a892efdfb24ab5fc0800000000000000
+      internalID: -3505027376125957750
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_13
+      rect:
+        serializedVersion: 2
+        x: 1107
+        y: 271
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 22898ace535018f60800000000000000
+      internalID: 8034708939367553058
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_14
+      rect:
+        serializedVersion: 2
+        x: 1172
+        y: 236
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: feda00da2b5729970800000000000000
+      internalID: 8760193635456167407
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_15
+      rect:
+        serializedVersion: 2
+        x: 1167
+        y: 228
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f1cee510f56394950800000000000000
+      internalID: 6433733324348255263
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_16
+      rect:
+        serializedVersion: 2
+        x: 1157
+        y: 201
+        width: 7
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 301605cff252f88c0800000000000000
+      internalID: -3994933456427523837
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_17
+      rect:
+        serializedVersion: 2
+        x: 1170
+        y: 217
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 981fa35318b5baf90800000000000000
+      internalID: -6941353790159523447
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_18
+      rect:
+        serializedVersion: 2
+        x: 1140
+        y: 197
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c64cea87f1d190ed0800000000000000
+      internalID: -2447392901493242772
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_19
+      rect:
+        serializedVersion: 2
+        x: 1158
+        y: 195
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0634a1efa90026b40800000000000000
+      internalID: 5431904766250337120
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_20
+      rect:
+        serializedVersion: 2
+        x: 873
+        y: 185
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3b4af76e6bfa07440800000000000000
+      internalID: 4931634792056726707
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_21
+      rect:
+        serializedVersion: 2
+        x: 1145
+        y: 187
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4be1691e75b289050800000000000000
+      internalID: 5807439375941115572
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_22
+      rect:
+        serializedVersion: 2
+        x: 871
+        y: 177
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 688a3cd4babebae40800000000000000
+      internalID: 5668883676952504454
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_23
+      rect:
+        serializedVersion: 2
+        x: 871
+        y: 168
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5ff4e39c20763c620800000000000000
+      internalID: 2793189455563739125
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_24
+      rect:
+        serializedVersion: 2
+        x: 1172
+        y: 117
+        width: 22
+        height: 66
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 09e8c5b2fbc27d8a0800000000000000
+      internalID: -6280501955767005552
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_25
+      rect:
+        serializedVersion: 2
+        x: 905
+        y: 151
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a50e12f09b3ea8f0800000000000000
+      internalID: -527418612632386135
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_26
+      rect:
+        serializedVersion: 2
+        x: 920
+        y: 153
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a4525ed2507ed92b0800000000000000
+      internalID: -5576046754183961270
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_27
+      rect:
+        serializedVersion: 2
+        x: 926
+        y: 149
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d20e0a30e57c9f90800000000000000
+      internalID: -6945546919405026605
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_28
+      rect:
+        serializedVersion: 2
+        x: 977
+        y: 150
+        width: 11
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 701199b66a365ec00800000000000000
+      internalID: 929258464542789895
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_29
+      rect:
+        serializedVersion: 2
+        x: 898
+        y: 140
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fbe4436f1b6169530800000000000000
+      internalID: 3861298684112424639
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_30
+      rect:
+        serializedVersion: 2
+        x: 945
+        y: 144
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 14eab89b953e2f300800000000000000
+      internalID: 284539700982296129
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_31
+      rect:
+        serializedVersion: 2
+        x: 1114
+        y: 144
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6c816a9a4346b76a0800000000000000
+      internalID: -6450451863930791738
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_32
+      rect:
+        serializedVersion: 2
+        x: 1123
+        y: 140
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 46b120c9f0aefc900800000000000000
+      internalID: 707041019283250020
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_33
+      rect:
+        serializedVersion: 2
+        x: 895
+        y: 135
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 549b6eba3136cba40800000000000000
+      internalID: 5385288190567823685
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_34
+      rect:
+        serializedVersion: 2
+        x: 965
+        y: 127
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4d643c9f121d8c250800000000000000
+      internalID: 5965247650306672340
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_35
+      rect:
+        serializedVersion: 2
+        x: 874
+        y: 118
+        width: 22
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 159b95af7bbfc2120800000000000000
+      internalID: 2390562269824661841
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_36
+      rect:
+        serializedVersion: 2
+        x: 885
+        y: 128
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5a3961aecbd363050800000000000000
+      internalID: 5779875053367104421
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_37
+      rect:
+        serializedVersion: 2
+        x: 905
+        y: 121
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: adc36a71c54b43560800000000000000
+      internalID: 7292652004246437082
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_38
+      rect:
+        serializedVersion: 2
+        x: 941
+        y: 126
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 622d7926615e61fe0800000000000000
+      internalID: -1218534764850982362
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_39
+      rect:
+        serializedVersion: 2
+        x: 986
+        y: 117
+        width: 15
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cc47d188efe630090800000000000000
+      internalID: -8069484067833416500
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_40
+      rect:
+        serializedVersion: 2
+        x: 1089
+        y: 119
+        width: 14
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a3088be23f1852280800000000000000
+      internalID: -9068699393179746246
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_41
+      rect:
+        serializedVersion: 2
+        x: 756
+        y: 114
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b2f0f8ab1257f6d20800000000000000
+      internalID: 3273964241845948203
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_42
+      rect:
+        serializedVersion: 2
+        x: 895
+        y: 110
+        width: 25
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b9278811d9429b3a0800000000000000
+      internalID: -6649243117813206373
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_43
+      rect:
+        serializedVersion: 2
+        x: 948
+        y: 118
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 24a64683f5d9bcea0800000000000000
+      internalID: -5851410258544268734
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_44
+      rect:
+        serializedVersion: 2
+        x: 1061
+        y: 120
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5fd9a76f6cbd42f40800000000000000
+      internalID: 5702924675743129077
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_45
+      rect:
+        serializedVersion: 2
+        x: 1124
+        y: 116
+        width: 7
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ca5127889fe398930800000000000000
+      internalID: 4145914173428209068
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_46
+      rect:
+        serializedVersion: 2
+        x: 513
+        y: 91
+        width: 17
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9da4f16237db2a7c0800000000000000
+      internalID: -4061475611676292391
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_47
+      rect:
+        serializedVersion: 2
+        x: 551
+        y: 98
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0127ea482376fd5b0800000000000000
+      internalID: -5341437166366068208
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_48
+      rect:
+        serializedVersion: 2
+        x: 610
+        y: 99
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d0b5fa22b8aad7480800000000000000
+      internalID: -8899769774055138547
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_49
+      rect:
+        serializedVersion: 2
+        x: 642
+        y: 103
+        width: 11
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 522d041bcb7b11200800000000000000
+      internalID: 149102283735487013
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_50
+      rect:
+        serializedVersion: 2
+        x: 758
+        y: 95
+        width: 21
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a76d69fcb171e1860800000000000000
+      internalID: 7502459437460149882
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_51
+      rect:
+        serializedVersion: 2
+        x: 827
+        y: 108
+        width: 17
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1a21ad416348e3de0800000000000000
+      internalID: -1351497470351633759
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_52
+      rect:
+        serializedVersion: 2
+        x: 844
+        y: 108
+        width: 9
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b610daa31bd079320800000000000000
+      internalID: 2564533567655575915
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_53
+      rect:
+        serializedVersion: 2
+        x: 858
+        y: 103
+        width: 14
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 654e569c7edec27c0800000000000000
+      internalID: -4094636381414497194
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_54
+      rect:
+        serializedVersion: 2
+        x: 875
+        y: 103
+        width: 19
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: baa6d50d7efbc4e00800000000000000
+      internalID: 1030409417115134635
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_55
+      rect:
+        serializedVersion: 2
+        x: 903
+        y: 92
+        width: 11
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 43873475049ad40c0800000000000000
+      internalID: -4589826351413626828
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_56
+      rect:
+        serializedVersion: 2
+        x: 963
+        y: 97
+        width: 12
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8682a9b5935736ae0800000000000000
+      internalID: -1557272156929644440
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_57
+      rect:
+        serializedVersion: 2
+        x: 986
+        y: 105
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: df81fe004a4c78010800000000000000
+      internalID: 1191136835132135677
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_58
+      rect:
+        serializedVersion: 2
+        x: 1006
+        y: 90
+        width: 14
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1de58305bccbf8a80800000000000000
+      internalID: -8462337593395618095
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_59
+      rect:
+        serializedVersion: 2
+        x: 1052
+        y: 106
+        width: 12
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f3fbe87fca4624600800000000000000
+      internalID: 451033606740950847
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_60
+      rect:
+        serializedVersion: 2
+        x: 507
+        y: 93
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e5b1f80d5dac29960800000000000000
+      internalID: 7607365740258073438
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_61
+      rect:
+        serializedVersion: 2
+        x: 576
+        y: 91
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ef7f9737bfe3be940800000000000000
+      internalID: 5326420233990830078
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_62
+      rect:
+        serializedVersion: 2
+        x: 659
+        y: 96
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 302bcded9675ed520800000000000000
+      internalID: 2728714536455287299
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_63
+      rect:
+        serializedVersion: 2
+        x: 749
+        y: 98
+        width: 10
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 69b48761191a677e0800000000000000
+      internalID: -1768048159177028714
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_64
+      rect:
+        serializedVersion: 2
+        x: 780
+        y: 92
+        width: 15
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: be53905fc58bf6690800000000000000
+      internalID: -7606658536217954837
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_65
+      rect:
+        serializedVersion: 2
+        x: 915
+        y: 86
+        width: 13
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5deba28f1f52c3030800000000000000
+      internalID: 3475694733604077269
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_66
+      rect:
+        serializedVersion: 2
+        x: 934
+        y: 94
+        width: 11
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dec53fa855415cda0800000000000000
+      internalID: -5925307377100038931
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_67
+      rect:
+        serializedVersion: 2
+        x: 947
+        y: 89
+        width: 10
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 10106456a08f08040800000000000000
+      internalID: 4647987538978799873
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_68
+      rect:
+        serializedVersion: 2
+        x: 1169
+        y: 92
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ce4bc321e4eae2fd0800000000000000
+      internalID: -2364761103986281236
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_69
+      rect:
+        serializedVersion: 2
+        x: 365
+        y: 84
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4b1936509b21a33c0800000000000000
+      internalID: -4379167101795724876
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_70
+      rect:
+        serializedVersion: 2
+        x: 488
+        y: 80
+        width: 12
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 269d00974ec931530800000000000000
+      internalID: 3824573013664258402
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_71
+      rect:
+        serializedVersion: 2
+        x: 550
+        y: 84
+        width: 10
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6cb7a08ec2afb4110800000000000000
+      internalID: 1246364792676580294
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_72
+      rect:
+        serializedVersion: 2
+        x: 614
+        y: 82
+        width: 12
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0adb0814e9f77b190800000000000000
+      internalID: -7946742699791434336
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_73
+      rect:
+        serializedVersion: 2
+        x: 633
+        y: 85
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fa8ddce56eebf0830800000000000000
+      internalID: 4039657287416928431
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_74
+      rect:
+        serializedVersion: 2
+        x: 646
+        y: 85
+        width: 10
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3fde151e2f11545e0800000000000000
+      internalID: -1926113530771018253
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_75
+      rect:
+        serializedVersion: 2
+        x: 669
+        y: 85
+        width: 10
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b750e0901e12c93a0800000000000000
+      internalID: -6657408898757163653
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_76
+      rect:
+        serializedVersion: 2
+        x: 701
+        y: 91
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5c943c8f652ec85f0800000000000000
+      internalID: -752978174509102651
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_77
+      rect:
+        serializedVersion: 2
+        x: 766
+        y: 81
+        width: 11
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b2f87e901a03b94d0800000000000000
+      internalID: -3126852048064639189
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_78
+      rect:
+        serializedVersion: 2
+        x: 807
+        y: 83
+        width: 15
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 94e4a238e36bb8a70800000000000000
+      internalID: 8830351873994804809
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_79
+      rect:
+        serializedVersion: 2
+        x: 989
+        y: 86
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0dde94c9662b34380800000000000000
+      internalID: -8988144277522879024
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_80
+      rect:
+        serializedVersion: 2
+        x: 1043
+        y: 84
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e4e198553ed02aa80800000000000000
+      internalID: -8457181880204583346
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_81
+      rect:
+        serializedVersion: 2
+        x: 1050
+        y: 86
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b558c7598cadd8870800000000000000
+      internalID: 8686839811303834971
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_82
+      rect:
+        serializedVersion: 2
+        x: 1186
+        y: 82
+        width: 8
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9890602eae46e0ef0800000000000000
+      internalID: -140063578424735351
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_83
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 42
+        width: 567
+        height: 46
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f9731040945c43810800000000000000
+      internalID: 1744235873089697695
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_84
+      rect:
+        serializedVersion: 2
+        x: 394
+        y: 83
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e9a6f2a12166545f0800000000000000
+      internalID: -773099533089412450
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_85
+      rect:
+        serializedVersion: 2
+        x: 591
+        y: 78
+        width: 12
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f5a0bafd222ab9ec0800000000000000
+      internalID: -3559072809841128865
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_86
+      rect:
+        serializedVersion: 2
+        x: 658
+        y: 74
+        width: 10
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 67bebb4dc068c7930800000000000000
+      internalID: 4142333146940828534
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_87
+      rect:
+        serializedVersion: 2
+        x: 737
+        y: 68
+        width: 12
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba50feb631c487750800000000000000
+      internalID: 6302871324803925419
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_88
+      rect:
+        serializedVersion: 2
+        x: 818
+        y: 72
+        width: 13
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5ed79e820116cc760800000000000000
+      internalID: 7479459803189312997
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_89
+      rect:
+        serializedVersion: 2
+        x: 838
+        y: 80
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e12d7f1901fab33d0800000000000000
+      internalID: -3225792222377553378
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_90
+      rect:
+        serializedVersion: 2
+        x: 867
+        y: 82
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 614121424da0eeda0800000000000000
+      internalID: -5913777354436373482
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_91
+      rect:
+        serializedVersion: 2
+        x: 909
+        y: 80
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d4cbb2c942cc53b00800000000000000
+      internalID: 807776165793872973
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_92
+      rect:
+        serializedVersion: 2
+        x: 969
+        y: 70
+        width: 12
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a3b9956d42a19000800000000000000
+      internalID: 40992324923798441
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_93
+      rect:
+        serializedVersion: 2
+        x: 1092
+        y: 80
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 32ecaa496c85650d0800000000000000
+      internalID: -3434460055902433757
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_94
+      rect:
+        serializedVersion: 2
+        x: 575
+        y: 71
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b32aa1cfeedd6f780800000000000000
+      internalID: -8649482015816900037
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_95
+      rect:
+        serializedVersion: 2
+        x: 621
+        y: 72
+        width: 18
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c5434abc6fae3b840800000000000000
+      internalID: 5238789137261409372
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_96
+      rect:
+        serializedVersion: 2
+        x: 647
+        y: 60
+        width: 11
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6d4e80f667ac81290800000000000000
+      internalID: -7919357334713211690
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_97
+      rect:
+        serializedVersion: 2
+        x: 668
+        y: 63
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e6e47fe882084b410800000000000000
+      internalID: 1491958288252096110
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_98
+      rect:
+        serializedVersion: 2
+        x: 690
+        y: 65
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9a13c1aba5d466790800000000000000
+      internalID: -7537251874293141079
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_99
+      rect:
+        serializedVersion: 2
+        x: 706
+        y: 69
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cc14c410963dfce60800000000000000
+      internalID: 7984833112297980364
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_100
+      rect:
+        serializedVersion: 2
+        x: 824
+        y: 62
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ceeaeccb0dec1b310800000000000000
+      internalID: 1419142753514598124
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_101
+      rect:
+        serializedVersion: 2
+        x: 959
+        y: 69
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d4e02c72ddedd4d10800000000000000
+      internalID: 2111588841742798413
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_102
+      rect:
+        serializedVersion: 2
+        x: 992
+        y: 62
+        width: 9
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dfbabbda0f18fb7b0800000000000000
+      internalID: -5206299773510112259
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_103
+      rect:
+        serializedVersion: 2
+        x: 1021
+        y: 58
+        width: 10
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3a60b047a0f4dc00800000000000000
+      internalID: 924628424653302334
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_104
+      rect:
+        serializedVersion: 2
+        x: 1040
+        y: 68
+        width: 20
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5ba6cf8f0b5124850800000000000000
+      internalID: 6359669473636281013
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_105
+      rect:
+        serializedVersion: 2
+        x: 1087
+        y: 71
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5413c01691f597d30800000000000000
+      internalID: 4429676271102603589
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_106
+      rect:
+        serializedVersion: 2
+        x: 586
+        y: 53
+        width: 13
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c78602f16b83f66b0800000000000000
+      internalID: -5300955881534363524
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_107
+      rect:
+        serializedVersion: 2
+        x: 617
+        y: 46
+        width: 15
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cfbe958856b1edb50800000000000000
+      internalID: 6619758625174449148
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_108
+      rect:
+        serializedVersion: 2
+        x: 681
+        y: 52
+        width: 11
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e73a25b35a457ce0800000000000000
+      internalID: -1408137585101228064
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_109
+      rect:
+        serializedVersion: 2
+        x: 752
+        y: 59
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 032fbbef92f67b900800000000000000
+      internalID: 700150493237473840
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_110
+      rect:
+        serializedVersion: 2
+        x: 803
+        y: 54
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7b49476647c303770800000000000000
+      internalID: 8588430960028325047
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_111
+      rect:
+        serializedVersion: 2
+        x: 812
+        y: 51
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 16b20c3322beb77e0800000000000000
+      internalID: -1766559896683140255
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_112
+      rect:
+        serializedVersion: 2
+        x: 859
+        y: 53
+        width: 13
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 89a695e6d332a6da0800000000000000
+      internalID: -5950905210865358184
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_113
+      rect:
+        serializedVersion: 2
+        x: 870
+        y: 60
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 90f9c8bbcd1b03600800000000000000
+      internalID: 446051924707155721
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_114
+      rect:
+        serializedVersion: 2
+        x: 889
+        y: 61
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 90d77b75fd2b4c520800000000000000
+      internalID: 2721496747157716233
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_115
+      rect:
+        serializedVersion: 2
+        x: 974
+        y: 54
+        width: 11
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1efd3e4540f4f8ce0800000000000000
+      internalID: -1400814079066251295
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_116
+      rect:
+        serializedVersion: 2
+        x: 1166
+        y: 60
+        width: 8
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ced3fb89db7472420800000000000000
+      internalID: 2605129789094182380
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_117
+      rect:
+        serializedVersion: 2
+        x: 664
+        y: 52
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b473dee2a29f72a00800000000000000
+      internalID: 731827424042235723
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_118
+      rect:
+        serializedVersion: 2
+        x: 699
+        y: 53
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9405764af32cde860800000000000000
+      internalID: 7560912928021893193
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_119
+      rect:
+        serializedVersion: 2
+        x: 717
+        y: 44
+        width: 10
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 48b24879521997020800000000000000
+      internalID: 2340061072037522308
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_120
+      rect:
+        serializedVersion: 2
+        x: 782
+        y: 51
+        width: 9
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3c96bc2691ea7ab30800000000000000
+      internalID: 4298595793403341251
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_121
+      rect:
+        serializedVersion: 2
+        x: 878
+        y: 49
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8599f964bacb58f00800000000000000
+      internalID: 1118507526281730392
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_122
+      rect:
+        serializedVersion: 2
+        x: 917
+        y: 49
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 68945a7204f969c90800000000000000
+      internalID: -7163363059394328186
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_123
+      rect:
+        serializedVersion: 2
+        x: 978
+        y: 42
+        width: 9
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a17a4e43a32587f0800000000000000
+      internalID: -611042990138691164
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_124
+      rect:
+        serializedVersion: 2
+        x: 1073
+        y: 49
+        width: 9
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c1c9975ee1857c740800000000000000
+      internalID: 5172199586780519452
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_125
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 26
+        width: 501
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 373d26de449f353c0800000000000000
+      internalID: -4371876738810850445
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_126
+      rect:
+        serializedVersion: 2
+        x: 474
+        y: 42
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d609f80debbe50d0800000000000000
+      internalID: -3432099239277558061
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_127
+      rect:
+        serializedVersion: 2
+        x: 624
+        y: 35
+        width: 11
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3cdab1520f56e5960800000000000000
+      internalID: 7592618103882362307
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_128
+      rect:
+        serializedVersion: 2
+        x: 643
+        y: 41
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ca030234678f05bf0800000000000000
+      internalID: -337496785236774740
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_129
+      rect:
+        serializedVersion: 2
+        x: 729
+        y: 25
+        width: 28
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 45fb6d6b1524f3a30800000000000000
+      internalID: 4197146296459902804
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_130
+      rect:
+        serializedVersion: 2
+        x: 826
+        y: 42
+        width: 16
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b98002cc90c79c210800000000000000
+      internalID: 1353749544522746011
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_131
+      rect:
+        serializedVersion: 2
+        x: 1065
+        y: 38
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b75cfb9af894c0ca0800000000000000
+      internalID: -6049379318088350341
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_132
+      rect:
+        serializedVersion: 2
+        x: 1088
+        y: 45
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d6518cedf639481d0800000000000000
+      internalID: -3349390114168498835
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_133
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 25
+        width: 13
+        height: 19
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 91135b827facbed80800000000000000
+      internalID: -8220253531946012391
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_134
+      rect:
+        serializedVersion: 2
+        x: 535
+        y: 29
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ee4b713fe4e88f9d0800000000000000
+      internalID: -2740283903517936402
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_135
+      rect:
+        serializedVersion: 2
+        x: 562
+        y: 30
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4d7beb428daedd380800000000000000
+      internalID: -8944735070837622828
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_136
+      rect:
+        serializedVersion: 2
+        x: 571
+        y: 34
+        width: 25
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8935dcfb006b660d0800000000000000
+      internalID: -3429853951861894248
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_137
+      rect:
+        serializedVersion: 2
+        x: 621
+        y: 25
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 954a8048e83c657e0800000000000000
+      internalID: -1777017986083150759
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_138
+      rect:
+        serializedVersion: 2
+        x: 646
+        y: 33
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 53e09df161c68daf0800000000000000
+      internalID: -371428126978666955
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_139
+      rect:
+        serializedVersion: 2
+        x: 883
+        y: 24
+        width: 12
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d88de0fb58e7ad830800000000000000
+      internalID: 4096725923948058765
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_140
+      rect:
+        serializedVersion: 2
+        x: 971
+        y: 29
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6584f9e4f9e04d5f0800000000000000
+      internalID: -732944761972897706
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_141
+      rect:
+        serializedVersion: 2
+        x: 997
+        y: 28
+        width: 11
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a590529926d1325b0800000000000000
+      internalID: -5394435619346380454
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_142
+      rect:
+        serializedVersion: 2
+        x: 1034
+        y: 23
+        width: 15
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ddb0a3eeb9af2f440800000000000000
+      internalID: 4968308886566734813
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_143
+      rect:
+        serializedVersion: 2
+        x: 1057
+        y: 28
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 20da403823d07a6f0800000000000000
+      internalID: -673555108670952190
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_144
+      rect:
+        serializedVersion: 2
+        x: 1082
+        y: 34
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c81edba8a114a9bc0800000000000000
+      internalID: -3775633755344084596
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_145
+      rect:
+        serializedVersion: 2
+        x: 589
+        y: 14
+        width: 9
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9ea26733e5cdad660800000000000000
+      internalID: 7411478433939991273
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_146
+      rect:
+        serializedVersion: 2
+        x: 639
+        y: 23
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 33c30dcf4ce197c40800000000000000
+      internalID: 5510469450468441139
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_147
+      rect:
+        serializedVersion: 2
+        x: 658
+        y: 16
+        width: 12
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 271db05898dc5d260800000000000000
+      internalID: 7121824376282665330
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_148
+      rect:
+        serializedVersion: 2
+        x: 723
+        y: 23
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 29aa73d26ffc1a8e0800000000000000
+      internalID: -1683836129432327534
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_149
+      rect:
+        serializedVersion: 2
+        x: 730
+        y: 20
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f477d6634ce3be270800000000000000
+      internalID: 8280781352298444623
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_150
+      rect:
+        serializedVersion: 2
+        x: 795
+        y: 13
+        width: 14
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fb14978215c9e5e20800000000000000
+      internalID: 3341279845940806079
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_151
+      rect:
+        serializedVersion: 2
+        x: 853
+        y: 12
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 46c853e9fd64d19f0800000000000000
+      internalID: -496162457694925724
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_152
+      rect:
+        serializedVersion: 2
+        x: 895
+        y: 18
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d7224e2c75ed9d700800000000000000
+      internalID: 565727696724959869
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_153
+      rect:
+        serializedVersion: 2
+        x: 908
+        y: 0
+        width: 14
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4b26e311623ec9220800000000000000
+      internalID: 2494118046293975732
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_154
+      rect:
+        serializedVersion: 2
+        x: 1031
+        y: 2
+        width: 19
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c7313e90ea72389f0800000000000000
+      internalID: -467486307872730244
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_155
+      rect:
+        serializedVersion: 2
+        x: 1086
+        y: 19
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 96c7342eaa36eb750800000000000000
+      internalID: 6322600512466418793
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_156
+      rect:
+        serializedVersion: 2
+        x: 637
+        y: 9
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 377461d5bfdb72250800000000000000
+      internalID: 5919909122497988467
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_157
+      rect:
+        serializedVersion: 2
+        x: 679
+        y: 12
+        width: 10
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0dce04cbb2ff9cd40800000000000000
+      internalID: 5605291774546341072
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_158
+      rect:
+        serializedVersion: 2
+        x: 717
+        y: 6
+        width: 12
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ef694404677bdc890800000000000000
+      internalID: -7436085691206560002
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_159
+      rect:
+        serializedVersion: 2
+        x: 813
+        y: 0
+        width: 10
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f2f6be81c6d3323b0800000000000000
+      internalID: -5538515582251733201
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_160
+      rect:
+        serializedVersion: 2
+        x: 983
+        y: 6
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f78a79d784e8411b0800000000000000
+      internalID: -5686763987466213249
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_161
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 482
+        height: 5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 684ca198fa06a9fe0800000000000000
+      internalID: -1181525645195557754
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_162
+      rect:
+        serializedVersion: 2
+        x: 746
+        y: 0
+        width: 11
+        height: 5
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7bf74c64332966130800000000000000
+      internalID: 3559693304411226039
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_163
+      rect:
+        serializedVersion: 2
+        x: 785
+        y: 0
+        width: 11
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 699791c4458ef3a70800000000000000
+      internalID: 8809014844911614358
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_164
+      rect:
+        serializedVersion: 2
+        x: 795
+        y: 1
+        width: 8
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 24bade25eac46ce50800000000000000
+      internalID: 6829230196553263938
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_165
+      rect:
+        serializedVersion: 2
+        x: 842
+        y: 2
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 87ae50e71b0822e30800000000000000
+      internalID: 4477282479371577976
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_166
+      rect:
+        serializedVersion: 2
+        x: 941
+        y: 0
+        width: 12
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 841459aa4f2d75f30800000000000000
+      internalID: 4564348695639048520
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wave Texture test A_167
+      rect:
+        serializedVersion: 2
+        x: 953
+        y: 2
+        width: 7
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 312cc93075bfa4950800000000000000
+      internalID: 6434231368793506323
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Wave Texture test A_0: -8329398615755036038
+      Wave Texture test A_1: 5071496732714943585
+      Wave Texture test A_10: 3221741823451765324
+      Wave Texture test A_100: 1419142753514598124
+      Wave Texture test A_101: 2111588841742798413
+      Wave Texture test A_102: -5206299773510112259
+      Wave Texture test A_103: 924628424653302334
+      Wave Texture test A_104: 6359669473636281013
+      Wave Texture test A_105: 4429676271102603589
+      Wave Texture test A_106: -5300955881534363524
+      Wave Texture test A_107: 6619758625174449148
+      Wave Texture test A_108: -1408137585101228064
+      Wave Texture test A_109: 700150493237473840
+      Wave Texture test A_11: -8646795261609306541
+      Wave Texture test A_110: 8588430960028325047
+      Wave Texture test A_111: -1766559896683140255
+      Wave Texture test A_112: -5950905210865358184
+      Wave Texture test A_113: 446051924707155721
+      Wave Texture test A_114: 2721496747157716233
+      Wave Texture test A_115: -1400814079066251295
+      Wave Texture test A_116: 2605129789094182380
+      Wave Texture test A_117: 731827424042235723
+      Wave Texture test A_118: 7560912928021893193
+      Wave Texture test A_119: 2340061072037522308
+      Wave Texture test A_12: -3505027376125957750
+      Wave Texture test A_120: 4298595793403341251
+      Wave Texture test A_121: 1118507526281730392
+      Wave Texture test A_122: -7163363059394328186
+      Wave Texture test A_123: -611042990138691164
+      Wave Texture test A_124: 5172199586780519452
+      Wave Texture test A_125: -4371876738810850445
+      Wave Texture test A_126: -3432099239277558061
+      Wave Texture test A_127: 7592618103882362307
+      Wave Texture test A_128: -337496785236774740
+      Wave Texture test A_129: 4197146296459902804
+      Wave Texture test A_13: 8034708939367553058
+      Wave Texture test A_130: 1353749544522746011
+      Wave Texture test A_131: -6049379318088350341
+      Wave Texture test A_132: -3349390114168498835
+      Wave Texture test A_133: -8220253531946012391
+      Wave Texture test A_134: -2740283903517936402
+      Wave Texture test A_135: -8944735070837622828
+      Wave Texture test A_136: -3429853951861894248
+      Wave Texture test A_137: -1777017986083150759
+      Wave Texture test A_138: -371428126978666955
+      Wave Texture test A_139: 4096725923948058765
+      Wave Texture test A_14: 8760193635456167407
+      Wave Texture test A_140: -732944761972897706
+      Wave Texture test A_141: -5394435619346380454
+      Wave Texture test A_142: 4968308886566734813
+      Wave Texture test A_143: -673555108670952190
+      Wave Texture test A_144: -3775633755344084596
+      Wave Texture test A_145: 7411478433939991273
+      Wave Texture test A_146: 5510469450468441139
+      Wave Texture test A_147: 7121824376282665330
+      Wave Texture test A_148: -1683836129432327534
+      Wave Texture test A_149: 8280781352298444623
+      Wave Texture test A_15: 6433733324348255263
+      Wave Texture test A_150: 3341279845940806079
+      Wave Texture test A_151: -496162457694925724
+      Wave Texture test A_152: 565727696724959869
+      Wave Texture test A_153: 2494118046293975732
+      Wave Texture test A_154: -467486307872730244
+      Wave Texture test A_155: 6322600512466418793
+      Wave Texture test A_156: 5919909122497988467
+      Wave Texture test A_157: 5605291774546341072
+      Wave Texture test A_158: -7436085691206560002
+      Wave Texture test A_159: -5538515582251733201
+      Wave Texture test A_16: -3994933456427523837
+      Wave Texture test A_160: -5686763987466213249
+      Wave Texture test A_161: -1181525645195557754
+      Wave Texture test A_162: 3559693304411226039
+      Wave Texture test A_163: 8809014844911614358
+      Wave Texture test A_164: 6829230196553263938
+      Wave Texture test A_165: 4477282479371577976
+      Wave Texture test A_166: 4564348695639048520
+      Wave Texture test A_167: 6434231368793506323
+      Wave Texture test A_17: -6941353790159523447
+      Wave Texture test A_18: -2447392901493242772
+      Wave Texture test A_19: 5431904766250337120
+      Wave Texture test A_2: -5995137164082863406
+      Wave Texture test A_20: 4931634792056726707
+      Wave Texture test A_21: 5807439375941115572
+      Wave Texture test A_22: 5668883676952504454
+      Wave Texture test A_23: 2793189455563739125
+      Wave Texture test A_24: -6280501955767005552
+      Wave Texture test A_25: -527418612632386135
+      Wave Texture test A_26: -5576046754183961270
+      Wave Texture test A_27: -6945546919405026605
+      Wave Texture test A_28: 929258464542789895
+      Wave Texture test A_29: 3861298684112424639
+      Wave Texture test A_3: -8211528384184509093
+      Wave Texture test A_30: 284539700982296129
+      Wave Texture test A_31: -6450451863930791738
+      Wave Texture test A_32: 707041019283250020
+      Wave Texture test A_33: 5385288190567823685
+      Wave Texture test A_34: 5965247650306672340
+      Wave Texture test A_35: 2390562269824661841
+      Wave Texture test A_36: 5779875053367104421
+      Wave Texture test A_37: 7292652004246437082
+      Wave Texture test A_38: -1218534764850982362
+      Wave Texture test A_39: -8069484067833416500
+      Wave Texture test A_4: 8253969486106668584
+      Wave Texture test A_40: -9068699393179746246
+      Wave Texture test A_41: 3273964241845948203
+      Wave Texture test A_42: -6649243117813206373
+      Wave Texture test A_43: -5851410258544268734
+      Wave Texture test A_44: 5702924675743129077
+      Wave Texture test A_45: 4145914173428209068
+      Wave Texture test A_46: -4061475611676292391
+      Wave Texture test A_47: -5341437166366068208
+      Wave Texture test A_48: -8899769774055138547
+      Wave Texture test A_49: 149102283735487013
+      Wave Texture test A_5: 8864277941204369656
+      Wave Texture test A_50: 7502459437460149882
+      Wave Texture test A_51: -1351497470351633759
+      Wave Texture test A_52: 2564533567655575915
+      Wave Texture test A_53: -4094636381414497194
+      Wave Texture test A_54: 1030409417115134635
+      Wave Texture test A_55: -4589826351413626828
+      Wave Texture test A_56: -1557272156929644440
+      Wave Texture test A_57: 1191136835132135677
+      Wave Texture test A_58: -8462337593395618095
+      Wave Texture test A_59: 451033606740950847
+      Wave Texture test A_6: -1991506076105419611
+      Wave Texture test A_60: 7607365740258073438
+      Wave Texture test A_61: 5326420233990830078
+      Wave Texture test A_62: 2728714536455287299
+      Wave Texture test A_63: -1768048159177028714
+      Wave Texture test A_64: -7606658536217954837
+      Wave Texture test A_65: 3475694733604077269
+      Wave Texture test A_66: -5925307377100038931
+      Wave Texture test A_67: 4647987538978799873
+      Wave Texture test A_68: -2364761103986281236
+      Wave Texture test A_69: -4379167101795724876
+      Wave Texture test A_7: -708758682528360905
+      Wave Texture test A_70: 3824573013664258402
+      Wave Texture test A_71: 1246364792676580294
+      Wave Texture test A_72: -7946742699791434336
+      Wave Texture test A_73: 4039657287416928431
+      Wave Texture test A_74: -1926113530771018253
+      Wave Texture test A_75: -6657408898757163653
+      Wave Texture test A_76: -752978174509102651
+      Wave Texture test A_77: -3126852048064639189
+      Wave Texture test A_78: 8830351873994804809
+      Wave Texture test A_79: -8988144277522879024
+      Wave Texture test A_8: 7584512950439778802
+      Wave Texture test A_80: -8457181880204583346
+      Wave Texture test A_81: 8686839811303834971
+      Wave Texture test A_82: -140063578424735351
+      Wave Texture test A_83: 1744235873089697695
+      Wave Texture test A_84: -773099533089412450
+      Wave Texture test A_85: -3559072809841128865
+      Wave Texture test A_86: 4142333146940828534
+      Wave Texture test A_87: 6302871324803925419
+      Wave Texture test A_88: 7479459803189312997
+      Wave Texture test A_89: -3225792222377553378
+      Wave Texture test A_9: -8279434037252879376
+      Wave Texture test A_90: -5913777354436373482
+      Wave Texture test A_91: 807776165793872973
+      Wave Texture test A_92: 40992324923798441
+      Wave Texture test A_93: -3434460055902433757
+      Wave Texture test A_94: -8649482015816900037
+      Wave Texture test A_95: 5238789137261409372
+      Wave Texture test A_96: -7919357334713211690
+      Wave Texture test A_97: 1491958288252096110
+      Wave Texture test A_98: -7537251874293141079
+      Wave Texture test A_99: 7984833112297980364
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

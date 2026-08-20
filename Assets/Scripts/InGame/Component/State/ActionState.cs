@@ -42,6 +42,8 @@ namespace InGame.Component.State
 
             ObjectContext.SetDashVelocity(dashDirection * DashSpeed);
             ObjectContext.SetDashing(true);
+
+            ObjectContext.PlayEffect(EffectType.Dash, dashDirection);
         }
 
         public override void OnFixedUpdate()

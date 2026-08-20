@@ -24,6 +24,7 @@ namespace InGame.Object
         protected CameraController CameraController;
         protected PhysicsController PhysicsController;
         protected ObjectStateController ObjectStateController;
+        protected EffectPlayer EffectPlayer;
 
         public bool IsPlayer {get; protected set;}
         public ObjectType ObjectType => ObjectContext?.ObjectType ?? ObjectType.Object;
@@ -36,6 +37,9 @@ namespace InGame.Object
             ObjectContext = new(objectData);
             AnimationPlayer = gameObject.AddComponent<AnimationPlayer>();
             await AnimationPlayer.Init(ObjectContext, objectData.Id);
+            EffectPlayer = gameObject.AddComponent<EffectPlayer>();
+            await EffectPlayer.Init(ObjectContext, objectData.Id);
+
             //카메라는 플레이어만 따라간다
             if (isPlayer)
             {

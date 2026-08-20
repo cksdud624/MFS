@@ -2,9 +2,10 @@ using System;
 using Common;
 using Generated.Table;
 using UnityEngine;
-using ObjectType = Common.GameDefine.ObjectType;
-using Direction = Common.GameDefine.Direction;
+using static Common.GameDefine;
 using AnimationType = Common.GameDefine.AnimationType;
+using Direction = Common.GameDefine.Direction;
+using ObjectType = Common.GameDefine.ObjectType;
 
 
 namespace InGame.Context
@@ -98,6 +99,19 @@ namespace InGame.Context
         {
             Animation = animationType;
             OnAnimationChanged?.Invoke(animationType, onAnimationEnd);
+        }
+
+        //이펙트
+        public event Action<EffectType, Vector2> OnEffectRequested;
+
+        public void PlayEffect(EffectType effectType, Vector2 direction)
+        {
+            Vector2 normalizedDirection =
+                direction.sqrMagnitude > 0f
+                    ? direction.normalized
+                    : (Direction == Direction.Right ? Vector2.right : Vector2.left);
+
+            OnEffectRequested?.Invoke(effectType, normalizedDirection);
         }
     }
 }

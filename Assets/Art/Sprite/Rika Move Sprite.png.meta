@@ -121,177 +121,177 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Prototype Move Sprite test 1_0
+      name: Rika Move Sprite_0
       rect:
         serializedVersion: 2
         x: 0
         y: 256
         width: 256
         height: 256
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: c713c326e71b45c80800000000000000
-      internalID: -8334841853983837828
+      spriteID: 6ab46b0a624c28c4585d2694a6ff0bbc
+      internalID: -1509176157
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Move Sprite test 1_1
+      name: Rika Move Sprite_1
       rect:
         serializedVersion: 2
         x: 256
         y: 256
         width: 256
         height: 256
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 87ababfc4d9cde0b0800000000000000
-      internalID: -5697676037698438536
+      spriteID: 2a7c5dd2328233948b776c161f74e159
+      internalID: -1486780632
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Move Sprite test 1_2
+      name: Rika Move Sprite_2
       rect:
         serializedVersion: 2
         x: 512
         y: 256
         width: 256
         height: 256
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: e3503374eab6979b0800000000000000
-      internalID: -5081912308247886530
+      spriteID: 6f04b57f82e39c34789d977d7cab14f1
+      internalID: -480543934
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Move Sprite test 1_3
+      name: Rika Move Sprite_3
       rect:
         serializedVersion: 2
         x: 768
         y: 256
         width: 256
         height: 256
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: c0cb49a13330235c0800000000000000
-      internalID: -4237320781378044916
+      spriteID: d8611b796d4a8eb408d5fc1cff690f93
+      internalID: 1902636456
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Move Sprite test 1_4
+      name: Rika Move Sprite_4
       rect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 256
         height: 256
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 0ecf51bc8269207a0800000000000000
-      internalID: -6412397817472090912
+      spriteID: 964e75678d090d146acfc36e96e97849
+      internalID: -690627158
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Move Sprite test 1_5
+      name: Rika Move Sprite_5
       rect:
         serializedVersion: 2
         x: 256
         y: 0
         width: 256
         height: 256
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 86be04881913dc0d0800000000000000
-      internalID: -3401007642468881560
+      spriteID: d92a27b9159c1d842845bdd7ecc6c83f
+      internalID: 1572325580
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Move Sprite test 1_6
+      name: Rika Move Sprite_6
       rect:
         serializedVersion: 2
         x: 512
         y: 0
         width: 256
         height: 256
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 5a362124d2ab10650800000000000000
-      internalID: 6197439265783309221
+      spriteID: dac46b45d87309845ab13426fc76bec7
+      internalID: -1538775726
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Move Sprite test 1_7
+      name: Rika Move Sprite_7
       rect:
         serializedVersion: 2
         x: 768
         y: 0
         width: 256
         height: 256
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: bc15b3836da3fc560800000000000000
-      internalID: 7336147009750651339
+      spriteID: a2b7f76aeff080c40acc1dbf32b12e22
+      internalID: 2000684607
       vertices: []
       indices: 
       edges: []
@@ -310,16 +310,16 @@ TextureImporter:
     spriteCustomMetadata:
       entries:
       - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":256.0,"y":256.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.0949999988079071},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":9,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":256.0,"y":256.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.0},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":7,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      Prototype Move Sprite test 1_0: -8334841853983837828
-      Prototype Move Sprite test 1_1: -5697676037698438536
-      Prototype Move Sprite test 1_2: -5081912308247886530
-      Prototype Move Sprite test 1_3: -4237320781378044916
-      Prototype Move Sprite test 1_4: -6412397817472090912
-      Prototype Move Sprite test 1_5: -3401007642468881560
-      Prototype Move Sprite test 1_6: 6197439265783309221
-      Prototype Move Sprite test 1_7: 7336147009750651339
+      Rika Move Sprite_0: -1509176157
+      Rika Move Sprite_1: -1486780632
+      Rika Move Sprite_2: -480543934
+      Rika Move Sprite_3: 1902636456
+      Rika Move Sprite_4: -690627158
+      Rika Move Sprite_5: 1572325580
+      Rika Move Sprite_6: -1538775726
+      Rika Move Sprite_7: 2000684607
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

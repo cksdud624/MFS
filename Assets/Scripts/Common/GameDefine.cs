@@ -50,6 +50,11 @@ namespace Common
             Patrol,
             Chase,
         }
+        public enum EffectType
+        {
+            Attack,
+            Dash,
+        }
         #endregion
 
         #region Animation
@@ -67,6 +72,7 @@ namespace Common
         #region Asset Path
         public const string AssetPathCharacter = "Assets/AddressableAssets/Prefab/Character/";
         public const string AssetPathAnimation = "Assets/AddressableAssets/Animation/";
+        public const string AssetPathEffect = "Assets/AddressableAssets/Effect/";
         public const string AssetExtensionPrefab = ".prefab";
         public const string AssetExtensionAnimation = ".anim";
         #endregion
@@ -85,19 +91,19 @@ namespace Common
         //벽 감지용
         public const float WallProbeDistance = 0.05f;
         //콜라이더는 방향에 따라 좌우 대칭으로 뒤집는다
-        public static readonly Vector2 ColliderSize = new(0.2f, 0.35f);
-        public const float ColliderOffsetX = 0.07f;
-        public const float ColliderOffsetY = -0.05f;
+        public static readonly Vector2 ColliderSize = new(0.5f, 2.0f);
+        public const float ColliderOffsetX = 0f;
+        public const float ColliderOffsetY = 1.0f;
         #endregion
 
         #region Move
         //테이블로 차후 관리해야하는 부분
         //공중 관성: MoveSpeed까지 붙는 시간 / 입력을 뗐을 때 멈추는 시간 / 최고 속도 초과분을 깎는 시간
         public const float AirAccelerationTime = 0.25f;
-        public const float AirDecelerationTime = 1.2f;
+        public const float AirDecelerationTime = 8.2f;
         public const float AirOverSpeedDecelerationTime = 0.3f;
 
-        public const float JumpPower = 2.5f;
+        public const float JumpPower = 7.5f;
         //지상에서 얻는 점프 횟수 / 지상에서 떨어졌을 때 남는 점프 횟수
         public const int GroundJumpCount = 2;
         public const int FallJumpCount = 1;
@@ -105,9 +111,9 @@ namespace Common
 
         #region Dash
         //테이블로 차후 관리해야하는 부분
-        public const float DashSpeed = 5f;
+        public const float DashSpeed = 15f;
         public const float DashDuration = 0.2f;
-        public const int DashMaxStack = 1;
+        public const int DashMaxStack = 6;
         public const float DashChargeInterval = 0.5f;
         #endregion
 
