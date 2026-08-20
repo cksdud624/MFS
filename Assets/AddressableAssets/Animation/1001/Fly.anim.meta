@@ -1,15 +1,8 @@
 fileFormatVersion: 2
-guid: 9587ae898133e8144b76c4532c6796af
+guid: 022d5aebe042c1a4dafa0f4f0debe5a9
 NativeFormatImporter:
   externalObjects: {}
   mainObjectFileID: 7400000
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 195707
-  packageName: Warrior Free Asset
-  packageVersion: 1.0
-  assetPath: Assets/Warrior free set/Aniamtion/Fall.anim
-  uploadId: 434362

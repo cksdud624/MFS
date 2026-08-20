@@ -1,0 +1,80 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: MAT_Particle Grain 2
+  m_Shader: {fileID: 4800000, guid: 8962cf6bd705d204fb42c861a08e86f5, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - CIRCLE_MASK
+  - POLAR
+  - RECT_MASK
+  - SECONDARY_TEX
+  - SOFT_BLEND
+  - VERTEX_OFFSET
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _DisplacementGuide:
+        m_Texture: {fileID: 2800000, guid: 5af9a397a8643994c829e696a24a7845, type: 3}
+        m_Scale: {x: 13.03, y: -1.77}
+        m_Offset: {x: 0, y: 0}
+    - _GradientMap:
+        m_Texture: {fileID: 2800000, guid: 6bdd83e3cff23a243b080854377fbd83, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 60dc7ea5c88bb584aa967f20503faedb, type: 3}
+        m_Scale: {x: 0.9, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SecondaryTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 0, y: 0}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _Banding: 0
+    - _Bands: 1.12
+    - _BurnSize: 0.4
+    - _CircleMask: 1
+    - _Contrast: 1
+    - _Culling: 0
+    - _Cutoff: 0
+    - _CutoffSoftness: 0.752
+    - _DisplacementAmount: 0.78
+    - _InnerRadius: -0.29
+    - _IntersectionThresholdMax: 0.59
+    - _OuterRadius: 0.5
+    - _PolarCoords: 1
+    - _Power: 1.56
+    - _RectHeight: 0.68
+    - _RectMask: 1
+    - _RectMaskCutoff: 0.891
+    - _RectSmoothness: 1
+    - _RectWidth: 0.32
+    - _SecondTex: 1
+    - _Smoothness: 1
+    - _SoftBlend: 1
+    - _VertexOffset: 1
+    - _VertexOffsetAmount: 0.04
+    m_Colors:
+    - _BurnCol: {r: 0, g: 0.6539405, b: 1.1210413, a: 1}
+    - _Color: {r: 0, g: 19.775097, b: 20.125782, a: 1}
+    - _PanningSpeed: {r: 1, g: 0, b: 0.3, a: 0.1}
+    - _SecondaryPanningSpeed: {r: 0, g: 0, b: 0, a: 0}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

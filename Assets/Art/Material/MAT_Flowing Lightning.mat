@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: MAT_Flowing Lightning
+  m_Shader: {fileID: 4800000, guid: 8962cf6bd705d204fb42c861a08e86f5, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - SECONDARY_TEX
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _DisplacementGuide:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _GradientMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 9685c3a024e22a946a7e8c2ce3542300, type: 3}
+        m_Scale: {x: 1, y: 0.64}
+        m_Offset: {x: -0.55, y: 0.13}
+    - _SecondaryTex:
+        m_Texture: {fileID: 2800000, guid: 9685c3a024e22a946a7e8c2ce3542300, type: 3}
+        m_Scale: {x: 3.4, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _Banding: 0
+    - _Bands: 0
+    - _BurnSize: 0.4
+    - _CircleMask: 0
+    - _Contrast: 1
+    - _Culling: 0
+    - _Cutoff: 0
+    - _CutoffSoftness: 0.532
+    - _DisplacementAmount: 0
+    - _InnerRadius: 0.022
+    - _IntersectionThresholdMax: 2.33
+    - _OuterRadius: 0.371
+    - _PolarCoords: 0
+    - _Power: 1
+    - _RectHeight: 0.68
+    - _RectMask: 0
+    - _RectMaskCutoff: 0.715
+    - _RectSmoothness: 1
+    - _RectWidth: 1.72
+    - _SecondTex: 1
+    - _Smoothness: 0.353
+    - _SoftBlend: 0
+    - _VertexOffset: 0
+    - _VertexOffsetAmount: 0
+    m_Colors:
+    - _BurnCol: {r: 1.0999525, g: 0.45875672, b: 1.1486982, a: 1}
+    - _Color: {r: 0.07340988, g: 3.8870988, b: 23.34591, a: 1}
+    - _PanningSpeed: {r: 0, g: -0.64, b: 0, a: 0}
+    - _SecondaryPanningSpeed: {r: -0.12, g: 0, b: 0, a: 0}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

@@ -1,0 +1,77 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: MAT_Wave Material
+  m_Shader: {fileID: 4800000, guid: 8962cf6bd705d204fb42c861a08e86f5, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - CIRCLE_MASK
+  - RECT_MASK
+  - SECONDARY_TEX
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: _Contrast
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _DisplacementGuide:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _GradientMap:
+        m_Texture: {fileID: 2800000, guid: 91bfeafd4b08f4c4087b45cc179078a8, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 60dc7ea5c88bb584aa967f20503faedb, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SecondaryTex:
+        m_Texture: {fileID: 2800000, guid: 1d4accb71ac420f46be5cc7c63584c48, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _Banding: 0
+    - _Bands: 0
+    - _BurnSize: 0.4
+    - _CircleMask: 1
+    - _Contrast: 1
+    - _Culling: 0
+    - _Cutoff: 0.277
+    - _CutoffSoftness: 0.635
+    - _DisplacementAmount: 0
+    - _InnerRadius: -0.022
+    - _IntersectionThresholdMax: 1
+    - _OuterRadius: 0.874
+    - _PolarCoords: 0
+    - _Power: 1
+    - _RectHeight: 0.68
+    - _RectMask: 1
+    - _RectMaskCutoff: 0.412
+    - _RectSmoothness: 1
+    - _RectWidth: 1.72
+    - _SecondTex: 1
+    - _Smoothness: 0.353
+    - _SoftBlend: 0
+    - _VertexOffset: 0
+    - _VertexOffsetAmount: 0
+    m_Colors:
+    - _BurnCol: {r: 0.30198893, g: 0.4963541, b: 1.0326078, a: 1}
+    - _Color: {r: 0.49849546, g: 0.5591297, b: 1.3601804, a: 1}
+    - _PanningSpeed: {r: -0.33, g: 0, b: 0, a: 0}
+    - _SecondaryPanningSpeed: {r: 0, g: 0, b: 0, a: 0}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

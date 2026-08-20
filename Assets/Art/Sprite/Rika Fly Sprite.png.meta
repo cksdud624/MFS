@@ -172,529 +172,529 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Prototype Fly Sprite_0
+      name: Rika Fly Sprite_0
       rect:
         serializedVersion: 2
         x: 0
         y: 1536
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: d17e1125817dc0a60800000000000000
-      internalID: 7641719167196981021
+      spriteID: 467d96c796a2f67428447a70b206976a
+      internalID: -972877260
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Fly Sprite_1
+      name: Rika Fly Sprite_1
       rect:
         serializedVersion: 2
         x: 256
         y: 1536
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: e99abe9d0a428e220800000000000000
-      internalID: 2515300665155889566
+      spriteID: 1eef856bce2891e4b9643bd08b316b9f
+      internalID: 290418342
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Fly Sprite_2
+      name: Rika Fly Sprite_2
       rect:
         serializedVersion: 2
         x: 512
         y: 1536
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 649c653fa111216f0800000000000000
-      internalID: -715490583349114554
+      spriteID: db1e8d97d79f1f84a8bad7b4350e8cea
+      internalID: -784121259
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Fly Sprite_3
+      name: Rika Fly Sprite_3
       rect:
         serializedVersion: 2
         x: 768
         y: 1536
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: bf329fe0e9ab45b40800000000000000
-      internalID: 5428168638907098107
+      spriteID: d1a4461c4e0808042844c0539ffaadf3
+      internalID: -252828858
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Fly Sprite_4
+      name: Rika Fly Sprite_4
       rect:
         serializedVersion: 2
         x: 1024
         y: 1536
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: b8b1f965bff325f60800000000000000
-      internalID: 8021544235022883723
+      spriteID: 0e734116353bce14998e0ff3527b405c
+      internalID: -588778733
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Fly Sprite_5
+      name: Rika Fly Sprite_5
       rect:
         serializedVersion: 2
         x: 1280
         y: 1536
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 36bd293d388258fc0800000000000000
-      internalID: -3493341389300507805
+      spriteID: 5deba278893f228458052dde151362a6
+      internalID: 1894560033
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Fly Sprite_6
+      name: Rika Fly Sprite_6
       rect:
         serializedVersion: 2
         x: 0
         y: 1024
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: e077330476a3a7a60800000000000000
-      internalID: 7672509130312218382
+      spriteID: ce2519728cd746048a14af9fc21ebfc5
+      internalID: 288327856
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Fly Sprite_7
+      name: Rika Fly Sprite_7
       rect:
         serializedVersion: 2
         x: 256
         y: 1024
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: f2be9eaa97d366490800000000000000
-      internalID: -7753442115703936209
+      spriteID: 3299fa559ca732346b49f1e51f505fb0
+      internalID: 1944197745
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Fly Sprite_8
+      name: Rika Fly Sprite_8
       rect:
         serializedVersion: 2
         x: 512
         y: 1024
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 5ba8fe29ce952d520800000000000000
-      internalID: 2725339597124897461
+      spriteID: 715244dfc1414b44e84156d477b10abb
+      internalID: 958743926
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Fly Sprite_9
+      name: Rika Fly Sprite_9
       rect:
         serializedVersion: 2
         x: 768
         y: 1024
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 51eec1418d653ae80800000000000000
-      internalID: -8168589813069582827
+      spriteID: c1ee6938ef67ffc4ebbd56b0a855f833
+      internalID: -66415794
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Fly Sprite_10
+      name: Rika Fly Sprite_10
       rect:
         serializedVersion: 2
         x: 1024
         y: 1024
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: a9bf80b005aa45750800000000000000
-      internalID: 6292841840102669210
+      spriteID: c9495617f138df14c8df5d925bc11310
+      internalID: 1099137194
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Fly Sprite_11
+      name: Rika Fly Sprite_11
       rect:
         serializedVersion: 2
         x: 1280
         y: 1024
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 1ea600aec2a104c50800000000000000
-      internalID: 6647341830205631201
+      spriteID: d4c50c64849cb4e4cbb2bb0e9a8ca4ca
+      internalID: 1971310196
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Fly Sprite_12
+      name: Rika Fly Sprite_12
       rect:
         serializedVersion: 2
         x: 0
         y: 512
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: b19367728073e1e10800000000000000
-      internalID: 2170232578600483099
+      spriteID: cf9550a80c98e7b45b7a743ff6b9e457
+      internalID: -94939654
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Fly Sprite_13
+      name: Rika Fly Sprite_13
       rect:
         serializedVersion: 2
         x: 256
         y: 512
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 7e577ffd345137390800000000000000
-      internalID: -7821884746547890713
+      spriteID: 07a8978a3ce21c341a15651628d6304e
+      internalID: -974258436
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Fly Sprite_14
+      name: Rika Fly Sprite_14
       rect:
         serializedVersion: 2
         x: 512
         y: 512
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 8c35b775e511ffab0800000000000000
-      internalID: -4972236366701440056
+      spriteID: f6013f2fd1669924faa41378f680ba10
+      internalID: 527852570
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Fly Sprite_15
+      name: Rika Fly Sprite_15
       rect:
         serializedVersion: 2
         x: 768
         y: 512
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 74f42c401556d73e0800000000000000
-      internalID: -2054374456364478649
+      spriteID: 69f5a6e1a8d8d3a4498ea7fb4f8db897
+      internalID: 1083918500
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Fly Sprite_16
+      name: Rika Fly Sprite_16
       rect:
         serializedVersion: 2
         x: 1024
         y: 512
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: f8e6c250da9dae520800000000000000
-      internalID: 2732235461092994703
+      spriteID: f53da8d672206a143821b8a6b2d74890
+      internalID: 1273375120
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Fly Sprite_17
+      name: Rika Fly Sprite_17
       rect:
         serializedVersion: 2
         x: 1280
         y: 512
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 3bc79aa73f1367bf0800000000000000
-      internalID: -327019001133040461
+      spriteID: b784bd4bcd9ab464680036f1ce118e9b
+      internalID: -1238893471
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Fly Sprite_18
+      name: Rika Fly Sprite_18
       rect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 646d06d25872dd3e0800000000000000
-      internalID: -2027420804301400506
+      spriteID: a42decb43c5ba974ea7bf6c0858fe764
+      internalID: 1378229023
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Fly Sprite_19
+      name: Rika Fly Sprite_19
       rect:
         serializedVersion: 2
         x: 256
         y: 0
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 76a3522333ef78d00800000000000000
-      internalID: 975027340187089511
+      spriteID: aba7b7fa75b03a24598b10c99d58e0be
+      internalID: 1944112573
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Fly Sprite_20
+      name: Rika Fly Sprite_20
       rect:
         serializedVersion: 2
         x: 512
         y: 0
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 1974799c221a7fa40800000000000000
-      internalID: 5401963448837293969
+      spriteID: 7fccd857817416b4096c70abfd20d9b5
+      internalID: 1150905316
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Fly Sprite_21
+      name: Rika Fly Sprite_21
       rect:
         serializedVersion: 2
         x: 768
         y: 0
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: bc23d5fee366719f0800000000000000
-      internalID: -497816813311282485
+      spriteID: fd2f320c44d0f944db2f89c7426e6202
+      internalID: 623547578
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Fly Sprite_22
+      name: Rika Fly Sprite_22
       rect:
         serializedVersion: 2
         x: 1024
         y: 0
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 03edacd58036477c0800000000000000
-      internalID: -4074522875278991824
+      spriteID: 5698624466a929046b3e5966dc2e92d5
+      internalID: 733480708
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Fly Sprite_23
+      name: Rika Fly Sprite_23
       rect:
         serializedVersion: 2
         x: 1280
         y: 0
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 96382fee7bb46c5b0800000000000000
-      internalID: -5348504254095916183
+      spriteID: 8d906715a823a1f46b669d12c2f20bbd
+      internalID: 1582260320
       vertices: []
       indices: 
       edges: []
@@ -713,32 +713,32 @@ TextureImporter:
     spriteCustomMetadata:
       entries:
       - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":256.0,"y":512.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.0949999988079071},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":9,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":256.0,"y":512.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.0},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":7,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      Prototype Fly Sprite_0: 7641719167196981021
-      Prototype Fly Sprite_1: 2515300665155889566
-      Prototype Fly Sprite_10: 6292841840102669210
-      Prototype Fly Sprite_11: 6647341830205631201
-      Prototype Fly Sprite_12: 2170232578600483099
-      Prototype Fly Sprite_13: -7821884746547890713
-      Prototype Fly Sprite_14: -4972236366701440056
-      Prototype Fly Sprite_15: -2054374456364478649
-      Prototype Fly Sprite_16: 2732235461092994703
-      Prototype Fly Sprite_17: -327019001133040461
-      Prototype Fly Sprite_18: -2027420804301400506
-      Prototype Fly Sprite_19: 975027340187089511
-      Prototype Fly Sprite_2: -715490583349114554
-      Prototype Fly Sprite_20: 5401963448837293969
-      Prototype Fly Sprite_21: -497816813311282485
-      Prototype Fly Sprite_22: -4074522875278991824
-      Prototype Fly Sprite_23: -5348504254095916183
-      Prototype Fly Sprite_3: 5428168638907098107
-      Prototype Fly Sprite_4: 8021544235022883723
-      Prototype Fly Sprite_5: -3493341389300507805
-      Prototype Fly Sprite_6: 7672509130312218382
-      Prototype Fly Sprite_7: -7753442115703936209
-      Prototype Fly Sprite_8: 2725339597124897461
-      Prototype Fly Sprite_9: -8168589813069582827
+      Rika Fly Sprite_0: -972877260
+      Rika Fly Sprite_1: 290418342
+      Rika Fly Sprite_10: 1099137194
+      Rika Fly Sprite_11: 1971310196
+      Rika Fly Sprite_12: -94939654
+      Rika Fly Sprite_13: -974258436
+      Rika Fly Sprite_14: 527852570
+      Rika Fly Sprite_15: 1083918500
+      Rika Fly Sprite_16: 1273375120
+      Rika Fly Sprite_17: -1238893471
+      Rika Fly Sprite_18: 1378229023
+      Rika Fly Sprite_19: 1944112573
+      Rika Fly Sprite_2: -784121259
+      Rika Fly Sprite_20: 1150905316
+      Rika Fly Sprite_21: 623547578
+      Rika Fly Sprite_22: 733480708
+      Rika Fly Sprite_23: 1582260320
+      Rika Fly Sprite_3: -252828858
+      Rika Fly Sprite_4: -588778733
+      Rika Fly Sprite_5: 1894560033
+      Rika Fly Sprite_6: 288327856
+      Rika Fly Sprite_7: 1944197745
+      Rika Fly Sprite_8: 958743926
+      Rika Fly Sprite_9: -66415794
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

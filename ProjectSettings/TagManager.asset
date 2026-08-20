@@ -87,6 +87,12 @@ TagManager:
   - name: Extreme Foreground_2
     uniqueID: 4061473345
     locked: 0
+  - name: Distortion
+    uniqueID: 3835041549
+    locked: 0
+  - name: Effect
+    uniqueID: 4129612385
+    locked: 0
   m_RenderingLayers:
   - Default
   m_MigratedRenderPipelines: []

@@ -1,12 +1,12 @@
 {
     "tables": [
         {
-            "fileName": "Object",
-            "hash": "b1407c1a73cec276ae55735b73e7a3f1"
-        },
-        {
             "fileName": "Character",
             "hash": "5baf61c008e0c77213e197d2670e6516"
+        },
+        {
+            "fileName": "Object",
+            "hash": "2c226f003314d3089ea89ea37bb5d3f8"
         }
     ]
 }

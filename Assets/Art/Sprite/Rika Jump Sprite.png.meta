@@ -172,529 +172,529 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Prototype Jump Sprite 5_0
+      name: Rika Jump Sprite_0
       rect:
         serializedVersion: 2
         x: 0
         y: 1536
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 8f6cc1682dfb5f580800000000000000
-      internalID: -8793911786456955144
+      spriteID: 21fd647317cd26e418d718a585e750ba
+      internalID: -1731769058
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Jump Sprite 5_1
+      name: Rika Jump Sprite_1
       rect:
         serializedVersion: 2
         x: 256
         y: 1536
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 44cd23de4ff64fbf0800000000000000
-      internalID: -291484978130002876
+      spriteID: f8c04aca99d26a54dbcb40d7aacf0252
+      internalID: 1738629961
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Jump Sprite 5_2
+      name: Rika Jump Sprite_2
       rect:
         serializedVersion: 2
         x: 512
         y: 1536
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: f8535fba7957ca4c0800000000000000
-      internalID: -4274912651995957873
+      spriteID: cdb0abf8ba47e7d4ea1189d1c45ae91a
+      internalID: 1415040701
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Jump Sprite 5_3
+      name: Rika Jump Sprite_3
       rect:
         serializedVersion: 2
         x: 768
         y: 1536
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: aeca04c3ac2b61eb0800000000000000
-      internalID: -4749412175351599894
+      spriteID: cb7dbb97781af5443ae87fe7a9b00a72
+      internalID: -408996058
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Jump Sprite 5_4
+      name: Rika Jump Sprite_4
       rect:
         serializedVersion: 2
         x: 1024
         y: 1536
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: f594fc774e2294eb0800000000000000
-      internalID: -4735215168545404577
+      spriteID: c05eff16dbb23eb47b1647a9852aa164
+      internalID: 80794250
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Jump Sprite 5_5
+      name: Rika Jump Sprite_5
       rect:
         serializedVersion: 2
         x: 1280
         y: 1536
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 0b7c36bff73609100800000000000000
-      internalID: 112699392013879216
+      spriteID: 3a87c6d3993677e4d9b6d0e576417141
+      internalID: 118099064
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Jump Sprite 5_6
+      name: Rika Jump Sprite_6
       rect:
         serializedVersion: 2
         x: 0
         y: 1024
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 881909c12f8f55920800000000000000
-      internalID: 2978560447320461704
+      spriteID: 409fd4a686df7214694c42fced344947
+      internalID: -441146836
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Jump Sprite 5_7
+      name: Rika Jump Sprite_7
       rect:
         serializedVersion: 2
         x: 256
         y: 1024
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 0f653389e18cbf7a0800000000000000
-      internalID: -6342255616493136144
+      spriteID: 53cb80bc0d665fe498a227abc6dc6140
+      internalID: 107310200
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Jump Sprite 5_8
+      name: Rika Jump Sprite_8
       rect:
         serializedVersion: 2
         x: 512
         y: 1024
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 3a372cac9d29e9260800000000000000
-      internalID: 7106278726144521123
+      spriteID: fc53774fa4b3fb34bb67d268437db6b8
+      internalID: 376552194
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Jump Sprite 5_9
+      name: Rika Jump Sprite_9
       rect:
         serializedVersion: 2
         x: 768
         y: 1024
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: f198a8f10a4bd7540800000000000000
-      internalID: 5007356960522799391
+      spriteID: b978a2f608c97da459ace26050728e7b
+      internalID: 117245323
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Jump Sprite 5_10
+      name: Rika Jump Sprite_10
       rect:
         serializedVersion: 2
         x: 1024
         y: 1024
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: d319b34f4b32e6a40800000000000000
-      internalID: 5363263466343469373
+      spriteID: e6e25ff2ed8797d4b89bae502d51976b
+      internalID: 2001291669
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Jump Sprite 5_11
+      name: Rika Jump Sprite_11
       rect:
         serializedVersion: 2
         x: 1280
         y: 1024
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 239a99a843a469a60800000000000000
-      internalID: 7680407804051040562
+      spriteID: 9e85e91bd68989a43a27769b66695194
+      internalID: 1249355225
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Jump Sprite 5_12
+      name: Rika Jump Sprite_12
       rect:
         serializedVersion: 2
         x: 0
         y: 512
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: fb69e4a99964858b0800000000000000
-      internalID: -5163299347247491393
+      spriteID: e97ef82e5c1f29b4482e70bbe479be16
+      internalID: 50213449
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Jump Sprite 5_13
+      name: Rika Jump Sprite_13
       rect:
         serializedVersion: 2
         x: 256
         y: 512
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 7888a8059114f1cd0800000000000000
-      internalID: -2585276084106131321
+      spriteID: ad3ee4464c63fcb4aa043173b5b7cb46
+      internalID: 771388095
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Jump Sprite 5_14
+      name: Rika Jump Sprite_14
       rect:
         serializedVersion: 2
         x: 512
         y: 512
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 3fd495e7db48f0540800000000000000
-      internalID: 4976342062671154675
+      spriteID: ca412fe4396bcc5478c2e3784a7d4c17
+      internalID: -1286709072
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Jump Sprite 5_15
+      name: Rika Jump Sprite_15
       rect:
         serializedVersion: 2
         x: 768
         y: 512
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 659277b04da3ceaa0800000000000000
-      internalID: -6130460310358251178
+      spriteID: 3b7bf629b6876b94e975d91e87394a83
+      internalID: -2035103918
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Jump Sprite 5_16
+      name: Rika Jump Sprite_16
       rect:
         serializedVersion: 2
         x: 1024
         y: 512
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: a70e870e3a1dbe100800000000000000
-      internalID: 138434715340824698
+      spriteID: 42212fbec4b80e04088ea04efe9f3f12
+      internalID: 1178275383
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Jump Sprite 5_17
+      name: Rika Jump Sprite_17
       rect:
         serializedVersion: 2
         x: 1280
         y: 512
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 2e239e75cdbddf1e0800000000000000
-      internalID: -2162330506653781278
+      spriteID: 050b7d40764176243ba084022d661074
+      internalID: -1066529270
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Jump Sprite 5_18
+      name: Rika Jump Sprite_18
       rect:
         serializedVersion: 2
         x: 0
         y: 0
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 41b8684a20ec4ebf0800000000000000
-      internalID: -295885164754072812
+      spriteID: 686f07ee86069c2499b9d68d648c8641
+      internalID: 655610957
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Jump Sprite 5_19
+      name: Rika Jump Sprite_19
       rect:
         serializedVersion: 2
         x: 256
         y: 0
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: c27a73571b18433f0800000000000000
-      internalID: -921969424528333012
+      spriteID: 325f45c1eddd5224e9488d454c226320
+      internalID: -449703845
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Jump Sprite 5_20
+      name: Rika Jump Sprite_20
       rect:
         serializedVersion: 2
         x: 512
         y: 0
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 93f21496b38bbc840800000000000000
-      internalID: 5245488756311535417
+      spriteID: 74f48f72230021f4daec54835ca6543f
+      internalID: -1711764963
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Jump Sprite 5_21
+      name: Rika Jump Sprite_21
       rect:
         serializedVersion: 2
         x: 768
         y: 0
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: a412e4972cfef3b40800000000000000
-      internalID: 5422316094915223882
+      spriteID: e95d81690894dca43b3867e12e6b0be8
+      internalID: -1186387909
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Jump Sprite 5_22
+      name: Rika Jump Sprite_22
       rect:
         serializedVersion: 2
         x: 1024
         y: 0
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 3d0cd7e05166f4090800000000000000
-      internalID: -8048101768464318253
+      spriteID: 5f07901ab8e7b844e86c3e204d174b9e
+      internalID: -1701791144
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Prototype Jump Sprite 5_23
+      name: Rika Jump Sprite_23
       rect:
         serializedVersion: 2
         x: 1280
         y: 0
         width: 256
         height: 512
-      alignment: 9
-      pivot: {x: 0.5, y: 0.095}
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 38889c149b11cd5b0800000000000000
-      internalID: -5342375570597902205
+      spriteID: 42defeab2060cb04dbc12698a5abb498
+      internalID: -1929895715
       vertices: []
       indices: 
       edges: []
@@ -713,32 +713,32 @@ TextureImporter:
     spriteCustomMetadata:
       entries:
       - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":256.0,"y":512.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.0949999988079071},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":9,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":256.0,"y":512.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.0},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":7,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      Prototype Jump Sprite 5_0: -8793911786456955144
-      Prototype Jump Sprite 5_1: -291484978130002876
-      Prototype Jump Sprite 5_10: 5363263466343469373
-      Prototype Jump Sprite 5_11: 7680407804051040562
-      Prototype Jump Sprite 5_12: -5163299347247491393
-      Prototype Jump Sprite 5_13: -2585276084106131321
-      Prototype Jump Sprite 5_14: 4976342062671154675
-      Prototype Jump Sprite 5_15: -6130460310358251178
-      Prototype Jump Sprite 5_16: 138434715340824698
-      Prototype Jump Sprite 5_17: -2162330506653781278
-      Prototype Jump Sprite 5_18: -295885164754072812
-      Prototype Jump Sprite 5_19: -921969424528333012
-      Prototype Jump Sprite 5_2: -4274912651995957873
-      Prototype Jump Sprite 5_20: 5245488756311535417
-      Prototype Jump Sprite 5_21: 5422316094915223882
-      Prototype Jump Sprite 5_22: -8048101768464318253
-      Prototype Jump Sprite 5_23: -5342375570597902205
-      Prototype Jump Sprite 5_3: -4749412175351599894
-      Prototype Jump Sprite 5_4: -4735215168545404577
-      Prototype Jump Sprite 5_5: 112699392013879216
-      Prototype Jump Sprite 5_6: 2978560447320461704
-      Prototype Jump Sprite 5_7: -6342255616493136144
-      Prototype Jump Sprite 5_8: 7106278726144521123
-      Prototype Jump Sprite 5_9: 5007356960522799391
+      Rika Jump Sprite_0: -1731769058
+      Rika Jump Sprite_1: 1738629961
+      Rika Jump Sprite_10: 2001291669
+      Rika Jump Sprite_11: 1249355225
+      Rika Jump Sprite_12: 50213449
+      Rika Jump Sprite_13: 771388095
+      Rika Jump Sprite_14: -1286709072
+      Rika Jump Sprite_15: -2035103918
+      Rika Jump Sprite_16: 1178275383
+      Rika Jump Sprite_17: -1066529270
+      Rika Jump Sprite_18: 655610957
+      Rika Jump Sprite_19: -449703845
+      Rika Jump Sprite_2: 1415040701
+      Rika Jump Sprite_20: -1711764963
+      Rika Jump Sprite_21: -1186387909
+      Rika Jump Sprite_22: -1701791144
+      Rika Jump Sprite_23: -1929895715
+      Rika Jump Sprite_3: -408996058
+      Rika Jump Sprite_4: 80794250
+      Rika Jump Sprite_5: 118099064
+      Rika Jump Sprite_6: -441146836
+      Rika Jump Sprite_7: 107310200
+      Rika Jump Sprite_8: 376552194
+      Rika Jump Sprite_9: 117245323
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
