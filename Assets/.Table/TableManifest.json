@@ -5,16 +5,16 @@
             "hash": "5baf61c008e0c77213e197d2670e6516"
         },
         {
-            "fileName": "Object",
-            "hash": "2c226f003314d3089ea89ea37bb5d3f8"
-        },
-        {
             "fileName": "AttackCommand",
             "hash": "9c930a3b8059df0b9a37ba9f5ac5d6e2"
         },
         {
             "fileName": "AttackHitBox",
             "hash": "5c4a10dab8a85812b264fb0d7fb4046c"
+        },
+        {
+            "fileName": "Object",
+            "hash": "e5647f4cd96bfe46abeffce91e5a2a84"
         }
     ]
 }
