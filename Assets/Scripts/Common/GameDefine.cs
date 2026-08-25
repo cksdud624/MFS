@@ -82,7 +82,7 @@ namespace Common
         #endregion
 
         #region Asset Path
-        public const string AssetPathEffect = "Assets/AddressableAssets/Effects/";
+        public const string AssetPathEffect = "Assets/AddressableAssets/Effect/";
         public const string AssetPathAnimation = "Assets/AddressableAssets/Animation/";
         public const string AssetExtensionPrefab = ".prefab";
         public const string AssetExtensionAnimation = ".anim";
