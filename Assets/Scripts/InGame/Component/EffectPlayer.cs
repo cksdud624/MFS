@@ -12,7 +12,8 @@ namespace InGame.Component
     /// <summary>
     /// 오브젝트 이펙트 재생 전용.
     /// 프리팹은 오브젝트 생성 시점에 미리 로드해두고, 재생 요청이 오면 인스턴스를 만든다.
-    /// 인스턴스는 재생을 시작한 자리에 남아야 하므로 자식이 아니라 월드에 띄우고,
+    /// 한 번 터지고 마는 이펙트는 재생을 시작한 자리에 남아야 하므로 월드에 띄우고,
+    /// 대시처럼 재생 내내 뿜는 이펙트는 오브젝트를 따라가야 하므로 자식으로 붙인다.
     /// 수명이 끝나면 EffectInstance가 스스로 파괴한다.
     /// </summary>
     public class EffectPlayer : MonoBehaviour
@@ -20,7 +21,7 @@ namespace InGame.Component
         private ObjectContext _objectContext;
         private long _objectId;
         private readonly Dictionary<EffectType, GameObject> _prefabs = new();
-        //월드에 띄워둔 인스턴스. 오브젝트가 사라질 때 같이 정리하려고 들고 있는다
+        //띄워둔 인스턴스. 오브젝트가 사라질 때 같이 정리하려고 들고 있는다
         private readonly List<EffectInstance> _instances = new();
 
         public async UniTask Init(ObjectContext objectContext, long objectId)
@@ -46,22 +47,28 @@ namespace InGame.Component
 
         private string GetAssetName(EffectType effectType) => $"{_objectId}/{effectType}";
 
-        /// <summary>direction은 이펙트가 향할 방향. 0이면 캐릭터가 보는 방향을 그대로 쓴다</summary>
+        /// <summary>
+        /// direction은 이펙트의 진행 방향. 0이면 캐릭터가 보는 방향을 그대로 쓴다.
+        /// 이펙트가 진행 방향의 앞뒤 중 어느 쪽으로 그려지는지는 프리팹이 들고 있으므로
+        /// 호출한 쪽에서 방향을 뒤집어 넘기지 않는다.
+        /// </summary>
         public void Play(EffectType effectType, Vector2 direction = default, float duration = 0f)
         {
             if (!_prefabs.TryGetValue(effectType, out var prefab)) return;
 
             if (direction.sqrMagnitude <= Mathf.Epsilon)
                 direction = _objectContext.Direction == Direction.Right ? Vector2.right : Vector2.left;
+            direction.Normalize();
 
             //오브젝트 원점이 아니라 콜라이더 중점을 기준으로 잡고, 거기서 진행 방향으로 정해진 거리만큼 띄운다
-            var origin = transform.position
-                         + (Vector3)_objectContext.ColliderOffset
-                         + (Vector3)(direction.normalized * GetDistance(effectType));
-            //재생을 시작한 자리에 남아야 하므로 자식으로 붙이지 않고 월드에 띄운다
-            var instance = Instantiate(prefab, origin, Quaternion.identity);
+            var offset = (Vector3)(_objectContext.ColliderOffset + direction * GetDistance(effectType));
+
+            //재생 내내 뿜는 이펙트는 오브젝트를 따라가야 하므로 자식으로 붙이고,
+            //한 번 터지고 마는 이펙트는 시작한 자리에 남아야 하므로 월드에 띄운다
+            bool follow = ShouldFollow(effectType);
+            var instance = Instantiate(prefab, transform.position + offset, Quaternion.identity, follow ? transform : null);
             var effectInstance = instance.AddComponent<EffectInstance>();
-            effectInstance.Play(direction, duration);
+            effectInstance.Play(direction, duration, follow);
 
             //수명이 끝난 인스턴스는 스스로 사라지므로 빈 자리만 걷어내고 새로 넣는다
             _instances.RemoveAll(played => played == null);
@@ -75,12 +82,19 @@ namespace InGame.Component
             _ => 0f
         };
 
+        //재생 내내 뿜는 이펙트만 오브젝트를 따라간다
+        private static bool ShouldFollow(EffectType effectType) => effectType switch
+        {
+            EffectType.Dash => true,
+            _ => false
+        };
+
         private void OnDestroy()
         {
             if (_objectContext != null)
                 _objectContext.OnEffectPlay -= Play;
 
-            //인스턴스가 자식이 아니라 살아남으므로, 프리팹 핸들을 반납하기 전에 먼저 지운다
+            //월드에 띄운 인스턴스는 오브젝트가 사라져도 살아남으므로, 프리팹 핸들을 반납하기 전에 먼저 지운다
             foreach (var instance in _instances)
             {
                 if (instance != null)

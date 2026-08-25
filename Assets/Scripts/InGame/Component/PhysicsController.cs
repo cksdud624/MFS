@@ -61,10 +61,12 @@ namespace InGame.Component
             _isDashing = dashing;
             if (dashing) return;
 
+            //위로 올라간 대시만 속도를 절반 남기고, 아래로 내려간 대시는 남은 속도를 지운다.
+            //가로 대시라면 건드릴 세로 속도가 없으므로 지금 값을 그대로 둔다
             float velocityY = _dashVelocity.y switch
             {
                 > 0f => _dashVelocity.y / 2f,
-                < 0f => -_dashVelocity.y / 2f,
+                < 0f => 0f,
                 _ => Rigidbody.linearVelocity.y
             };
             Rigidbody.linearVelocity = new Vector2(Rigidbody.linearVelocity.x, velocityY);

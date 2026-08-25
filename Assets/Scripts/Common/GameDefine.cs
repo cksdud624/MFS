@@ -77,8 +77,9 @@ namespace Common
             Dash,
         }
 
-        //중점에서 진행 방향으로 얼마나 띄울지. 프리팹을 고치지 않고 여기서 거리만 맞춘다
-        public const float DashEffectDistance = 1f;
+        //콜라이더 중점에서 진행 방향으로 얼마나 더 띄울지. 프리팹을 고치지 않고 여기서 미세 조정한다.
+        //프리팹이 이미 자기 기준 오프셋을 들고 있으므로 기본은 0
+        public const float DashEffectDistance = -1f;
         #endregion
 
         #region Asset Path

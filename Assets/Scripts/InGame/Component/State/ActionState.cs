@@ -49,8 +49,8 @@ namespace InGame.Component.State
             ObjectContext.SetDashVelocity(dashDirection * DashSpeed);
             ObjectContext.SetDashing(true);
             //대시가 유지되는 동안만 파티클을 뿜는다
-            //이펙트는 진행 방향 뒤로 끌리는 모양이라 대시 방향을 뒤집어서 넘긴다
-            ObjectContext.PlayEffect(EffectType.Dash, -dashDirection, DashDuration);
+            //꼬리가 뒤로 끌리는 모양은 프리팹이 들고 있으므로 대시 방향을 그대로 넘긴다
+            ObjectContext.PlayEffect(EffectType.Dash, dashDirection, DashDuration);
         }
 
         /// <summary>제자리에서 휘두른다. 판정은 정해진 시점에 OnFixedUpdate가 날린다</summary>

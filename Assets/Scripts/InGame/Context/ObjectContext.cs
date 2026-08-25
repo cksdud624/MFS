@@ -117,7 +117,8 @@ namespace InGame.Context
         public event Action OnAttackHit;
         public void RequestAttackHit() => OnAttackHit?.Invoke();
 
-        //이펙트 재생. direction이 0이면 캐릭터가 보는 방향을 쓰고, duration이 0 이하면 파티클 수명대로 재생한다
+        //이펙트 재생. direction은 이펙트의 진행 방향이며 0이면 캐릭터가 보는 방향을 쓴다.
+        //duration이 0 이하면 파티클 수명대로 재생한다
         public event Action<EffectType, Vector2, float> OnEffectPlay;
         public void PlayEffect(EffectType effectType, Vector2 direction = default, float duration = 0f)
             => OnEffectPlay?.Invoke(effectType, direction, duration);
