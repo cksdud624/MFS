@@ -44,17 +44,19 @@ namespace InGame.Context
             OnDirectionChanged?.Invoke(direction);
         }
 
-        //콜라이더 오프셋. 테이블 값은 오른쪽을 보는 기준이라 왼쪽을 보면 X만 뒤집는다
-        public Vector2 ColliderOffset
+        /// <summary>
+        /// 오른쪽을 보는 기준으로 적은 오프셋을 지금 보는 방향에 맞춰 뒤집는다.
+        /// 테이블 값은 전부 오른쪽 기준으로 적으므로 쓰는 쪽에서 부호를 따지지 않는다
+        /// </summary>
+        public Vector2 GetDirectionalOffset(Vector2 offset)
         {
-            get
-            {
-                var offset = ObjectData.ColliderOffset;
-                if (Direction == Direction.Left)
-                    offset.x = -offset.x;
-                return offset;
-            }
+            if (Direction == Direction.Left)
+                offset.x = -offset.x;
+            return offset;
         }
+
+        //오브젝트 원점(발밑)에서 콜라이더 중점까지의 오프셋
+        public Vector2 ColliderOffset => GetDirectionalOffset(ObjectData.ColliderOffset);
 
         //이동
         public event Action<float> OnMoveVelocityChanged;
@@ -138,14 +140,14 @@ namespace InGame.Context
         public event Action OnAttackRestart;
         public void RequestAttackRestart() => OnAttackRestart?.Invoke();
 
-        //이펙트 재생. direction은 이펙트의 진행 방향이며 0이면 캐릭터가 보는 방향을 쓴다.
-        //duration이 0 이하면 파티클 수명대로 재생한다.
-        //variant는 같은 종류 안에서 몇 번째 프리팹인지를 가리킨다. Attack 1이면 Attack1 프리팹이고, 0이면 번호 없는 기본 프리팹
-        public event Action<EffectType, int, Vector2, float> OnEffectPlay;
-        public void PlayEffect(EffectType effectType, Vector2 direction = default, float duration = 0f)
-            => PlayEffect(effectType, 0, direction, duration);
-        public void PlayEffect(EffectType effectType, int variant, Vector2 direction = default, float duration = 0f)
-            => OnEffectPlay?.Invoke(effectType, variant, direction, duration);
+        //이펙트 재생.
+        //variant는 같은 종류 안에서 몇 번째 프리팹인지를 가리킨다. Attack 1이면 Attack1 프리팹이고, 0이면 번호 없는 기본 프리팹.
+        //offset은 콜라이더 중점에서 얼마나 띄울지. 오른쪽 기준으로 적은 값이면 GetDirectionalOffset을 거쳐서 넘긴다.
+        //direction은 이펙트의 진행 방향이며 0이면 캐릭터가 보는 방향을 쓴다.
+        //duration이 0 이하면 파티클 수명대로 재생한다
+        public event Action<EffectType, int, Vector2, Vector2, float> OnEffectPlay;
+        public void PlayEffect(EffectType effectType, int variant, Vector2 offset, Vector2 direction = default, float duration = 0f)
+            => OnEffectPlay?.Invoke(effectType, variant, offset, direction, duration);
 
         //현재 재생 중인 애니메이션.
         //variant는 같은 종류 안에서 몇 번째 클립인지를 가리킨다. Attack 1이면 Attack1 클립이고, 0이면 번호 없는 기본 클립

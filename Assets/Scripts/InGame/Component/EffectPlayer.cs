@@ -62,11 +62,12 @@ namespace InGame.Component
             => variant > 0 ? $"{_objectData.Id}/{effectType}{variant}" : $"{_objectData.Id}/{effectType}";
 
         /// <summary>
+        /// offset은 콜라이더 중점에서 얼마나 띄울지. 어디에 띄울지는 부르는 쪽이 정한다.
         /// direction은 이펙트의 진행 방향. 0이면 캐릭터가 보는 방향을 그대로 쓴다.
         /// 이펙트가 진행 방향의 앞뒤 중 어느 쪽으로 그려지는지는 프리팹이 들고 있으므로
         /// 호출한 쪽에서 방향을 뒤집어 넘기지 않는다.
         /// </summary>
-        public void Play(EffectType effectType, int variant, Vector2 direction = default, float duration = 0f)
+        public void Play(EffectType effectType, int variant, Vector2 offset, Vector2 direction = default, float duration = 0f)
         {
             string assetName = GetAssetName(effectType, variant);
             if (!_prefabs.TryGetValue(assetName, out var prefab))
@@ -81,13 +82,13 @@ namespace InGame.Component
                 direction = _objectContext.Direction == Direction.Right ? Vector2.right : Vector2.left;
             direction.Normalize();
 
-            //오브젝트 원점이 아니라 콜라이더 중점을 기준으로 잡고, 거기서 진행 방향으로 정해진 거리만큼 띄운다
-            var offset = (Vector3)(_objectContext.ColliderOffset + direction * GetDistance(effectType));
+            //오브젝트 원점(발밑)이 아니라 콜라이더 중점을 기준으로 잡고, 거기서 넘겨받은 만큼 띄운다
+            var position = transform.position + (Vector3)(_objectContext.ColliderOffset + offset);
 
             //재생 내내 뿜는 이펙트는 오브젝트를 따라가야 하므로 자식으로 붙이고,
             //한 번 터지고 마는 이펙트는 시작한 자리에 남아야 하므로 월드에 띄운다
             bool follow = ShouldFollow(effectType);
-            var instance = Instantiate(prefab, transform.position + offset, Quaternion.identity, follow ? transform : null);
+            var instance = Instantiate(prefab, position, Quaternion.identity, follow ? transform : null);
             var effectInstance = instance.AddComponent<EffectInstance>();
             effectInstance.Play(direction, duration, follow);
 
@@ -95,14 +96,6 @@ namespace InGame.Component
             _instances.RemoveAll(played => played == null);
             _instances.Add(effectInstance);
         }
-
-        //이펙트마다 중점에서 띄우는 거리가 다르므로 여기서 골라준다
-        private static float GetDistance(EffectType effectType) => effectType switch
-        {
-            EffectType.Dash => DashEffectDistance,
-            EffectType.Attack => AttackEffectDistance,
-            _ => 0f
-        };
 
         //재생 내내 뿜는 이펙트만 오브젝트를 따라간다
         private static bool ShouldFollow(EffectType effectType) => effectType switch

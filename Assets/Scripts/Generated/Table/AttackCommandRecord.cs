@@ -47,6 +47,7 @@ namespace Generated.Table
 		public string Command {get; private set;}
 		public int Animation {get; private set;}
 		public int Effect {get; private set;}
+		public Vector2 EffectOffset {get; private set;}
 		public bool IsHitRequired {get; private set;}
 		public float AttackTime {get; private set;}
 		public List<long> AttackHitBox {get; private set;}
@@ -59,13 +60,25 @@ namespace Generated.Table
 			Command = tableDatas[2];
 			Animation = int.TryParse(tableDatas[3], out int vInt3) ? vInt3 : 0;
 			Effect = int.TryParse(tableDatas[4], out int vInt4) ? vInt4 : 0;
-			IsHitRequired = bool.TryParse(tableDatas[5], out bool vBool5) ? vBool5 : false;
-			AttackTime = float.TryParse(tableDatas[6], out float vFloat6) ? vFloat6 : 0f;
-			AttackHitBox = new ();
-			string[] items7 = tableDatas[7].Split(',');
-			foreach (var item in items7)
+			string[] items5 = tableDatas[5].Split(',', ';');
+			if (items5.Length == 2)
 			{
-				AttackHitBox.Add(long.TryParse(item, out long vLong7) ? vLong7 : 0L);
+				float.TryParse(items5[0], out float resultX5);
+				float.TryParse(items5[1], out float resultY5);
+				EffectOffset = new Vector2(resultX5, resultY5);
+			}
+			else
+			{
+				EffectOffset = Vector2.zero;
+				Debug.LogError($"EffectOffset is not Vector2 : {tableDatas[5]}");
+			}
+			IsHitRequired = bool.TryParse(tableDatas[6], out bool vBool6) ? vBool6 : false;
+			AttackTime = float.TryParse(tableDatas[7], out float vFloat7) ? vFloat7 : 0f;
+			AttackHitBox = new ();
+			string[] items8 = tableDatas[8].Split(',');
+			foreach (var item in items8)
+			{
+				AttackHitBox.Add(long.TryParse(item, out long vLong8) ? vLong8 : 0L);
 			}
 		}
 	}

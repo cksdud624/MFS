@@ -78,12 +78,9 @@ namespace Common
             Attack,
         }
 
-        //콜라이더 중점에서 진행 방향으로 얼마나 더 띄울지. 프리팹을 고치지 않고 여기서 미세 조정한다.
-        //프리팹이 이미 자기 기준 오프셋을 들고 있으므로 기본은 0
+        //콜라이더 중점에서 대시 방향으로 얼마나 더 띄울지.
+        //공격 이펙트는 AttackCommand 테이블의 EffectOffset이 자리를 정하지만 대시는 아직 테이블이 없다
         public const float DashEffectDistance = -1f;
-        //Attack 프리팹은 파티클이 원점에서 4.5 정도 앞에 놓인 채로 만들어져 있어서 그만큼 뒤로 당겨준다.
-        //프리팹을 원점 기준으로 다시 배치하면 0으로 되돌릴 것
-        public const float AttackEffectDistance = -4.4f;
         #endregion
 
         #region Asset Path

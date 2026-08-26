@@ -19,8 +19,10 @@ namespace InGame.Component.State
         //이번 단계에서 켜야 하는 판정 박스와, 각각 한 번이라도 판정을 냈는지
         private readonly List<AttackHitBoxData> _hitBoxes = new();
         private readonly List<bool> _hitBoxFired = new();
-        //이펙트는 첫 판정에 맞춰 한 번만 띄운다. 번호가 0이면 이 커맨드는 이펙트를 쓰지 않는다
+        //이펙트는 첫 판정에 맞춰 한 번만 띄운다. 번호가 0이면 이 커맨드는 이펙트를 쓰지 않는다.
+        //오프셋은 오른쪽을 보는 기준의 테이블 값 그대로 들고 있다가 띄울 때 보는 방향에 맞춘다
         private int _effectVariant;
+        private Vector2 _effectOffset;
         private float _effectDelay;
         private bool _effectPlayed;
         //이번 프레임에 다음 커맨드로 이어졌는지. 이어졌으면 Action 상태를 빠져나가지 않는다
@@ -66,9 +68,10 @@ namespace InGame.Component.State
 
             ObjectContext.SetDashVelocity(dashDirection * DashSpeed);
             ObjectContext.SetDashing(true);
-            //대시가 유지되는 동안만 파티클을 뿜는다
-            //꼬리가 뒤로 끌리는 모양은 프리팹이 들고 있으므로 대시 방향을 그대로 넘긴다
-            ObjectContext.PlayEffect(EffectType.Dash, dashDirection, DashDuration);
+            //대시가 유지되는 동안만 파티클을 뿜는다.
+            //꼬리가 뒤로 끌리는 모양은 프리팹이 들고 있으므로 대시 방향을 그대로 넘긴다.
+            //오프셋은 대각선 대시도 있으므로 좌우로 뒤집지 않고 대시 방향을 그대로 따라간다
+            ObjectContext.PlayEffect(EffectType.Dash, 0, dashDirection * DashEffectDistance, dashDirection, DashDuration);
         }
 
         /// <summary>
@@ -96,6 +99,7 @@ namespace InGame.Component.State
             _effectPlayed = false;
             _effectDelay = 0f;
             _effectVariant = attackCommand?.Effect ?? 0;
+            _effectOffset = attackCommand?.EffectOffset ?? Vector2.zero;
 
             if (attackCommand == null) return;
 
@@ -141,8 +145,9 @@ namespace InGame.Component.State
             if (!_effectPlayed && _effectVariant > 0 && _elapsed >= _effectDelay)
             {
                 _effectPlayed = true;
-                //방향을 넘기지 않으면 캐릭터가 보는 방향(좌/우)을 그대로 쓴다
-                ObjectContext.PlayEffect(EffectType.Attack, _effectVariant);
+                //공격 도중에 방향이 바뀔 수 있으므로 띄우는 시점의 방향으로 오프셋을 맞춘다.
+                //진행 방향을 넘기지 않으면 캐릭터가 보는 방향(좌/우)을 그대로 쓴다
+                ObjectContext.PlayEffect(EffectType.Attack, _effectVariant, ObjectContext.GetDirectionalOffset(_effectOffset));
             }
 
             for (int i = 0; i < _hitBoxes.Count; i++)
