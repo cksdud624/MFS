@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Common;
 using Cysharp.Threading.Tasks;
+using Generated.Table;
 using InGame.Context;
 using UnityEngine;
 using static Common.AssetKeys;
@@ -19,42 +20,62 @@ namespace InGame.Component
     public class EffectPlayer : MonoBehaviour
     {
         private ObjectContext _objectContext;
-        private long _objectId;
-        private readonly Dictionary<EffectType, GameObject> _prefabs = new();
+        private ObjectData _objectData;
+        //에셋 이름(1001/Dash, 1001/Attack1 …)으로 들고 있는다. 공격은 커맨드 단계마다 프리팹이 달라진다
+        private readonly Dictionary<string, GameObject> _prefabs = new();
         //띄워둔 인스턴스. 오브젝트가 사라질 때 같이 정리하려고 들고 있는다
         private readonly List<EffectInstance> _instances = new();
 
-        public async UniTask Init(ObjectContext objectContext, long objectId)
+        public async UniTask Init(ObjectContext objectContext, ObjectData objectData)
         {
             _objectContext = objectContext;
-            _objectId = objectId;
+            _objectData = objectData;
             _objectContext.OnEffectPlay += Play;
 
             var assetManager = Global.Instance.AssetManager;
             var loadTasks = new List<UniTask>();
+            //이펙트가 없는 오브젝트도 있으므로 번호 없는 기본 프리팹은 없어도 에러로 보지 않는다
             foreach (EffectType effectType in Enum.GetValues(typeof(EffectType)))
-                loadTasks.Add(LoadPrefab(assetManager, effectType));
+                loadTasks.Add(LoadPrefab(assetManager, GetAssetName(effectType, 0), logOnMissing: false));
+
+            //공격은 커맨드 단계마다 다른 이펙트를 쓰므로 테이블에 적힌 번호만큼 더 받아둔다.
+            //테이블이 번호를 지정했는데 프리팹이 없으면 만들다 만 것이므로 에러로 알린다
+            var effects = Global.Instance.TableManager.AttackCommandRecord.GetEffects(objectData);
+            if (effects != null)
+            {
+                foreach (int variant in effects)
+                    loadTasks.Add(LoadPrefab(assetManager, GetAssetName(EffectType.Attack, variant), logOnMissing: true));
+            }
+
             await UniTask.WhenAll(loadTasks);
         }
 
-        //이펙트가 없는 오브젝트도 있으므로 없는 것은 에러로 보지 않는다
-        private async UniTask LoadPrefab(AssetManager assetManager, EffectType effectType)
+        private async UniTask LoadPrefab(AssetManager assetManager, string assetName, bool logOnMissing)
         {
-            var prefab = await assetManager.LoadAssetAsync<GameObject>(LoadTarget.Effect, GetAssetName(effectType), logOnMissing: false);
+            var prefab = await assetManager.LoadAssetAsync<GameObject>(LoadTarget.Effect, assetName, logOnMissing);
             if (prefab == null) return;
-            _prefabs[effectType] = prefab;
+            _prefabs[assetName] = prefab;
         }
 
-        private string GetAssetName(EffectType effectType) => $"{_objectId}/{effectType}";
+        /// <summary>Attack1, Attack2처럼 번호가 붙은 프리팹의 에셋 이름. 번호가 0이면 번호 없는 기본 프리팹</summary>
+        private string GetAssetName(EffectType effectType, int variant)
+            => variant > 0 ? $"{_objectData.Id}/{effectType}{variant}" : $"{_objectData.Id}/{effectType}";
 
         /// <summary>
         /// direction은 이펙트의 진행 방향. 0이면 캐릭터가 보는 방향을 그대로 쓴다.
         /// 이펙트가 진행 방향의 앞뒤 중 어느 쪽으로 그려지는지는 프리팹이 들고 있으므로
         /// 호출한 쪽에서 방향을 뒤집어 넘기지 않는다.
         /// </summary>
-        public void Play(EffectType effectType, Vector2 direction = default, float duration = 0f)
+        public void Play(EffectType effectType, int variant, Vector2 direction = default, float duration = 0f)
         {
-            if (!_prefabs.TryGetValue(effectType, out var prefab)) return;
+            string assetName = GetAssetName(effectType, variant);
+            if (!_prefabs.TryGetValue(assetName, out var prefab))
+            {
+                //번호가 붙은 이펙트는 테이블이 쓰겠다고 지정한 것이므로 조용히 넘기지 않는다
+                if (variant > 0)
+                    Debug.LogError($"Effect {AssetPathEffect}{assetName}{AssetExtensionPrefab} not found");
+                return;
+            }
 
             if (direction.sqrMagnitude <= Mathf.Epsilon)
                 direction = _objectContext.Direction == Direction.Right ? Vector2.right : Vector2.left;
@@ -79,6 +100,7 @@ namespace InGame.Component
         private static float GetDistance(EffectType effectType) => effectType switch
         {
             EffectType.Dash => DashEffectDistance,
+            EffectType.Attack => AttackEffectDistance,
             _ => 0f
         };
 
@@ -105,8 +127,8 @@ namespace InGame.Component
             var assetManager = Global.Instance?.AssetManager;
             if (assetManager != null)
             {
-                foreach (var effectType in _prefabs.Keys)
-                    assetManager.ReleaseAsset<GameObject>(LoadTarget.Effect, GetAssetName(effectType));
+                foreach (var assetName in _prefabs.Keys)
+                    assetManager.ReleaseAsset<GameObject>(LoadTarget.Effect, assetName);
             }
 
             _prefabs.Clear();

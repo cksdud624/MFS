@@ -1,3 +1,5 @@
-Id	HitBoxOffset	HitBoxSize
-long	Vector2	Vector2
-10010101	0,0	0,0
+Id	HitBoxOffset	HitBoxSize	StartTime	Duration
+long	Vector2	Vector2	float	float
+10010101	0.25,0	0.4,0.3	0.15	0.05
+10010201	0.28,0	0.45,0.3	0.15	0.05
+10010301	0.32,0	0.55,0.35	0.18	0.1

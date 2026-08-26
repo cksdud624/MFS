@@ -74,14 +74,18 @@ namespace InGame.Component
 
         private async UniTask Run(float duration, CancellationToken cancellationToken)
         {
-            //duration이 정해져 있으면 그 시간만큼만 뿜고, 이미 나온 파티클은 수명대로 사라지게 둔다
+            //duration이 정해져 있으면 그 시간만큼만 뿜고 방출을 끊는다. 이미 나온 파티클은 수명대로 사라진다.
+            //0 이하면 프리팹이 정한 만큼 다 뿜어야 하므로 방출에 손대지 않는다.
+            //여기서 바로 끊으면 파티클이 하나도 나오기 전에 사라져서 아무것도 안 보인다
             if (duration > 0f)
+            {
                 await UniTask.Delay(TimeSpan.FromSeconds(duration), cancellationToken: cancellationToken);
 
-            foreach (var particle in _particles)
-                particle.Stop(false, ParticleSystemStopBehavior.StopEmitting);
+                //루프 파티클도 방출만 멈추면 수명대로 사라진다
+                foreach (var particle in _particles)
+                    particle.Stop(false, ParticleSystemStopBehavior.StopEmitting);
+            }
 
-            //루프 파티클도 방출만 멈추면 수명대로 사라진다
             await UniTask.WaitUntil(IsDead, cancellationToken: cancellationToken);
             Destroy(gameObject);
         }

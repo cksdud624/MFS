@@ -109,27 +109,54 @@ namespace InGame.Context
         public ActionType ActionType { get; private set; }
         public void SetActionType(ActionType actionType) => ActionType = actionType;
 
-        //공격 시작. 여기서 중복 히트 기록을 비운다
-        public event Action OnAttackStart;
-        public void StartAttack() => OnAttackStart?.Invoke();
+        //지금 나갈 공격. 어떤 애니메이션을 얼마나, 어떤 판정 박스로 휘두를지는 전부 여기 들어있다.
+        //Action 상태로 들어가기 전에 정해둔다
+        public AttackCommandData AttackCommand { get; private set; }
+        public void SetAttackCommand(AttackCommandData attackCommand) => AttackCommand = attackCommand;
 
-        //공격 판정이 나가는 시점
-        public event Action OnAttackHit;
-        public void RequestAttackHit() => OnAttackHit?.Invoke();
+        //공격 한 단계의 시작. 여기서 중복 히트 기록을 비운다
+        public event Action OnAttackStart;
+        public void StartAttack()
+        {
+            IsAttackHit = false;
+            OnAttackStart?.Invoke();
+        }
+
+        //이번 단계가 무언가를 맞췄는지. 다음 커맨드가 히트를 요구할 때 본다
+        public bool IsAttackHit { get; private set; }
+        public void ReportAttackHit() => IsAttackHit = true;
+
+        //판정 박스를 켜는 시점. 유지시간 동안은 매 프레임 들어온다
+        public event Action<AttackHitBoxData> OnAttackHit;
+        public void RequestAttackHit(AttackHitBoxData hitBox) => OnAttackHit?.Invoke(hitBox);
+
+        //공격 한 단계가 끝났다. 예약된 입력이 있으면 여기서 다음 단계를 이어붙인다
+        public event Action OnAttackEnd;
+        public void EndAttack() => OnAttackEnd?.Invoke();
+
+        //공격 중 다음 단계로 이어붙이기 (연속 공격)
+        public event Action OnAttackRestart;
+        public void RequestAttackRestart() => OnAttackRestart?.Invoke();
 
         //이펙트 재생. direction은 이펙트의 진행 방향이며 0이면 캐릭터가 보는 방향을 쓴다.
-        //duration이 0 이하면 파티클 수명대로 재생한다
-        public event Action<EffectType, Vector2, float> OnEffectPlay;
+        //duration이 0 이하면 파티클 수명대로 재생한다.
+        //variant는 같은 종류 안에서 몇 번째 프리팹인지를 가리킨다. Attack 1이면 Attack1 프리팹이고, 0이면 번호 없는 기본 프리팹
+        public event Action<EffectType, int, Vector2, float> OnEffectPlay;
         public void PlayEffect(EffectType effectType, Vector2 direction = default, float duration = 0f)
-            => OnEffectPlay?.Invoke(effectType, direction, duration);
+            => PlayEffect(effectType, 0, direction, duration);
+        public void PlayEffect(EffectType effectType, int variant, Vector2 direction = default, float duration = 0f)
+            => OnEffectPlay?.Invoke(effectType, variant, direction, duration);
 
-        //현재 재생 중인 애니메이션
+        //현재 재생 중인 애니메이션.
+        //variant는 같은 종류 안에서 몇 번째 클립인지를 가리킨다. Attack 1이면 Attack1 클립이고, 0이면 번호 없는 기본 클립
         public AnimationType Animation { get; private set; } = AnimationType.Idle;
-        public event Action<AnimationType, Action> OnAnimationChanged;
+        public event Action<AnimationType, int, Action> OnAnimationChanged;
         public void SetAnimation(AnimationType animationType, Action onAnimationEnd = null)
+            => SetAnimation(animationType, 0, onAnimationEnd);
+        public void SetAnimation(AnimationType animationType, int variant, Action onAnimationEnd = null)
         {
             Animation = animationType;
-            OnAnimationChanged?.Invoke(animationType, onAnimationEnd);
+            OnAnimationChanged?.Invoke(animationType, variant, onAnimationEnd);
         }
     }
 }

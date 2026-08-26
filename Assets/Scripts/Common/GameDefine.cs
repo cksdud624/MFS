@@ -75,11 +75,15 @@ namespace Common
         public enum EffectType
         {
             Dash,
+            Attack,
         }
 
         //콜라이더 중점에서 진행 방향으로 얼마나 더 띄울지. 프리팹을 고치지 않고 여기서 미세 조정한다.
         //프리팹이 이미 자기 기준 오프셋을 들고 있으므로 기본은 0
         public const float DashEffectDistance = -1f;
+        //Attack 프리팹은 파티클이 원점에서 4.5 정도 앞에 놓인 채로 만들어져 있어서 그만큼 뒤로 당겨준다.
+        //프리팹을 원점 기준으로 다시 배치하면 0으로 되돌릴 것
+        public const float AttackEffectDistance = -4.4f;
         #endregion
 
         #region Asset Path
@@ -137,13 +141,12 @@ namespace Common
         #endregion
 
         #region Attack
-        //테이블로 차후 관리해야하는 부분
-        //공격 상태를 유지하는 시간 / 그 중 판정이 나가는 시점
-        public const float AttackDuration = 0.4f;
-        public const float AttackHitDelay = 0.15f;
-        //판정 박스. offset.x는 캐릭터가 보는 방향 기준이라 왼쪽을 볼 때 자동으로 뒤집힌다
-        public static readonly Vector2 AttackHitBoxOffset = new(0.25f, 0f);
-        public static readonly Vector2 AttackHitBoxSize = new(0.4f, 0.3f);
+        //공격 커맨드는 누른 공격 버튼 번호를 순서대로 이어붙인 문자열이다.
+        //버튼이 1번뿐이면 "1" → "11" → "111"로 쌓이고, 이 문자열로 AttackCommand 테이블에서 공격을 찾는다.
+        //버튼이 늘어나면 2, 3을 넘겨서 "12", "121"처럼 쌓인다
+        public const int AttackButtonDefault = 1;
+        //한 단계가 끝난 뒤 다음 입력을 기다려주는 시간. 이 시간을 넘기면 커맨드가 처음으로 돌아간다
+        public const float AttackCommandResetTime = 0.4f;
         #endregion
 
         #region HitBox

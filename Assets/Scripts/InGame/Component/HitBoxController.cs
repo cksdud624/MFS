@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using Generated.Table;
 using InGame.Context;
 using UnityEngine;
 using static Common.GameDefine;
@@ -48,10 +49,20 @@ namespace InGame.Component
         /// <summary>공격(또는 콤보 한 단계)의 시작. 중복 히트 기록을 비운다</summary>
         public void BeginAttack() => _hitTargets.Clear();
 
-        /// <summary>기본 공격 판정. 데미지 처리가 생기기 전까지는 맞은 대상만 알린다</summary>
-        private void DetectAttack()
+        /// <summary>
+        /// 커맨드가 지정한 판정 박스로 판정을 낸다. 유지시간 동안 매 프레임 들어오지만
+        /// 이미 맞은 대상은 걸러지므로 한 단계에서 같은 대상을 여러 번 때리지 않는다.
+        /// 데미지 처리가 생기기 전까지는 맞은 대상만 알린다.
+        /// </summary>
+        private void DetectAttack(AttackHitBoxData hitBox)
         {
-            var targets = Detect(AttackHitBoxOffset, AttackHitBoxSize);
+            if (hitBox == null) return;
+
+            var targets = Detect(hitBox.HitBoxOffset, hitBox.HitBoxSize);
+            if (targets.Count == 0) return;
+
+            //다음 커맨드가 히트를 요구할 수 있으므로 맞았다는 것을 남겨둔다
+            _objectContext.ReportAttackHit();
             for (int i = 0; i < targets.Count; i++)
                 Debug.Log($"{name} hit {targets[i].transform.root.name}");
         }

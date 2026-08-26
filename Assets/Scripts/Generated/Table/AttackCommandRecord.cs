@@ -46,8 +46,9 @@ namespace Generated.Table
 		public long ObjectId {get; private set;}
 		public string Command {get; private set;}
 		public int Animation {get; private set;}
+		public int Effect {get; private set;}
 		public bool IsHitRequired {get; private set;}
-		public float ComboTime {get; private set;}
+		public float AttackTime {get; private set;}
 		public List<long> AttackHitBox {get; private set;}
 
 		public AttackCommandData(BinaryReader reader)
@@ -57,13 +58,14 @@ namespace Generated.Table
 			ObjectId = long.TryParse(tableDatas[1], out long vLong1) ? vLong1 : 0L;
 			Command = tableDatas[2];
 			Animation = int.TryParse(tableDatas[3], out int vInt3) ? vInt3 : 0;
-			IsHitRequired = bool.TryParse(tableDatas[4], out bool vBool4) ? vBool4 : false;
-			ComboTime = float.TryParse(tableDatas[5], out float vFloat5) ? vFloat5 : 0f;
+			Effect = int.TryParse(tableDatas[4], out int vInt4) ? vInt4 : 0;
+			IsHitRequired = bool.TryParse(tableDatas[5], out bool vBool5) ? vBool5 : false;
+			AttackTime = float.TryParse(tableDatas[6], out float vFloat6) ? vFloat6 : 0f;
 			AttackHitBox = new ();
-			string[] items6 = tableDatas[6].Split(',');
-			foreach (var item in items6)
+			string[] items7 = tableDatas[7].Split(',');
+			foreach (var item in items7)
 			{
-				AttackHitBox.Add(long.TryParse(item, out long vLong6) ? vLong6 : 0L);
+				AttackHitBox.Add(long.TryParse(item, out long vLong7) ? vLong7 : 0L);
 			}
 		}
 	}

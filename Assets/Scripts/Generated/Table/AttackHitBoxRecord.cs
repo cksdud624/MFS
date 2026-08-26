@@ -45,6 +45,8 @@ namespace Generated.Table
 		public long Id {get; private set;}
 		public Vector2 HitBoxOffset {get; private set;}
 		public Vector2 HitBoxSize {get; private set;}
+		public float StartTime {get; private set;}
+		public float Duration {get; private set;}
 
 		public AttackHitBoxData(BinaryReader reader)
 		{
@@ -74,6 +76,8 @@ namespace Generated.Table
 				HitBoxSize = Vector2.zero;
 				Debug.LogError($"HitBoxSize is not Vector2 : {tableDatas[2]}");
 			}
+			StartTime = float.TryParse(tableDatas[3], out float vFloat3) ? vFloat3 : 0f;
+			Duration = float.TryParse(tableDatas[4], out float vFloat4) ? vFloat4 : 0f;
 		}
 	}
 }

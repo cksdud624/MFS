@@ -57,7 +57,8 @@ namespace InGame.Component.Controller
 
         private void OnDash(InputAction.CallbackContext context) => InputContext.NotifyDash();
 
-        private void OnAttack(InputAction.CallbackContext context) => InputContext.NotifyAttack();
+        //공격 버튼이 늘어나면 버튼마다 자기 번호를 넘긴다
+        private void OnAttack(InputAction.CallbackContext context) => InputContext.NotifyAttack(AttackButtonDefault);
         #endregion
 
         private void OnDestroy()

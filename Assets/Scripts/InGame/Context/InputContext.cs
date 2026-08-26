@@ -19,7 +19,8 @@ namespace InGame.Context
         public event Action OnDash;
         public void NotifyDash() => OnDash?.Invoke();
 
-        public event Action OnAttack;
-        public void NotifyAttack() => OnAttack?.Invoke();
+        //누른 공격 버튼 번호. 커맨드 문자열은 이 번호를 순서대로 이어붙여서 만든다
+        public event Action<int> OnAttack;
+        public void NotifyAttack(int attackButton) => OnAttack?.Invoke(attackButton);
     }
 }
