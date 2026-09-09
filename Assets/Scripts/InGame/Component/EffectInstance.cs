@@ -18,8 +18,10 @@ namespace InGame.Component
         /// 프리팹이 알아서 들고 있으므로 호출한 쪽에서 뒤집어 넘기지 않는다.
         /// duration이 0 이하면 파티클 수명대로 재생한다.
         /// follow가 true면 부모를 따라 움직이는 이펙트로 보고 파티클을 월드 기준으로 시뮬레이션한다.
+        /// fitDuration이 true면 duration 안에 다 보여주도록 재생 속도를 맞춘다.
+        /// false면 duration 동안 뿜다가 방출만 끊고 남은 파티클은 수명대로 사라진다.
         /// </summary>
-        public void Play(Vector2 direction, float duration, bool follow = false)
+        public void Play(Vector2 direction, float duration, bool follow = false, bool fitDuration = false)
         {
             _particles = GetComponentsInChildren<ParticleSystem>(true);
 
@@ -27,11 +29,52 @@ namespace InGame.Component
             if (follow)
                 ApplyWorldSimulation();
 
+            //속도를 맞췄으면 정해진 시간에 스스로 끝나므로 방출을 따로 끊지 않는다
+            bool fitted = fitDuration && duration > 0f && ApplySpeedScale(duration);
+
             foreach (var particle in _particles)
                 particle.Play();
 
-            Run(duration, this.GetCancellationTokenOnDestroy()).Forget();
+            Run(fitted ? 0f : duration, this.GetCancellationTokenOnDestroy()).Forget();
         }
+
+        /// <summary>
+        /// 프리팹이 원래 재생되는 길이를 재서, 넘겨받은 시간에 딱 맞게 끝나도록 재생 속도를 곱한다.
+        /// 원래 1초짜리를 0.5초로 넘기면 2배속이 된다.
+        /// 끝이 없는 루프 이펙트는 맞출 수 없으므로 손대지 않고 false를 돌려준다
+        /// </summary>
+        private bool ApplySpeedScale(float duration)
+        {
+            float playTime = 0f;
+            foreach (var particle in _particles)
+            {
+                var main = particle.main;
+                if (main.loop) return false;
+
+                //마지막에 나온 파티클이 수명을 다할 때까지가 이 이펙트의 길이다
+                float endTime = main.startDelayMultiplier + main.duration + GetMaxLifetime(main.startLifetime);
+                playTime = Mathf.Max(playTime, endTime);
+            }
+
+            if (playTime <= 0f) return false;
+
+            float speed = playTime / duration;
+            foreach (var particle in _particles)
+            {
+                var main = particle.main;
+                //프리팹이 이미 배속을 잡아뒀을 수 있으므로 덮어쓰지 않고 곱한다
+                main.simulationSpeed *= speed;
+            }
+            return true;
+        }
+
+        /// <summary>파티클 수명 중 가장 긴 값. 곡선으로 잡아둔 경우는 배율을 그대로 본다</summary>
+        private static float GetMaxLifetime(ParticleSystem.MinMaxCurve startLifetime) => startLifetime.mode switch
+        {
+            ParticleSystemCurveMode.Constant => startLifetime.constant,
+            ParticleSystemCurveMode.TwoConstants => startLifetime.constantMax,
+            _ => startLifetime.curveMultiplier
+        };
 
         /// <summary>이펙트 중점을 축으로 진행 방향만큼 돌려준다</summary>
         private void ApplyDirection(Vector2 direction)

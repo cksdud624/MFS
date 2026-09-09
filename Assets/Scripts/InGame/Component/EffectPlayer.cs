@@ -67,7 +67,8 @@ namespace InGame.Component
         /// 이펙트가 진행 방향의 앞뒤 중 어느 쪽으로 그려지는지는 프리팹이 들고 있으므로
         /// 호출한 쪽에서 방향을 뒤집어 넘기지 않는다.
         /// </summary>
-        public void Play(EffectType effectType, int variant, Vector2 offset, Vector2 direction = default, float duration = 0f)
+        public void Play(EffectType effectType, int variant, Vector2 offset, Vector2 direction = default,
+            float duration = 0f, AttackType attackType = AttackType.None)
         {
             string assetName = GetAssetName(effectType, variant);
             if (!_prefabs.TryGetValue(assetName, out var prefab))
@@ -90,7 +91,11 @@ namespace InGame.Component
             bool follow = ShouldFollow(effectType);
             var instance = Instantiate(prefab, position, Quaternion.identity, follow ? transform : null);
             var effectInstance = instance.AddComponent<EffectInstance>();
-            effectInstance.Play(direction, duration, follow);
+            effectInstance.Play(direction, duration, follow, ShouldFitDuration(effectType));
+
+            //공격 판정은 이펙트가 들고 다닌다. 이펙트가 사라지면 판정도 같이 사라진다
+            if (attackType is not AttackType.None)
+                instance.AddComponent<AttackHitBox>().Init(_objectContext, transform, attackType);
 
             //수명이 끝난 인스턴스는 스스로 사라지므로 빈 자리만 걷어내고 새로 넣는다
             _instances.RemoveAll(played => played == null);
@@ -101,6 +106,17 @@ namespace InGame.Component
         private static bool ShouldFollow(EffectType effectType) => effectType switch
         {
             EffectType.Dash => true,
+            _ => false
+        };
+
+        /// <summary>
+        /// 넘겨받은 길이에 맞춰 재생 속도를 조정할지.
+        /// 공격 이펙트는 커맨드가 정한 시간 안에 다 보여줘야 하므로 길이에 맞춰 빠르게/느리게 돌린다.
+        /// 대시처럼 재생 내내 뿜는 이펙트는 그 시간 동안 계속 나와야 하므로 속도를 건드리지 않고 방출만 끊는다
+        /// </summary>
+        private static bool ShouldFitDuration(EffectType effectType) => effectType switch
+        {
+            EffectType.Attack => true,
             _ => false
         };
 

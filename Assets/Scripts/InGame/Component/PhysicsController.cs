@@ -16,6 +16,8 @@ namespace InGame.Component
         private float _velocityX;
         private bool _isDashing;
         private Vector2 _dashVelocity;
+        private bool _isAttacking;
+        private float _gravityScale;
 
         private readonly HashSet<Collider2D> _groundContacts = new();
 
@@ -26,11 +28,13 @@ namespace InGame.Component
             _objectContext.OnJumpVelocityChanged += OnJumpVelocityChanged;
             _objectContext.OnDashingChanged += OnDashingChanged;
             _objectContext.OnDashVelocityChanged += OnDashVelocityChanged;
+            _objectContext.OnAttackingChanged += OnAttackingChanged;
             _objectContext.OnDirectionChanged += OnDirectionChanged;
 
             var rb = GetComponent<Rigidbody2D>();
             Rigidbody = rb != null ? rb : gameObject.AddComponent<Rigidbody2D>();
-            Rigidbody.gravityScale = 1f;
+            _gravityScale = 1f;
+            Rigidbody.gravityScale = _gravityScale;
             Rigidbody.freezeRotation = true;
             Rigidbody.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
 
@@ -78,13 +82,28 @@ namespace InGame.Component
             Rigidbody.linearVelocity = velocity;
         }
 
+        /// <summary>
+        /// 공격 중에는 속도를 0으로 묶어둔다. 중력까지 꺼야 프레임 사이에 밀려 내려가지 않는다
+        /// </summary>
+        private void OnAttackingChanged(bool attacking)
+        {
+            _isAttacking = attacking;
+            Rigidbody.gravityScale = attacking ? 0f : _gravityScale;
+            if (attacking)
+                Rigidbody.linearVelocity = Vector2.zero;
+        }
+
         private void OnDirectionChanged(Direction direction) => ApplyColliderOffset();
         #endregion
         
         #region LifeCycle
         public void OnFixedUpdate()
         {
-            if (_isDashing)
+            if (_isAttacking)
+            {
+                Rigidbody.linearVelocity = Vector2.zero;
+            }
+            else if (_isDashing)
             {
                 var dashVelocity = _dashVelocity;
                 //지상 대시 중 낭떠러지 끝에 닿으면 전진만 차단
@@ -191,6 +210,7 @@ namespace InGame.Component
                 _objectContext.OnJumpVelocityChanged -= OnJumpVelocityChanged;
                 _objectContext.OnDashingChanged -= OnDashingChanged;
                 _objectContext.OnDashVelocityChanged -= OnDashVelocityChanged;
+                _objectContext.OnAttackingChanged -= OnAttackingChanged;
                 _objectContext.OnDirectionChanged -= OnDirectionChanged;
             }
         }

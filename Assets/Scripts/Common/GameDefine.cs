@@ -142,15 +142,18 @@ namespace Common
         //버튼이 1번뿐이면 "1" → "11" → "111"로 쌓이고, 이 문자열로 AttackCommand 테이블에서 공격을 찾는다.
         //버튼이 늘어나면 2, 3을 넘겨서 "12", "121"처럼 쌓인다
         public const int AttackButtonDefault = 1;
+
+        //공격의 종류. 한 번의 커맨드에 마법과 기계가 같이 나가며, 테이블은 타입마다 한 줄씩 들고 있다.
+        //번호는 AttackCommand 테이블의 Type 컬럼에 그대로 적는다
+        public enum AttackType
+        {
+            None = 0,
+            Magic = 1,
+            Machine = 2,
+        }
+
         //한 단계가 끝난 뒤 다음 입력을 기다려주는 시간. 이 시간을 넘기면 커맨드가 처음으로 돌아간다
         public const float AttackCommandResetTime = 0.4f;
-        #endregion
-
-        #region HitBox
-        //한 번의 판정에서 감지할 수 있는 최대 대상 수
-        public const int HitBoxMaxDetectCount = 16;
-        //판정 범위를 눈으로 맞추기 위한 디버그 표시 시간
-        public const float HitBoxGizmoDuration = 0.2f;
         #endregion
 
         #region AI

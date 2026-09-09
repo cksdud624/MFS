@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Common;
 using Common.Template.FSM;
 using Common.Template.Interface;
@@ -153,19 +154,19 @@ namespace InGame.Component
         /// <summary>쌓인 커맨드에 누른 버튼을 이어붙여 나갈 공격을 정한다</summary>
         private void TryStartAttack(int attackButton)
         {
-            var attackCommand = FindAttackCommand(attackButton);
-            if (attackCommand == null)
+            var attackCommands = FindAttackCommand(attackButton);
+            if (attackCommands == null)
             {
                 ResetAttackCommand();
                 return;
             }
 
             //TODO : 커맨드 확인용. 콤보가 자리잡으면 지운다
-            Debug.Log($"공격 커맨드 : {_attackCommand} + {attackButton} → {attackCommand.Command} (Id {attackCommand.Id})");
+            Debug.Log($"공격 커맨드 : {_attackCommand} + {attackButton} → {attackCommands[0].Command} ({attackCommands.Count}종)");
 
-            _attackCommand = attackCommand.Command;
+            _attackCommand = attackCommands[0].Command;
             _attackCommandTimer = 0f;
-            _objectContext.SetAttackCommand(attackCommand);
+            _objectContext.SetAttackCommands(attackCommands);
             _objectContext.SetActionType(ActionType.Attack);
 
             //이미 공격 중이면 상태를 다시 들어가지 않고 다음 단계로 이어붙인다
@@ -176,21 +177,31 @@ namespace InGame.Component
         }
 
         /// <summary>
-        /// 쌓인 커맨드 뒤에 누른 버튼을 붙여서 찾는다.
+        /// 쌓인 커맨드 뒤에 누른 버튼을 붙여서 찾는다. 마법과 기계가 한 세트로 나오므로 목록으로 받는다.
         /// 콤보가 끝까지 갔거나 없는 조합이면 그 입력은 그냥 버린다. 커맨드는 처음으로 돌아간다.
         /// </summary>
-        private AttackCommandData FindAttackCommand(int attackButton)
+        private IReadOnlyList<AttackCommandData> FindAttackCommand(int attackButton)
         {
             var record = Global.Instance.TableManager.AttackCommandRecord;
-            var next = record.GetCommand(_objectContext.ObjectData, _attackCommand + attackButton);
-            if (next == null) return null;
+            var next = record.GetCommands(_objectContext.ObjectData, _attackCommand + attackButton);
+            if (next == null || next.Count == 0) return null;
 
             //이어지는 단계가 히트를 요구하면 직전 공격이 맞았는지 본다.
-            //첫 단계는 직전 공격이 없으므로 따지지 않는다
-            if (_attackCommand.Length > 0 && next.IsHitRequired && !_objectContext.IsAttackHit)
+            //타입이 하나라도 요구하면 세트로 막는다. 첫 단계는 직전 공격이 없으므로 따지지 않는다
+            if (_attackCommand.Length > 0 && !_objectContext.IsAttackHit && IsHitRequired(next))
                 return null;
 
             return next;
+        }
+
+        private static bool IsHitRequired(IReadOnlyList<AttackCommandData> attackCommands)
+        {
+            foreach (var attackCommand in attackCommands)
+            {
+                if (attackCommand.IsHitRequired)
+                    return true;
+            }
+            return false;
         }
 
         private void OnDestroy()
