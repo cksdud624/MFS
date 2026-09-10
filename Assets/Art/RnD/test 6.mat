@@ -7,14 +7,13 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: test 2
+  m_Name: test 6
   m_Shader: {fileID: 4800000, guid: a193cd01df3821843836de8c4c347a72, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
-  - _ENABLEADDCOLOR_ON
-  - _ENABLESHINE_ON
-  - _ENABLESPLITTONING_ON
+  - _ENABLEPIXELATE_ON
+  - _ENABLESTRONGTINT_ON
   - _SHADERFADING_NONE
   - _SHADERSPACE_UV
   - _TEXTURELAYER1SHEETTOGGLE_ON
@@ -55,7 +54,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: cfb2358743e5c324a946cc78dd487a09, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetalMask:
@@ -186,7 +185,7 @@ Material:
     - _DirectionalGlowFadeRotation: 0
     - _DirectionalGlowFadeWidth: 0.1
     - _EmissionToggle: 0
-    - _EnableAddColor: 1
+    - _EnableAddColor: 0
     - _EnableAddHue: 0
     - _EnableAlphaTint: 0
     - _EnableBlackTint: 0
@@ -218,7 +217,7 @@ Material:
     - _EnableOuterOutline: 0
     - _EnablePingPongGlow: 0
     - _EnablePixelOutline: 0
-    - _EnablePixelate: 0
+    - _EnablePixelate: 1
     - _EnablePoison: 0
     - _EnableRainbow: 0
     - _EnableRecolorRGB: 0
@@ -229,7 +228,7 @@ Material:
     - _EnableSharpen: 0
     - _EnableShiftHue: 0
     - _EnableShifting: 0
-    - _EnableShine: 1
+    - _EnableShine: 0
     - _EnableSineGlow: 0
     - _EnableSineMove: 0
     - _EnableSineRotate: 0
@@ -238,10 +237,10 @@ Material:
     - _EnableSmoothPixelArt: 0
     - _EnableSourceAlphaDissolve: 0
     - _EnableSourceGlowDissolve: 0
-    - _EnableSplitToning: 1
+    - _EnableSplitToning: 0
     - _EnableSqueeze: 0
     - _EnableSquish: 0
-    - _EnableStrongTint: 0
+    - _EnableStrongTint: 1
     - _EnableTextureLayer1: 0
     - _EnableTextureLayer2: 0
     - _EnableUVDistort: 0
@@ -362,7 +361,7 @@ Material:
     - _RectHeight: 100
     - _RectWidth: 100
     - _ResizableTexture: 0
-    - _Saturation: 17.42
+    - _Saturation: 1
     - _ScreenTilingPixelsPerUnit: 100
     - _ScreenWidthUnits: 10
     - _ShaderFading: 0
@@ -386,11 +385,11 @@ Material:
     - _ShineFade: 1
     - _ShineFrequency: 0.3
     - _ShineMaskToggle: 0
-    - _ShineRotation: 0
-    - _ShineSaturation: 0.75
+    - _ShineRotation: 30
+    - _ShineSaturation: 0.5
     - _ShineSmooth: 1
-    - _ShineSpeed: 3
-    - _ShineWidth: 0.3
+    - _ShineSpeed: 5
+    - _ShineWidth: 0.1
     - _SineGlowContrast: 1
     - _SineGlowFade: 1
     - _SineGlowFrequency: 4
@@ -493,8 +492,8 @@ Material:
     - _WindXPosition: 0
     - _WorldTilingPixelsPerUnit: 100
     m_Colors:
-    - _AddColorColor: {r: 1, g: 1, b: 1, a: 0}
-    - _AlphaTintColor: {r: 107.06918, g: 0, b: 107.0692, a: 0}
+    - _AddColorColor: {r: 0.09481418, g: 0.12985204, b: 0.59119487, a: 0}
+    - _AlphaTintColor: {r: 95.87451, g: 5.019608, b: 95.87451, a: 0}
     - _BlackTintColor: {r: 0, g: 0, b: 1, a: 0}
     - _BurnEdgeColor: {r: 11.98431, g: 1.129412, b: 0.1254902, a: 0}
     - _BurnEdgeNoiseScale: {r: 0.3, g: 0.3, b: 0, a: 0}
@@ -593,7 +592,7 @@ Material:
     - _ScreenTilingOffset: {r: 0, g: 0, b: 0, a: 0}
     - _ScreenTilingScale: {r: 1, g: 1, b: 0, a: 0}
     - _ShaderSpaceOffset: {r: 0, g: 0, b: 0, a: 0}
-    - _ShadowColor: {r: 0, g: 0, b: 0, a: 0}
+    - _ShadowColor: {r: 1, g: 0, b: 0, a: 0}
     - _ShadowOffset: {r: 0.05, g: -0.05, b: 0, a: 0}
     - _ShiftingColorA: {r: 1.498039, g: 0, b: 0, a: 0}
     - _ShiftingColorB: {r: 1.498039, g: 0.7490196, b: 0, a: 0}
@@ -608,12 +607,12 @@ Material:
     - _SourceGlowDissolveEdgeColor: {r: 11.98431, g: 0.627451, b: 0.627451, a: 0}
     - _SourceGlowDissolveNoiseScale: {r: 0.3, g: 0.3, b: 0, a: 0}
     - _SourceGlowDissolvePosition: {r: 0, g: 0, b: 0, a: 0}
-    - _SplitToningHighlightsColor: {r: 0, g: 0.015282041, b: 0.09827043, a: 0}
-    - _SplitToningShadowsColor: {r: 0.02050699, g: 0.034633677, b: 0.08254717, a: 0}
+    - _SplitToningHighlightsColor: {r: 0.14912377, g: 0.16872881, b: 0.72955966, a: 0}
+    - _SplitToningShadowsColor: {r: 0.045073308, g: 0.14074041, b: 0.3333333, a: 0}
     - _SpriteSheetRect: {r: 0, g: 0, b: 1, a: 1}
     - _SqueezeCenter: {r: 0.5, g: 0.5, b: 0, a: 0}
     - _SqueezeScale: {r: 2, g: 0, b: 0, a: 0}
-    - _StrongTintTint: {r: 0.34591186, g: 0.177307, b: 0.177307, a: 1}
+    - _StrongTintTint: {r: 0.07475965, g: 0.10269696, b: 0.17610055, a: 1}
     - _TextureLayer1Color: {r: 0.4494117, g: 1.298301, b: 2.996079, a: 1}
     - _TextureLayer1Offset: {r: 0, g: 0, b: 0, a: 0}
     - _TextureLayer1Scale: {r: 1, g: 1, b: 0, a: 0}

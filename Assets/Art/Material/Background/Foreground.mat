@@ -322,7 +322,7 @@ Material:
     - _NegativeFade: 1
     - _NormalIntensity: 1
     - _OuterOutlineDistortionToggle: 0
-    - _OuterOutlineFade: 0.14
+    - _OuterOutlineFade: 0.31
     - _OuterOutlineOutlineOnlyToggle: 0
     - _OuterOutlineTextureToggle: 0
     - _OuterOutlineWidth: 0.03

@@ -12,7 +12,7 @@ Material:
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
-  - _ENABLEBRIGHTNESS_ON
+  - _ENABLECONTRAST_ON
   - _ENABLEPINGPONGGLOW_ON
   - _ENABLESINEROTATE_ON
   - _SHADERFADING_NONE
@@ -168,7 +168,7 @@ Material:
     - _ColorReplaceFade: 1
     - _ColorReplaceRange: 0.05
     - _ColorReplaceSmoothness: 0.1
-    - _Contrast: 1
+    - _Contrast: 0.7
     - _CustomFadeAlpha: 1
     - _CustomFadeNoiseFactor: 0
     - _CustomFadeSmoothness: 2
@@ -192,12 +192,12 @@ Material:
     - _EnableAddHue: 0
     - _EnableAlphaTint: 0
     - _EnableBlackTint: 0
-    - _EnableBrightness: 1
+    - _EnableBrightness: 0
     - _EnableBurn: 0
     - _EnableCamouflage: 0
     - _EnableCheckerboard: 0
     - _EnableColorReplace: 0
-    - _EnableContrast: 0
+    - _EnableContrast: 1
     - _EnableCustomFade: 0
     - _EnableDirectionalAlphaFade: 0
     - _EnableDirectionalDistortion: 0
@@ -328,7 +328,7 @@ Material:
     - _OuterOutlineTextureToggle: 0
     - _OuterOutlineWidth: 0.04
     - _PingPongGlowContrast: 1
-    - _PingPongGlowFade: 0.36
+    - _PingPongGlowFade: 0.4
     - _PingPongGlowFrequency: 0.1
     - _PixelOutlineAlphaLimit: 0.5
     - _PixelOutlineFade: 1
@@ -568,8 +568,8 @@ Material:
     - _OuterOutlineNoiseScale: {r: 4, g: 4, b: 0, a: 0}
     - _OuterOutlineNoiseSpeed: {r: 0, g: 0.1, b: 0, a: 0}
     - _OuterOutlineTextureSpeed: {r: 0.5, g: 0, b: 0, a: 0}
-    - _PingPongGlowFrom: {r: 4.394428, g: 0.51130056, b: 4.292001, a: 0}
-    - _PingPongGlowTo: {r: 0.019643834, g: 0.12874365, b: 6.2471585, a: 0}
+    - _PingPongGlowFrom: {r: 1.9187363, g: 1.0246655, b: 1.8986449, a: 0}
+    - _PingPongGlowTo: {r: 1.8488557, g: 1.9032339, b: 5.1931086, a: 0}
     - _PixelOutlineColor: {r: 0, g: 0, b: 0, a: 1}
     - _PixelOutlineTextureSpeed: {r: 0.5, g: 0, b: 0, a: 0}
     - _PoisonColor: {r: 0.3137255, g: 2.996078, b: 0.3137255, a: 0}
