@@ -18,6 +18,9 @@ namespace InGame.Component
         private Vector2 _dashVelocity;
         private bool _isAttacking;
         private float _gravityScale;
+        //낭떠러지/벽 감지 레이캐스트가 볼 레이어.
+        //레이캐스트가 트리거까지 맞추도록 설정돼 있어서 판정 박스(HitBox)를 빼두지 않으면 지형보다 먼저 걸린다
+        private int _probeLayerMask;
 
         private readonly HashSet<Collider2D> _groundContacts = new();
 
@@ -43,6 +46,11 @@ namespace InGame.Component
             //콜라이더 크기와 위치는 오브젝트마다 다르므로 테이블 값을 쓴다
             _collider.size = _objectContext.ObjectData.ColliderSize;
             ApplyColliderOffset();
+
+            _probeLayerMask = Physics2D.DefaultRaycastLayers;
+            int hitBoxLayer = LayerMask.NameToLayer(LayerHitBox);
+            if (hitBoxLayer >= 0)
+                _probeLayerMask &= ~(1 << hitBoxLayer);
 
             Global.Instance.BindFixedUpdate(this);
 
@@ -136,7 +144,7 @@ namespace InGame.Component
                 direction > 0f ? bounds.max.x + probeDistance : bounds.min.x - probeDistance,
                 bounds.min.y + LedgeProbeMargin);
 
-            var hit = Physics2D.Raycast(origin, Vector2.down, LedgeProbeDepth + LedgeProbeMargin);
+            var hit = Physics2D.Raycast(origin, Vector2.down, LedgeProbeDepth + LedgeProbeMargin, _probeLayerMask);
             return hit.collider == null || !hit.collider.CompareTag(TagMap);
         }
 
@@ -152,7 +160,7 @@ namespace InGame.Component
                 direction > 0f ? bounds.max.x + LedgeProbeMargin : bounds.min.x - LedgeProbeMargin,
                 bounds.center.y);
 
-            var hit = Physics2D.Raycast(origin, new Vector2(direction, 0f), WallProbeDistance);
+            var hit = Physics2D.Raycast(origin, new Vector2(direction, 0f), WallProbeDistance, _probeLayerMask);
             return hit.collider != null && hit.collider.CompareTag(TagMap);
         }
         

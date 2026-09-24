@@ -15,10 +15,14 @@ namespace InGame.Component
     /// </summary>
     public class AttackHitBox : MonoBehaviour
     {
+        //맞은 콜라이더로 대상을 찾는다
+        private InGameContext _inGameContext;
         private ObjectContext _objectContext;
-        //판정을 낸 주인. 자기 몸을 때리지 않도록 걸러내고, 히트를 알릴 때도 쓴다
+        //판정을 낸 주인. 히트를 알릴 때 쓴다
         private Transform _owner;
         private AttackType _attackType;
+        //판정 박스를 둘 레이어. 맞출 대상(HurtBox)도 같은 레이어에 있다
+        private int _hitBoxLayer;
         private int _targetLayerMask;
 
         //판정 박스마다 만들어둔 콜라이더. 한 번 만들면 켜고 끄면서 계속 재사용한다
@@ -27,10 +31,11 @@ namespace InGame.Component
         private readonly List<BoxCollider2D> _activeColliders = new();
         //같은 공격에서 같은 대상을 여러 번 때리지 않도록 기록한다.
         //이 인스턴스는 한 타입의 한 단계만 맡으므로 집합 하나로 충분하다
-        private readonly HashSet<Collider2D> _hitTargets = new();
+        private readonly HashSet<ObjectContext> _hitTargets = new();
 
-        public void Init(ObjectContext objectContext, Transform owner, AttackType attackType)
+        public void Init(InGameContext inGameContext, ObjectContext objectContext, Transform owner, AttackType attackType)
         {
+            _inGameContext = inGameContext;
             _objectContext = objectContext;
             _owner = owner;
             _attackType = attackType;
@@ -38,13 +43,13 @@ namespace InGame.Component
             //이펙트가 단계보다 오래 살아남을 수 있다. 다음 단계가 시작되면 그 판정까지 받지 않도록 손을 뗀다
             _objectContext.OnAttackStart += Retire;
 
-            int hitBoxLayer = LayerMask.NameToLayer(LayerHitBox);
-            if (hitBoxLayer < 0)
+            _hitBoxLayer = LayerMask.NameToLayer(LayerHitBox);
+            if (_hitBoxLayer < 0)
             {
                 Debug.LogError($"Layer {LayerHitBox} is not defined.");
-                hitBoxLayer = 0;
+                _hitBoxLayer = 0;
             }
-            _targetLayerMask = 1 << hitBoxLayer;
+            _targetLayerMask = 1 << _hitBoxLayer;
 
             //판정은 이펙트 물리와 섞이면 안 되므로 중력도 충돌도 없는 Kinematic으로 둔다.
             //움직이지 않는 대상과도 트리거를 주고받으려면 useFullKinematicContacts를 켜둬야 한다
@@ -70,11 +75,12 @@ namespace InGame.Component
                 return;
             }
 
-            //박스 위치는 이펙트가 아니라 주인 기준으로 적혀 있으므로 켜는 시점에 월드 좌표로 놓는다.
-            //이펙트가 방향에 따라 돌아가 있을 수 있어서 로컬 좌표로 두면 자리가 틀어진다.
-            //한 번 놓은 뒤에는 이펙트를 따라다닌다
-            collider.transform.position = _owner.position + (Vector3)_objectContext.GetDirectionalOffset(hitBox.HitBoxOffset);
+            //판정 오브젝트는 이펙트 중점에 두고, 테이블의 오프셋은 콜라이더 offset으로 준다.
+            //오프셋은 오른쪽을 보는 기준이다. 이펙트 루트가 방향에 따라 돌아가 있을 수도,
+            //프리팹 안쪽만 돌아가 있을 수도 있어서 회전을 월드 기준으로 풀고 보는 방향으로 직접 뒤집는다
+            collider.transform.localPosition = Vector3.zero;
             collider.transform.rotation = Quaternion.identity;
+            collider.offset = _objectContext.GetDirectionalOffset(hitBox.HitBoxOffset);
             collider.size = hitBox.HitBoxSize;
             collider.enabled = true;
 
@@ -90,6 +96,7 @@ namespace InGame.Component
 
             var hitBoxObject = new GameObject($"HitBox_{hitBox.Id}");
             hitBoxObject.transform.SetParent(transform, false);
+            hitBoxObject.layer = _hitBoxLayer;
 
             collider = hitBoxObject.AddComponent<BoxCollider2D>();
             collider.isTrigger = true;
@@ -113,15 +120,17 @@ namespace InGame.Component
             if (other == null || _activeColliders.Count == 0) return;
             //맞출 수 있는 대상만 본다
             if (((1 << other.gameObject.layer) & _targetLayerMask) == 0) return;
-            //판정을 낸 주인과 그 하위 오브젝트는 제외
-            if (_owner == null || other.transform.IsChildOf(_owner)) return;
+            //공격 판정끼리도 같은 레이어라 겹치면 콜백이 오므로 등록된 피격 판정만 본다
+            if (!_inGameContext.TryGetHurtBoxOwner(other, out var target)) return;
+            //같은 진영은 때리지 않는다. 자기 자신도 여기서 걸러진다
+            if (target.Team == _objectContext.Team) return;
             //한 단계에서 같은 대상을 여러 번 때리지 않는다
-            if (!_hitTargets.Add(other)) return;
+            if (!_hitTargets.Add(target)) return;
 
             //다음 커맨드가 히트를 요구할 수 있으므로 맞았다는 것을 남겨둔다.
             //타입을 가리지 않고 하나라도 맞으면 히트로 본다
             _objectContext.ReportAttackHit();
-            Debug.Log($"{_owner.name} hit {other.transform.root.name} ({_attackType})");
+            Debug.Log($"[{_objectContext.Team}] {_owner.name} hit [{target.Team}] {other.transform.root.name} ({_attackType})");
         }
 
         /// <summary>맡은 단계가 끝났다. 판정을 거두고 더 이상 신호를 받지 않는다. 연출은 수명대로 남는다</summary>

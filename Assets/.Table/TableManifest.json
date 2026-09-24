@@ -1,20 +1,20 @@
 {
     "tables": [
         {
-            "fileName": "AttackCommand",
-            "hash": "5b3d91171db9dc7d0b8d009311f85bcd"
-        },
-        {
-            "fileName": "AttackHitBox",
-            "hash": "66df1ebf484b95037a217b5b4e812df5"
-        },
-        {
             "fileName": "Character",
             "hash": "5baf61c008e0c77213e197d2670e6516"
         },
         {
             "fileName": "Object",
             "hash": "fe2a2dc43d6caad2b50c8df1d1297ca1"
+        },
+        {
+            "fileName": "AttackHitBox",
+            "hash": "9d10bdb7947653a117553e2e8476e1af"
+        },
+        {
+            "fileName": "AttackCommand",
+            "hash": "5b3d91171db9dc7d0b8d009311f85bcd"
         }
     ]
 }

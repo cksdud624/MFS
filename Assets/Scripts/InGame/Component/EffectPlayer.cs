@@ -19,6 +19,8 @@ namespace InGame.Component
     /// </summary>
     public class EffectPlayer : MonoBehaviour
     {
+        //이펙트가 들고 다니는 공격 판정에 넘겨준다. 맞은 대상을 찾을 때 쓴다
+        private InGameContext _inGameContext;
         private ObjectContext _objectContext;
         private ObjectData _objectData;
         //에셋 이름(1001/Dash, 1001/Attack1 …)으로 들고 있는다. 공격은 커맨드 단계마다 프리팹이 달라진다
@@ -26,8 +28,9 @@ namespace InGame.Component
         //띄워둔 인스턴스. 오브젝트가 사라질 때 같이 정리하려고 들고 있는다
         private readonly List<EffectInstance> _instances = new();
 
-        public async UniTask Init(ObjectContext objectContext, ObjectData objectData)
+        public async UniTask Init(InGameContext inGameContext, ObjectContext objectContext, ObjectData objectData)
         {
+            _inGameContext = inGameContext;
             _objectContext = objectContext;
             _objectData = objectData;
             _objectContext.OnEffectPlay += Play;
@@ -95,7 +98,7 @@ namespace InGame.Component
 
             //공격 판정은 이펙트가 들고 다닌다. 이펙트가 사라지면 판정도 같이 사라진다
             if (attackType is not AttackType.None)
-                instance.AddComponent<AttackHitBox>().Init(_objectContext, transform, attackType);
+                instance.AddComponent<AttackHitBox>().Init(_inGameContext, _objectContext, transform, attackType);
 
             //수명이 끝난 인스턴스는 스스로 사라지므로 빈 자리만 걷어내고 새로 넣는다
             _instances.RemoveAll(played => played == null);

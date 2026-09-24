@@ -15,7 +15,11 @@ namespace InGame.Component
     /// </summary>
     public class HitBoxController : MonoBehaviour
     {
+        //맞은 콜라이더로 대상을 찾는다
+        private InGameContext _inGameContext;
         private ObjectContext _objectContext;
+        //판정 박스를 둘 레이어. 맞출 대상(HurtBox)도 같은 레이어에 있다
+        private int _hitBoxLayer;
         //맞출 수 있는 대상이 있는 레이어
         private int _targetLayerMask;
 
@@ -26,21 +30,22 @@ namespace InGame.Component
         private readonly List<AttackType> _activeTypes = new();
         //같은 공격에서 같은 대상을 여러 번 때리지 않도록 기록한다.
         //마법과 기계는 각자 한 번씩 때려야 하므로 타입별로 따로 센다
-        private readonly Dictionary<AttackType, HashSet<Collider2D>> _hitTargets = new();
+        private readonly Dictionary<AttackType, HashSet<ObjectContext>> _hitTargets = new();
 
-        public async UniTask Init(ObjectContext objectContext)
+        public async UniTask Init(InGameContext inGameContext, ObjectContext objectContext)
         {
+            _inGameContext = inGameContext;
             _objectContext = objectContext;
             _objectContext.OnAttackStart += BeginAttack;
             _objectContext.OnAttackHitBoxActiveChanged += SetHitBoxActive;
 
-            int hitBoxLayer = LayerMask.NameToLayer(LayerHitBox);
-            if (hitBoxLayer < 0)
+            _hitBoxLayer = LayerMask.NameToLayer(LayerHitBox);
+            if (_hitBoxLayer < 0)
             {
                 Debug.LogError($"Layer {LayerHitBox} is not defined.");
-                hitBoxLayer = 0;
+                _hitBoxLayer = 0;
             }
-            _targetLayerMask = 1 << hitBoxLayer;
+            _targetLayerMask = 1 << _hitBoxLayer;
 
             await UniTask.CompletedTask;
         }
@@ -81,9 +86,11 @@ namespace InGame.Component
                 return;
             }
 
-            //offset.x는 캐릭터가 보는 방향 기준이라 왼쪽을 볼 때 뒤집는다.
+            //판정 오브젝트는 본체 콜라이더 중점에 두고, 테이블의 오프셋은 콜라이더 offset으로 준다.
+            //x는 캐릭터가 보는 방향 기준이라 왼쪽을 볼 때 뒤집는다.
             //공격 중에는 방향이 잠기므로 켜는 시점에 한 번만 맞춰두면 된다
-            collider.transform.localPosition = _objectContext.GetDirectionalOffset(hitBox.HitBoxOffset);
+            collider.transform.localPosition = _objectContext.ColliderOffset;
+            collider.offset = _objectContext.GetDirectionalOffset(hitBox.HitBoxOffset);
             collider.size = hitBox.HitBoxSize;
             collider.enabled = true;
 
@@ -106,6 +113,7 @@ namespace InGame.Component
             //Rigidbody는 본체 것을 그대로 쓰므로 붙이지 않는다. 붙이면 판정이 본체와 따로 놀게 된다
             var hitBoxObject = new GameObject($"HitBox_{hitBox.Id}");
             hitBoxObject.transform.SetParent(transform, false);
+            hitBoxObject.layer = _hitBoxLayer;
 
             collider = hitBoxObject.AddComponent<BoxCollider2D>();
             collider.isTrigger = true;
@@ -129,8 +137,10 @@ namespace InGame.Component
             if (other == null || _activeColliders.Count == 0) return;
             //맞출 수 있는 대상만 본다
             if (((1 << other.gameObject.layer) & _targetLayerMask) == 0) return;
-            //자기 자신과 자기 하위 오브젝트는 제외
-            if (other.transform.IsChildOf(transform)) return;
+            //공격 판정끼리도 같은 레이어라 겹치면 콜백이 오므로 등록된 피격 판정만 본다
+            if (!_inGameContext.TryGetHurtBoxOwner(other, out var target)) return;
+            //같은 진영은 때리지 않는다. 자기 자신도 여기서 걸러진다
+            if (target.Team == _objectContext.Team) return;
 
             for (int i = 0; i < _activeColliders.Count; i++)
             {
@@ -139,16 +149,16 @@ namespace InGame.Component
                 var attackType = _activeTypes[i];
                 if (!_hitTargets.TryGetValue(attackType, out var hitTargets))
                 {
-                    hitTargets = new HashSet<Collider2D>();
+                    hitTargets = new HashSet<ObjectContext>();
                     _hitTargets[attackType] = hitTargets;
                 }
                 //한 단계에서 같은 대상을 여러 번 때리지 않는다
-                if (!hitTargets.Add(other)) continue;
+                if (!hitTargets.Add(target)) continue;
 
                 //다음 커맨드가 히트를 요구할 수 있으므로 맞았다는 것을 남겨둔다.
                 //타입을 가리지 않고 하나라도 맞으면 히트로 본다
                 _objectContext.ReportAttackHit();
-                Debug.Log($"{name} hit {other.transform.root.name} ({attackType})");
+                Debug.Log($"[{_objectContext.Team}] {name} hit [{target.Team}] {other.transform.root.name} ({attackType})");
             }
         }
 

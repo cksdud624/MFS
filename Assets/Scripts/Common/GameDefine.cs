@@ -34,6 +34,13 @@ namespace Common
             Left,
         }
 
+        //진영. 공격은 다른 진영의 피격 판정만 맞춘다
+        public enum Team
+        {
+            Player,
+            Enemy,
+        }
+
         public enum FSMState
         {
             Ground,

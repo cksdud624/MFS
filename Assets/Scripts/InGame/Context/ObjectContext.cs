@@ -9,17 +9,19 @@ using Direction = Common.GameDefine.Direction;
 using AnimationType = Common.GameDefine.AnimationType;
 using EffectType = Common.GameDefine.EffectType;
 using ActionType = Common.GameDefine.ActionType;
+using Team = Common.GameDefine.Team;
 
 
 namespace InGame.Context
 {
     public class ObjectContext
     {
-        public ObjectContext(ObjectData objectData)
+        public ObjectContext(ObjectData objectData, Team team)
         {
             //오브젝트 타입은 테이블 데이터에서 결정한다
             ObjectType = objectData.IsCharacter ? ObjectType.Character : ObjectType.Object;
             ObjectData = objectData;
+            Team = team;
             if (ObjectType is ObjectType.Character)
             {
                 var character = Global.Instance.TableManager.CharacterRecord.GetRecord(objectData.Id);
@@ -32,6 +34,7 @@ namespace InGame.Context
             }
         }
         public ObjectType ObjectType { get; private set; }
+        public Team Team { get; private set; }
 
         public ObjectData ObjectData {get; private set;}
         public CharacterData CharacterData {get; private set;}
@@ -62,6 +65,11 @@ namespace InGame.Context
 
         //오브젝트 원점(발밑)에서 콜라이더 중점까지의 오프셋
         public Vector2 ColliderOffset => GetDirectionalOffset(ObjectData.ColliderOffset);
+
+        //피격 판정의 크기와 오프셋. 지금은 본체 콜라이더와 같은 값을 쓴다.
+        //본체와 따로 맞춰야 하는 캐릭터가 생기면 Object 테이블에 컬럼을 추가하고 여기만 바꾼다
+        public Vector2 HurtBoxSize => ObjectData.ColliderSize;
+        public Vector2 HurtBoxOffset => ColliderOffset;
 
         //이동
         public event Action<float> OnMoveVelocityChanged;

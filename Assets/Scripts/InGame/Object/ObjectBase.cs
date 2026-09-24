@@ -5,6 +5,7 @@ using UniRx;
 using UnityEngine;
 using ObjectType = Common.GameDefine.ObjectType;
 using ObjectState  = Common.GameDefine.ObjectState;
+using Team = Common.GameDefine.Team;
 using InGame.Component;
 using InGame.Component.Controller;
 
@@ -34,12 +35,13 @@ namespace InGame.Object
             InGameContext = inGameContext;
             IsPlayer = isPlayer;
             InputContext = new ();
-            ObjectContext = new(objectData);
+            //진영은 지금 플레이어와 나머지 둘뿐이다. 소환수처럼 플레이어 편이 생기면 스포너가 정해서 넘긴다
+            ObjectContext = new(objectData, isPlayer ? Team.Player : Team.Enemy);
             AnimationPlayer = gameObject.AddComponent<AnimationPlayer>();
             await AnimationPlayer.Init(ObjectContext, objectData);
             //이펙트 프리팹은 여기서 미리 로드해두고 재생 요청 때 바로 쓴다
             EffectPlayer = gameObject.AddComponent<EffectPlayer>();
-            await EffectPlayer.Init(ObjectContext, objectData);
+            await EffectPlayer.Init(InGameContext, ObjectContext, objectData);
             //카메라는 플레이어만 따라간다
             if (isPlayer)
             {
