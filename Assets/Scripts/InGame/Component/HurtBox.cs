@@ -5,7 +5,7 @@ using static Common.GameDefine;
 namespace InGame.Component
 {
     /// <summary>
-    /// 캐릭터가 맞는 판정.
+    /// 오브젝트가 맞는 판정. 캐릭터가 아닌 오브젝트도 가진다.
     /// 본체 콜라이더는 지형과 부딪히는 용도이므로 공격 판정은 이쪽만 본다.
     /// HitBox 레이어의 사각형 트리거 하나를 들고 있고, 콜라이더를 InGameContext에 등록해둔다.
     /// 공격 판정은 등록된 콜라이더만 맞은 것으로 보고, 거기서 주인의 진영을 확인한다.

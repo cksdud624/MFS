@@ -14,7 +14,6 @@ namespace InGame.Object
     public class CharacterBase : ObjectBase
     {
         protected HitBoxController HitBoxController;
-        protected HurtBox HurtBox;
 
         public override async UniTask Init(InGameContext inGameContext, ObjectData objectData, bool isPlayer = false)
         {
@@ -26,12 +25,6 @@ namespace InGame.Object
             //공격 판정은 캐릭터만 사용한다
             HitBoxController = gameObject.AddComponent<HitBoxController>();
             await HitBoxController.Init(InGameContext, ObjectContext);
-
-            //맞는 판정도 캐릭터만 가진다. 본체와 레이어가 달라야 하므로 자식으로 둔다
-            var hurtBoxObject = new GameObject("HurtBox");
-            hurtBoxObject.transform.SetParent(transform, false);
-            HurtBox = hurtBoxObject.AddComponent<HurtBox>();
-            HurtBox.Init(InGameContext, ObjectContext);
         }
 
         private void ApplyIndependentLayer()

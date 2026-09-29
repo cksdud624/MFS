@@ -18,12 +18,10 @@ namespace InGame.Component.State
         private float _elapsed;
         //이번 단계가 끝나는 시각. 마법과 기계 중 늦게 끝나는 쪽에 맞춘다
         private float _attackTime;
-        //이번 단계에서 켜야 하는 판정 박스와, 어느 타입의 판정인지,
-        //지금 켜져 있는지, 한 번이라도 켠 적이 있는지
+        //이번 단계에서 켜야 하는 판정 박스와, 어느 타입의 판정인지, 지금 켜져 있는지
         private readonly List<AttackHitBoxData> _hitBoxes = new();
         private readonly List<AttackType> _hitBoxTypes = new();
         private readonly List<bool> _hitBoxActive = new();
-        private readonly List<bool> _hitBoxOpened = new();
         //이펙트를 쓰는 줄의 판정은 그 이펙트가 들고 다니고, 아니면 캐릭터가 직접 들고 있는다
         private readonly List<bool> _hitBoxByEffect = new();
         //이펙트는 타입마다 자기 첫 판정에 맞춰 한 번씩 띄운다. 아래 목록은 커맨드 줄 순서와 같다.
@@ -139,7 +137,6 @@ namespace InGame.Component.State
             _hitBoxes.Clear();
             _hitBoxTypes.Clear();
             _hitBoxActive.Clear();
-            _hitBoxOpened.Clear();
             _hitBoxByEffect.Clear();
             _effectDelays.Clear();
             _effectPlayed.Clear();
@@ -161,7 +158,8 @@ namespace InGame.Component.State
                 foreach (long hitBoxId in attackCommand.AttackHitBox)
                 {
                     var hitBox = record.GetRecord(hitBoxId);
-                    if (hitBox == null) continue;
+                    //유지시간이 없는 판정은 켤 구간이 없으므로 넘긴다
+                    if (hitBox == null || hitBox.Duration <= 0f) continue;
 
                     if (!hasHitBox || hitBox.StartTime < effectDelay)
                         effectDelay = hitBox.StartTime;
@@ -170,7 +168,6 @@ namespace InGame.Component.State
                     _hitBoxes.Add(hitBox);
                     _hitBoxTypes.Add(attackType);
                     _hitBoxActive.Add(false);
-                    _hitBoxOpened.Add(false);
                     _hitBoxByEffect.Add(attackCommand.Effect > 0);
                 }
 
@@ -232,9 +229,8 @@ namespace InGame.Component.State
             for (int i = 0; i < _hitBoxes.Count; i++)
             {
                 var hitBox = _hitBoxes[i];
-                //유지시간이 0이어도 켜지는 순간 한 프레임은 열어둬야 판정이 한 번은 나간다
                 bool active = _elapsed >= hitBox.StartTime
-                              && (_elapsed < hitBox.StartTime + hitBox.Duration || !_hitBoxOpened[i]);
+                              && _elapsed < hitBox.StartTime + hitBox.Duration;
                 SetHitBoxActive(i, active);
             }
         }
@@ -245,9 +241,6 @@ namespace InGame.Component.State
             if (_hitBoxActive[index] == active) return;
 
             _hitBoxActive[index] = active;
-            if (active)
-                _hitBoxOpened[index] = true;
-
             ObjectContext.SetAttackHitBoxActive(_hitBoxes[index], _hitBoxTypes[index], active, _hitBoxByEffect[index]);
         }
 

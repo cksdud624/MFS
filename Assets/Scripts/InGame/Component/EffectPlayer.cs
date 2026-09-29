@@ -76,8 +76,12 @@ namespace InGame.Component
             string assetName = GetAssetName(effectType, variant);
             if (!_prefabs.TryGetValue(assetName, out var prefab))
             {
+                //판정을 들고 다녀야 하는 이펙트가 없으면 캐릭터 쪽도 이 판정을 맡지 않으므로 공격이 통째로 헛나간다
+                if (attackType is not AttackType.None)
+                    Debug.LogError($"[{_objectContext.Team}] {name} : Effect {AssetPathEffect}{assetName}{AssetExtensionPrefab} not found. " +
+                                   $"{attackType} attack hit box is lost. Check AttackCommand Effect column or the prefab.");
                 //번호가 붙은 이펙트는 테이블이 쓰겠다고 지정한 것이므로 조용히 넘기지 않는다
-                if (variant > 0)
+                else if (variant > 0)
                     Debug.LogError($"Effect {AssetPathEffect}{assetName}{AssetExtensionPrefab} not found");
                 return;
             }

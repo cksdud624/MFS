@@ -52,8 +52,12 @@ namespace InGame.Component
             _targetLayerMask = 1 << _hitBoxLayer;
 
             //판정은 이펙트 물리와 섞이면 안 되므로 중력도 충돌도 없는 Kinematic으로 둔다.
-            //움직이지 않는 대상과도 트리거를 주고받으려면 useFullKinematicContacts를 켜둬야 한다
-            var body = gameObject.AddComponent<Rigidbody2D>();
+            //움직이지 않는 대상과도 트리거를 주고받으려면 useFullKinematicContacts를 켜둬야 한다.
+            //프리팹이 이미 Rigidbody를 들고 있으면 AddComponent가 null을 돌려주므로 있는 것을 덮어 쓴다
+            if (!TryGetComponent<Rigidbody2D>(out var body))
+                body = gameObject.AddComponent<Rigidbody2D>();
+            else
+                Debug.LogWarning($"Effect {name} already has Rigidbody2D. It is overridden to Kinematic for the attack hit box.");
             body.bodyType = RigidbodyType2D.Kinematic;
             body.useFullKinematicContacts = true;
         }

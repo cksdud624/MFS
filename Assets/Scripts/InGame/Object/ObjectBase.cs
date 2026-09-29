@@ -26,6 +26,7 @@ namespace InGame.Object
         protected CameraController CameraController;
         protected PhysicsController PhysicsController;
         protected ObjectStateController ObjectStateController;
+        protected HurtBox HurtBox;
 
         public bool IsPlayer {get; protected set;}
         public ObjectType ObjectType => ObjectContext?.ObjectType ?? ObjectType.Object;
@@ -52,6 +53,13 @@ namespace InGame.Object
             await PhysicsController.Init(ObjectContext);
             ObjectStateController = gameObject.AddComponent<ObjectStateController>();
             await ObjectStateController.Init(InputContext, ObjectContext);
+
+            //맞는 판정은 캐릭터가 아닌 오브젝트도 가진다. 본체와 레이어가 달라야 하므로 자식으로 둔다.
+            //Rigidbody는 PhysicsController가 붙인 본체 것을 쓰므로 그 뒤에 만든다
+            var hurtBoxObject = new GameObject("HurtBox");
+            hurtBoxObject.transform.SetParent(transform, false);
+            HurtBox = hurtBoxObject.AddComponent<HurtBox>();
+            HurtBox.Init(InGameContext, ObjectContext);
         }
 
         /// <summary>Order in Layer. 구간이 겹치지 않도록 스포너가 정해서 넘겨준다</summary>
