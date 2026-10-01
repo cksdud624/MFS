@@ -158,6 +158,7 @@ namespace InGame.Component
                 //다음 커맨드가 히트를 요구할 수 있으므로 맞았다는 것을 남겨둔다.
                 //타입을 가리지 않고 하나라도 맞으면 히트로 본다
                 _objectContext.ReportAttackHit();
+                target.RequestDamage();
                 Debug.Log($"[{_objectContext.Team}] {name} hit [{target.Team}] {other.transform.root.name} ({attackType})");
             }
         }

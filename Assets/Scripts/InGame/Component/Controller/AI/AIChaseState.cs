@@ -31,8 +31,11 @@ namespace InGame.Component.Controller.AI
 
             if (distance <= AttackRange)
             {
-                //TODO : 공격 액션 연결
-                Controller.StopMove();
+                //공격이 막혀 있으면 공격 거리에서 멈춰 서기만 한다
+                if (AIAttackEnabled)
+                    StateMachine.ChangeState(AIState.Attack);
+                else
+                    Controller.StopMove();
                 return;
             }
 

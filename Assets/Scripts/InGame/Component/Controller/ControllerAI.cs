@@ -28,18 +28,41 @@ namespace InGame.Component.Controller
             _stateMachine.AddState(AIState.Idle, new AIIdleState(_stateMachine, inputContext, objectContext, this));
             _stateMachine.AddState(AIState.Patrol, new AIPatrolState(_stateMachine, inputContext, objectContext, this));
             _stateMachine.AddState(AIState.Chase, new AIChaseState(_stateMachine, inputContext, objectContext, this));
+            _stateMachine.AddState(AIState.Attack, new AIAttackState(_stateMachine, inputContext, objectContext, this));
             _stateMachine.ChangeState(AIState.Idle);
 
+            ObjectContext.OnDamagedChanged += OnDamagedChanged;
             Global.Instance.BindFixedUpdate(this);
         }
 
-        public void OnFixedUpdate() => _stateMachine?.OnFixedUpdate();
+        public void OnFixedUpdate()
+        {
+            //피격 중에는 입력이 전부 막히므로 판단도 멈춘다.
+            //계속 돌리면 타이머와 이동 판단만 앞서 나가서 복귀하는 순간 방향과 입력이 어긋난다
+            if (ObjectContext.IsDamaged) return;
+            _stateMachine?.OnFixedUpdate();
+        }
+
+        /// <summary>
+        /// 맞으면 하던 행동을 내려놓고 대기로 돌아간다. 복귀하면 대기에서 대상을 다시 찾으며 새로 판단한다.
+        /// 이동 입력도 비워둬야 Ground/Air가 복귀할 때 피격 전 입력을 이어받지 않는다
+        /// </summary>
+        private void OnDamagedChanged(bool damaged)
+        {
+            if (!damaged || _stateMachine == null) return;
+
+            _stateMachine.ChangeState(AIState.Idle);
+            //이미 대기 중이었으면 다시 들어가지 않으므로 입력은 여기서 한 번 더 비운다
+            StopMove();
+        }
 
         public override void Dispose()
         {
             base.Dispose();
             if (_stateMachine == null) return;
 
+            if (ObjectContext != null)
+                ObjectContext.OnDamagedChanged -= OnDamagedChanged;
             Global.Instance?.UnBindFixedUpdate(this);
             _stateMachine = null;
         }
@@ -97,6 +120,18 @@ namespace InGame.Component.Controller
         public void StopMove() => SetMoveInput(0f);
         public void RequestJump() => InputContext.NotifyJump();
         public void RequestDash() => InputContext.NotifyDash();
+        //공격 중에 누르면 다음 단계로 예약되므로 플레이어가 연타하는 것과 같이 콤보가 이어진다
+        public void RequestAttack() => InputContext.NotifyAttack(AttackButtonDefault);
+
+        /// <summary>움직이지 않고 대상 쪽으로 돌아선다. 공격은 시작한 방향으로 잠기므로 누르기 전에 맞춘다</summary>
+        public void FaceTarget()
+        {
+            float directionX = GetTargetDirectionX();
+            if (directionX > 0f)
+                ObjectContext.SetDirection(Direction.Right);
+            else if (directionX < 0f)
+                ObjectContext.SetDirection(Direction.Left);
+        }
         #endregion
 
         #region Terrain

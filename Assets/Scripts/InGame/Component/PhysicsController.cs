@@ -121,8 +121,10 @@ namespace InGame.Component
             }
             else
             {
-                //지상은 즉시 반응, 공중은 관성을 받는다
-                float velocityX = _objectContext.IsGrounded ? _velocityX : ResolveAirVelocityX();
+                //지상은 즉시 반응, 공중은 관성을 받는다.
+                //피격 중에는 땅에 있어도 공중처럼 관성을 받으며 멈춰간다
+                bool useInertia = !_objectContext.IsGrounded || _objectContext.IsDamaged;
+                float velocityX = useInertia ? ResolveAirVelocityX() : _velocityX;
                 Rigidbody.linearVelocity = new Vector2(velocityX, Rigidbody.linearVelocity.y);
             }
             _objectContext.SetGrounded(_groundContacts.Count > 0);

@@ -63,6 +63,7 @@ namespace Common
             Idle,
             Patrol,
             Chase,
+            Attack,
         }
         #endregion
 
@@ -74,6 +75,7 @@ namespace Common
             Jump,
             Fly,
             Attack,
+            Damage,
         }
         #endregion
 
@@ -163,6 +165,19 @@ namespace Common
         public const float AttackCommandResetTime = 0.4f;
         #endregion
 
+        #region Counter
+        //테이블로 차후 관리해야하는 부분
+        //카운터는 한 번 쓸 때마다 스택을 하나 쓰고, 모자란 만큼 일정 시간마다 하나씩 다시 찬다
+        public const int CounterMaxStack = 1;
+        public const float CounterChargeInterval = 1f;
+        #endregion
+
+        #region Damage
+        //테이블로 차후 관리해야하는 부분
+        //피격 후 Damage 상태에 묶여 있는 시간. 이 시간이 지나면 Ground나 Air로 돌아간다
+        public const float DamageDuration = 5f;
+        #endregion
+
         #region AI
         //테이블로 차후 관리해야하는 부분
         public const float DetectRange = 5f;   //추격을 시작하는 거리
@@ -171,6 +186,11 @@ namespace Common
 
         public const float IdleDuration = 1.5f;
         public const float PatrolDuration = 3f;
+        //콤보를 다 쓰고 다음 공격을 시작하기까지 쉬는 시간
+        public const float AIAttackInterval = 1f;
+        //AI가 공격까지 하는지. 끄면 공격 거리에서 멈춰 서기만 한다.
+        //const로 두면 꺼진 쪽 코드가 도달 불가 경고를 내므로 readonly로 둔다
+        public static readonly bool AIAttackEnabled = false;
         //이 거리 안에서는 대상이 좌우 어느 쪽인지 따지지 않는다
         public const float TargetDirectionDeadZone = 0.05f;
         #endregion

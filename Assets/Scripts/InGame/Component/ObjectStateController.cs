@@ -20,6 +20,9 @@ namespace InGame.Component
         private int _dashStack = DashMaxStack;
         private float _dashChargeTimer;
 
+        private int _counterStack = CounterMaxStack;
+        private float _counterChargeTimer;
+
         //지금까지 쌓인 공격 커맨드. 공격 버튼을 누를 때마다 그 번호가 뒤에 붙는다 ("1" → "11" → "111")
         private string _attackCommand = string.Empty;
         //마지막 공격이 끝난 뒤 흐른 시간. 유예 시간을 넘기면 커맨드를 처음으로 되돌린다
@@ -33,8 +36,10 @@ namespace InGame.Component
             _objectContext = objectContext;
             _objectContext.OnGroundedChanged += OnGroundedChanged;
             _objectContext.OnAttackEnd += OnAttackEnd;
+            _objectContext.OnDamage += OnDamage;
             _inputContext.OnDash += OnDash;
             _inputContext.OnAttack += OnAttack;
+            _inputContext.OnCounter += OnCounter;
 
             _stateMachine = new StateMachine<FSMState>();
             _stateMachine.AddState(FSMState.Ground, new GroundState(_stateMachine, inputContext, objectContext));
@@ -53,6 +58,7 @@ namespace InGame.Component
         public void OnFixedUpdate()
         {
             UpdateDashCharge();
+            UpdateCounterCharge();
             UpdateAttackCommand();
             _stateMachine.OnFixedUpdate();
         }
@@ -67,6 +73,17 @@ namespace InGame.Component
             Debug.Log($"스택 충전 : {_dashChargeTimer}");
             _dashChargeTimer = 0f;
             _dashStack++;
+        }
+
+        private void UpdateCounterCharge()
+        {
+            if (_counterStack >= CounterMaxStack) return;
+
+            _counterChargeTimer += Time.fixedDeltaTime;
+            if (_counterChargeTimer < CounterChargeInterval) return;
+
+            _counterChargeTimer = 0f;
+            _counterStack++;
         }
 
         /// <summary>공격이 끝난 뒤 한동안 다음 입력이 없으면 쌓인 커맨드를 처음으로 되돌린다</summary>
@@ -141,6 +158,30 @@ namespace InGame.Component
             TryStartAttack(attackButton);
         }
 
+        /// <summary>
+        /// 맞았다. Damage는 Ground, Air, Action보다 우선하므로 무엇을 하던 중이든 끊고 들어간다.
+        /// 이미 Damage 상태면 상태가 알아서 시간을 다시 세므로 여기서는 들어가기만 한다
+        /// </summary>
+        private void OnDamage()
+        {
+            if (_stateMachine.CurrentKey is FSMState.Event or FSMState.Damage) return;
+
+            //맞으면 콤보도 끊긴다. 예약해둔 공격이 피격이 끝난 뒤에 튀어나오지 않도록 같이 비운다
+            ResetAttackCommand();
+            _stateMachine.ChangeState(FSMState.Damage);
+        }
+
+        //TODO : 카운터 동작 연결. 지금은 입력이 여기까지 들어오는지만 확인한다
+        private void OnCounter()
+        {
+            //휘두르는 중이나 맞고 있는 중에는 카운터를 낼 수 없다
+            if (_objectContext.IsAttacking || _objectContext.IsDamaged) return;
+            if (_counterStack <= 0) return;
+
+            _counterStack--;
+            Debug.Log($"카운터 입력 : {_stateMachine.CurrentKey} (남은 스택 {_counterStack})");
+        }
+
         /// <summary>공격 한 단계가 끝났다. 예약해둔 입력이 있으면 여기서 다음 단계로 이어붙인다</summary>
         private void OnAttackEnd()
         {
@@ -211,11 +252,13 @@ namespace InGame.Component
             {
                 _objectContext.OnGroundedChanged -= OnGroundedChanged;
                 _objectContext.OnAttackEnd -= OnAttackEnd;
+                _objectContext.OnDamage -= OnDamage;
             }
             if (_inputContext != null)
             {
                 _inputContext.OnDash -= OnDash;
                 _inputContext.OnAttack -= OnAttack;
+                _inputContext.OnCounter -= OnCounter;
             }
         }
     }

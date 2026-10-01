@@ -21,6 +21,7 @@ namespace InGame.Component.Controller
             _inputAction.Player.Jump.performed += OnJump;
             _inputAction.Player.Dash.performed += OnDash;
             _inputAction.Player.Attack.performed += OnAttack;
+            _inputAction.Player.Counter.performed += OnCounter;
 
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
@@ -37,6 +38,7 @@ namespace InGame.Component.Controller
             _inputAction.Player.Jump.performed -= OnJump;
             _inputAction.Player.Dash.performed -= OnDash;
             _inputAction.Player.Attack.performed -= OnAttack;
+            _inputAction.Player.Counter.performed -= OnCounter;
             _inputAction.Dispose();
             _inputAction = null;
         }
@@ -59,6 +61,8 @@ namespace InGame.Component.Controller
 
         //공격 버튼이 늘어나면 버튼마다 자기 번호를 넘긴다
         private void OnAttack(InputAction.CallbackContext context) => InputContext.NotifyAttack(AttackButtonDefault);
+
+        private void OnCounter(InputAction.CallbackContext context) => InputContext.NotifyCounter();
         #endregion
 
         private void OnDestroy()

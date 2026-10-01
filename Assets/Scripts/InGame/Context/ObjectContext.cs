@@ -45,8 +45,8 @@ namespace InGame.Context
         public void SetDirection(Direction direction)
         {
             //공격 중에는 몸이 묶여 있으므로 보는 방향도 돌리지 않는다.
-            //이 잠금은 대시로 캔슬해야만 풀린다
-            if (IsAttacking) return;
+            //이 잠금은 대시로 캔슬해야만 풀린다. 피격 중에도 입력이 막히므로 돌리지 않는다
+            if (IsAttacking || IsDamaged) return;
             if (Direction == direction) return;
             Direction = direction;
             OnDirectionChanged?.Invoke(direction);
@@ -166,6 +166,20 @@ namespace InGame.Context
         //공격 중 다음 단계로 이어붙이기 (연속 공격)
         public event Action OnAttackRestart;
         public void RequestAttackRestart() => OnAttackRestart?.Invoke();
+
+        //피격. 맞으면 Damage 상태로 들어가고, 이미 Damage 상태면 시간을 처음부터 다시 센다
+        public event Action OnDamage;
+        public void RequestDamage() => OnDamage?.Invoke();
+
+        //피격 중인지. 피격 중에는 일반 입력이 막히고 땅에서도 공중처럼 관성을 받는다
+        public bool IsDamaged { get; private set; }
+        public event Action<bool> OnDamagedChanged;
+        public void SetDamaged(bool damaged)
+        {
+            if (IsDamaged == damaged) return;
+            IsDamaged = damaged;
+            OnDamagedChanged?.Invoke(damaged);
+        }
 
         //이펙트 재생.
         //variant는 같은 종류 안에서 몇 번째 프리팹인지를 가리킨다. Attack 1이면 Attack1 프리팹이고, 0이면 번호 없는 기본 프리팹.
