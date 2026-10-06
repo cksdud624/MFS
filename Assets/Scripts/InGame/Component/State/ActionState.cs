@@ -30,25 +30,76 @@ namespace InGame.Component.State
         private readonly List<bool> _effectPlayed = new();
         //이번 프레임에 다음 커맨드로 이어졌는지. 이어졌으면 Action 상태를 빠져나가지 않는다
         private bool _attackRestarted;
+        //이번 카운터 대기에서 공격을 받아냈는지. 대기 한 번에 카운터는 한 번만 나간다
+        private bool _counterSucceeded;
 
         public override void OnEnter()
         {
             ObjectContext.OnDashRestart += HandleDashRestart;
             ObjectContext.OnAttackRestart += HandleAttackRestart;
+            ObjectContext.OnCounterRestart += HandleCounterRestart;
+            ObjectContext.OnCounterSuccess += HandleCounterSuccess;
 
-            if (ObjectContext.ActionType is ActionType.Attack)
-                ApplyAttack();
-            else
-                ApplyDash();
+            switch (ObjectContext.ActionType)
+            {
+                case ActionType.Attack:
+                    ApplyAttack();
+                    break;
+                case ActionType.Counter:
+                    ApplyCounter();
+                    break;
+                default:
+                    ApplyDash();
+                    break;
+            }
         }
 
         public override void OnExit()
         {
             ObjectContext.OnDashRestart -= HandleDashRestart;
             ObjectContext.OnAttackRestart -= HandleAttackRestart;
+            ObjectContext.OnCounterRestart -= HandleCounterRestart;
+            ObjectContext.OnCounterSuccess -= HandleCounterSuccess;
+            ObjectContext.SetDashing(false);
+            ObjectContext.SetAttacking(false);
+            ObjectContext.SetCountering(false);
+            CloseHitBoxes();
+        }
+
+        private void HandleCounterRestart()
+        {
+            ApplyCounter();
+        }
+
+        private void HandleCounterSuccess()
+        {
+            if (_counterSucceeded) return;
+            _counterSucceeded = true;
+
+            //TODO : 카운터 반격 연결. 지금은 받아내기만 하고 대기 시간이 끝나면 Ground나 Air로 돌아간다
+            Debug.Log($"카운터 성공 : {_elapsed:F2}초");
+        }
+
+        /// <summary>
+        /// 카운터 대기. 제자리에 서서 정해진 시간 동안 공격을 기다린다.
+        /// 대시나 공격을 끊고 들어올 수 있으므로 둘이 남긴 것(대시 속도, 공격 잠금, 판정)을 먼저 거둔다
+        /// </summary>
+        private void ApplyCounter()
+        {
+            _elapsed = 0f;
+            _counterSucceeded = false;
+
             ObjectContext.SetDashing(false);
             ObjectContext.SetAttacking(false);
             CloseHitBoxes();
+            SyncDirection();
+
+            ObjectContext.SetMoveVelocity(0f);
+            //전용 카운터 클립이 없으므로 지상에서는 대기 모션으로 대신한다. 공중은 지금 클립을 그대로 둔다
+            if (ObjectContext.IsGrounded)
+                ObjectContext.SetAnimation(AnimationType.Idle);
+            ObjectContext.SetCountering(true);
+            Debug.Log($"카운터 대기 시작 ({CounterWaitDuration}초)");
         }
 
         private void HandleDashRestart()
@@ -67,8 +118,9 @@ namespace InGame.Component.State
             _elapsed = 0f;
 
             //대시는 공격 잠금을 푸는 유일한 수단이다. 방향도 여기서 다시 입력에 맞춘다.
-            //휘두르던 도중이면 켜둔 판정도 같이 거둔다
+            //휘두르던 도중이면 켜둔 판정도 같이 거둔다. 카운터 대기 중이었으면 대기도 거기서 끝난다
             ObjectContext.SetAttacking(false);
+            ObjectContext.SetCountering(false);
             CloseHitBoxes();
             SyncDirection();
 
@@ -180,19 +232,26 @@ namespace InGame.Component.State
         {
             _elapsed += Time.fixedDeltaTime;
 
-            //대시로 캔슬되면 ActionType이 바뀌므로 매번 지금 무엇을 하는 중인지 보고 판단한다
-            if (ObjectContext.ActionType is ActionType.Attack)
+            //대시나 카운터로 캔슬되면 ActionType이 바뀌므로 매번 지금 무엇을 하는 중인지 보고 판단한다
+            switch (ObjectContext.ActionType)
             {
-                UpdateAttack();
+                case ActionType.Attack:
+                    UpdateAttack();
 
-                if (_elapsed < _attackTime) return;
+                    if (_elapsed < _attackTime) return;
 
-                //한 단계가 끝났다. 예약된 입력이 있으면 컨트롤러가 여기서 다음 단계를 이어붙인다
-                _attackRestarted = false;
-                ObjectContext.EndAttack();
-                if (_attackRestarted) return;
+                    //한 단계가 끝났다. 예약된 입력이 있으면 컨트롤러가 여기서 다음 단계를 이어붙인다
+                    _attackRestarted = false;
+                    ObjectContext.EndAttack();
+                    if (_attackRestarted) return;
+                    break;
+                case ActionType.Counter:
+                    if (_elapsed < CounterWaitDuration) return;
+                    break;
+                default:
+                    if (_elapsed < DashDuration) return;
+                    break;
             }
-            else if (_elapsed < DashDuration) return;
 
             StateMachine.ChangeState(ObjectContext.IsGrounded ? FSMState.Ground : FSMState.Air);
         }

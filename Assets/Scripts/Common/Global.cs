@@ -27,7 +27,11 @@ namespace Common
             await TableManager.Init();
             SceneLoader = InitGlobal<SceneLoader>();
             AssetManager = InitGlobal<AssetManager>();
-            
+#if UNITY_EDITOR
+            //에디터 전용 테스트 키
+            BindUpdate(new Test.EditorTestKeys());
+#endif
+
             SceneLoader.LoadScene<SceneParameterMain>(GameDefine.SceneType.Main, new SceneParameterMain());
         }
 

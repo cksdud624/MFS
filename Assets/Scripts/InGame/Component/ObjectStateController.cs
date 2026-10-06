@@ -166,20 +166,43 @@ namespace InGame.Component
         {
             if (_stateMachine.CurrentKey is FSMState.Event or FSMState.Damage) return;
 
+            //카운터 대기 중이면 맞지 않고 받아낸다. 대기가 끝날 때까지는 몇 번을 맞아도 전부 받아낸다
+            if (_objectContext.IsCountering)
+            {
+                _objectContext.NotifyCounterSuccess();
+                return;
+            }
+
             //맞으면 콤보도 끊긴다. 예약해둔 공격이 피격이 끝난 뒤에 튀어나오지 않도록 같이 비운다
             ResetAttackCommand();
             _stateMachine.ChangeState(FSMState.Damage);
         }
 
-        //TODO : 카운터 동작 연결. 지금은 입력이 여기까지 들어오는지만 확인한다
+        /// <summary>
+        /// 카운터 대기에 들어간다. 카운터는 Action 단계라 Ground, Air에서는 물론이고
+        /// 같은 단계인 대시, 공격 도중에도 끊고 들어갈 수 있다. Damage, Event에서는 받지 않는다
+        /// </summary>
         private void OnCounter()
         {
-            //휘두르는 중이나 맞고 있는 중에는 카운터를 낼 수 없다
-            if (_objectContext.IsAttacking || _objectContext.IsDamaged) return;
             if (_counterStack <= 0) return;
+            switch (_stateMachine.CurrentKey)
+            {
+                case FSMState.Damage:
+                case FSMState.Event:
+                    return;
+                case FSMState.Action:
+                    //대시나 공격 중이면 상태를 다시 들어가지 않고 카운터 대기로 갈아탄다. 콤보도 거기서 끊긴다
+                    _counterStack--;
+                    ResetAttackCommand();
+                    _objectContext.SetActionType(ActionType.Counter);
+                    _objectContext.RequestCounterRestart();
+                    return;
+            }
 
             _counterStack--;
-            Debug.Log($"카운터 입력 : {_stateMachine.CurrentKey} (남은 스택 {_counterStack})");
+            ResetAttackCommand();
+            _objectContext.SetActionType(ActionType.Counter);
+            _stateMachine.ChangeState(FSMState.Action);
         }
 
         /// <summary>공격 한 단계가 끝났다. 예약해둔 입력이 있으면 여기서 다음 단계로 이어붙인다</summary>

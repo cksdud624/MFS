@@ -167,6 +167,18 @@ namespace InGame.Context
         public event Action OnAttackRestart;
         public void RequestAttackRestart() => OnAttackRestart?.Invoke();
 
+        //카운터 대기 중인지. 이 동안 맞으면 Damage로 가지 않고 카운터가 된다
+        public bool IsCountering { get; private set; }
+        public void SetCountering(bool countering) => IsCountering = countering;
+
+        //Action 중 카운터 입력 (대시, 공격, 카운터 대기를 끊고 카운터 대기를 처음부터)
+        public event Action OnCounterRestart;
+        public void RequestCounterRestart() => OnCounterRestart?.Invoke();
+
+        //카운터 대기 중에 공격을 받아냈다
+        public event Action OnCounterSuccess;
+        public void NotifyCounterSuccess() => OnCounterSuccess?.Invoke();
+
         //피격. 맞으면 Damage 상태로 들어가고, 이미 Damage 상태면 시간을 처음부터 다시 센다
         public event Action OnDamage;
         public void RequestDamage() => OnDamage?.Invoke();

@@ -55,6 +55,7 @@ namespace Common
         {
             Dash,
             Attack,
+            Counter,
         }
 
         //AI 행동 상태
@@ -170,6 +171,8 @@ namespace Common
         //카운터는 한 번 쓸 때마다 스택을 하나 쓰고, 모자란 만큼 일정 시간마다 하나씩 다시 찬다
         public const int CounterMaxStack = 1;
         public const float CounterChargeInterval = 1f;
+        //카운터 키를 누른 뒤 공격을 받아낼 수 있는 시간. 이 안에 맞으면 피격 대신 카운터가 된다
+        public const float CounterWaitDuration = 0.7f;
         #endregion
 
         #region Damage

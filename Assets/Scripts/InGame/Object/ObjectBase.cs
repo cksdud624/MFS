@@ -8,6 +8,9 @@ using ObjectState  = Common.GameDefine.ObjectState;
 using Team = Common.GameDefine.Team;
 using InGame.Component;
 using InGame.Component.Controller;
+#if UNITY_EDITOR
+using Common.Test;
+#endif
 
 namespace InGame.Object
 {
@@ -77,11 +80,18 @@ namespace InGame.Object
                 ? (ControllerBase)gameObject.AddComponent<ControllerPlayer>()
                 : gameObject.AddComponent<ControllerAI>();
             Controller.Init(InGameContext, InputContext, ObjectContext);
+#if UNITY_EDITOR
+            if (Controller is ControllerAI)
+                EditorTestKeys.OnAIAttack += OnTestAIAttack;
+#endif
         }
 
         public void DetachController()
         {
             if(Controller == null) return;
+#if UNITY_EDITOR
+            EditorTestKeys.OnAIAttack -= OnTestAIAttack;
+#endif
             Controller.Dispose();
             Destroy(Controller);
             Controller = null;
@@ -89,7 +99,23 @@ namespace InGame.Object
 
         protected virtual void OnDestroy()
         {
+#if UNITY_EDITOR
+            EditorTestKeys.OnAIAttack -= OnTestAIAttack;
+#endif
             State.Value = ObjectState.Destroyed;
         }
+
+#if UNITY_EDITOR
+        /// <summary>
+        /// 테스트 키로 공격시킨다. 대상 쪽으로 돌아서서 누르고, 공격 중에 다시 누르면 다음 단계로 이어진다.
+        /// AI가 직접 누르는 것과 같은 경로라 피격 중처럼 공격이 막히는 조건도 그대로 따른다
+        /// </summary>
+        private void OnTestAIAttack()
+        {
+            if (Controller is not ControllerAI controllerAI) return;
+            controllerAI.FaceTarget();
+            controllerAI.RequestAttack();
+        }
+#endif
     }
 }
