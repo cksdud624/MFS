@@ -31,6 +31,13 @@ namespace InGame.Object
         protected ObjectStateController ObjectStateController;
         protected HurtBox HurtBox;
 
+#if UNITY_EDITOR
+        //AI 캐릭터 공격 테스트용. 플레이 중 인스펙터에서 체크한 AI만 테스트 키(EditorTestKeys)로 공격한다
+        [Header("Test : AI 캐릭터 공격 테스트용")]
+        [Tooltip("체크하면 테스트 키(1번)로 이 AI가 공격한다. 플레이어나 컨트롤러가 AI가 아니면 무시된다")]
+        [SerializeField] private bool _aiAttackTestTarget;
+#endif
+
         public bool IsPlayer {get; protected set;}
         public ObjectType ObjectType => ObjectContext?.ObjectType ?? ObjectType.Object;
 
@@ -107,11 +114,13 @@ namespace InGame.Object
 
 #if UNITY_EDITOR
         /// <summary>
-        /// 테스트 키로 공격시킨다. 대상 쪽으로 돌아서서 누르고, 공격 중에 다시 누르면 다음 단계로 이어진다.
+        /// AI 캐릭터 공격 테스트용. 인스펙터에서 체크한 AI만 대상 쪽으로 돌아서서 공격을 누르고,
+        /// 공격 중에 다시 누르면 다음 단계로 이어진다.
         /// AI가 직접 누르는 것과 같은 경로라 피격 중처럼 공격이 막히는 조건도 그대로 따른다
         /// </summary>
         private void OnTestAIAttack()
         {
+            if (!_aiAttackTestTarget) return;
             if (Controller is not ControllerAI controllerAI) return;
             controllerAI.FaceTarget();
             controllerAI.RequestAttack();

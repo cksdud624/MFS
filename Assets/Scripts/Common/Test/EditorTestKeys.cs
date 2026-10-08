@@ -16,7 +16,7 @@ namespace Common.Test
         #region Events
         //테스트 키가 눌렸다는 신호. 반응할 쪽이 직접 구독하고, 사라질 때 해제한다
 
-        //AI 공격 (카운터 테스트). AI 오브젝트가 구독한다
+        //AI 공격 (카운터 테스트). AI 오브젝트(ObjectBase)가 구독하고, 인스펙터에서 체크한 AI만 반응한다
         public static event Action OnAIAttack;
         #endregion
 
