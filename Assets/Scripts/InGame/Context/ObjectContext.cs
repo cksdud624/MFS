@@ -175,13 +175,26 @@ namespace InGame.Context
         public event Action OnCounterRestart;
         public void RequestCounterRestart() => OnCounterRestart?.Invoke();
 
-        //카운터 대기 중에 공격을 받아냈다
+        //카운터 대기 중에 공격을 받아냈다. 반격할 공격(AttackCommands)과 돌아설 방향은 알리기 전에 정해둔다
         public event Action OnCounterSuccess;
         public void NotifyCounterSuccess() => OnCounterSuccess?.Invoke();
 
-        //피격. 맞으면 Damage 상태로 들어가고, 이미 Damage 상태면 시간을 처음부터 다시 센다
-        public event Action OnDamage;
-        public void RequestDamage() => OnDamage?.Invoke();
+        //피격. 맞으면 Damage 상태로 들어가고, 이미 Damage 상태면 시간을 처음부터 다시 센다.
+        //attackerSide는 맞은 쪽에서 봤을 때 공격한 쪽이 있는 방향. 카운터에 성공하면 그쪽으로 돌아서서 반격한다
+        public event Action<Direction> OnDamage;
+        public void RequestDamage(Direction attackerSide) => OnDamage?.Invoke(attackerSide);
+
+        /// <summary>
+        /// 이 오브젝트가 때린 대상에서 봤을 때 이 오브젝트가 있는 쪽. 맞은 쪽이 반격할 때 돌아설 방향이다.
+        /// 거의 겹쳐서 좌우를 가릴 수 없으면 앞에 있는 대상을 때렸다고 보고 이 오브젝트가 보는 방향의 반대를 준다
+        /// </summary>
+        public Direction ResolveAttackerSide(Vector2 attackerPosition, Vector2 targetPosition)
+        {
+            float diffX = attackerPosition.x - targetPosition.x;
+            if (Mathf.Abs(diffX) < GameDefine.TargetDirectionDeadZone)
+                return Direction == Direction.Right ? Direction.Left : Direction.Right;
+            return diffX > 0f ? Direction.Right : Direction.Left;
+        }
 
         //피격 중인지. 피격 중에는 일반 입력이 막히고 땅에서도 공중처럼 관성을 받는다
         public bool IsDamaged { get; private set; }

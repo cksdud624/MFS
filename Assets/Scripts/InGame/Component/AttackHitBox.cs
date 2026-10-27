@@ -134,7 +134,9 @@ namespace InGame.Component
             //다음 커맨드가 히트를 요구할 수 있으므로 맞았다는 것을 남겨둔다.
             //타입을 가리지 않고 하나라도 맞으면 히트로 본다
             _objectContext.ReportAttackHit();
-            target.RequestDamage();
+            //맞은 쪽이 카운터로 돌아설 방향. 이펙트가 아니라 공격한 주인이 있는 쪽을 준다
+            target.RequestDamage(_objectContext.ResolveAttackerSide(
+                (Vector2)_owner.position + _objectContext.ColliderOffset, other.bounds.center));
             Debug.Log($"[{_objectContext.Team}] {_owner.name} hit [{target.Team}] {other.transform.root.name} ({_attackType})");
         }
 

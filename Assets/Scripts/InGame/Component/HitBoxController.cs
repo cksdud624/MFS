@@ -142,6 +142,10 @@ namespace InGame.Component
             //같은 진영은 때리지 않는다. 자기 자신도 여기서 걸러진다
             if (target.Team == _objectContext.Team) return;
 
+            //맞은 쪽이 카운터로 돌아설 방향. 내 콜라이더 중점과 맞은 피격 판정의 중점으로 좌우를 가린다
+            var attackerSide = _objectContext.ResolveAttackerSide(
+                (Vector2)transform.position + _objectContext.ColliderOffset, other.bounds.center);
+
             for (int i = 0; i < _activeColliders.Count; i++)
             {
                 if (!_activeColliders[i].IsTouching(other)) continue;
@@ -158,7 +162,7 @@ namespace InGame.Component
                 //다음 커맨드가 히트를 요구할 수 있으므로 맞았다는 것을 남겨둔다.
                 //타입을 가리지 않고 하나라도 맞으면 히트로 본다
                 _objectContext.ReportAttackHit();
-                target.RequestDamage();
+                target.RequestDamage(attackerSide);
                 Debug.Log($"[{_objectContext.Team}] {name} hit [{target.Team}] {other.transform.root.name} ({attackType})");
             }
         }

@@ -56,6 +56,8 @@ namespace Common
             Dash,
             Attack,
             Counter,
+            //카운터 대기에서 공격을 받아낸 뒤 나가는 반격. 휘두르는 방식은 Attack과 같고 끝날 때까지 맞지 않는다
+            CounterAttack,
         }
 
         //AI 행동 상태
@@ -173,6 +175,9 @@ namespace Common
         public const float CounterChargeInterval = 1f;
         //카운터 키를 누른 뒤 공격을 받아낼 수 있는 시간. 이 안에 맞으면 피격 대신 카운터가 된다
         public const float CounterWaitDuration = 0.7f;
+        //카운터에 성공하면 나가는 반격. AttackCommand 테이블에서 이 커맨드로 찾는다.
+        //공격 버튼 번호는 숫자뿐이라 콤보로 쌓이는 커맨드와 겹치지 않는다
+        public const string CounterAttackCommand = "C";
         #endregion
 
         #region Damage

@@ -30,8 +30,6 @@ namespace InGame.Component.State
         private readonly List<bool> _effectPlayed = new();
         //이번 프레임에 다음 커맨드로 이어졌는지. 이어졌으면 Action 상태를 빠져나가지 않는다
         private bool _attackRestarted;
-        //이번 카운터 대기에서 공격을 받아냈는지. 대기 한 번에 카운터는 한 번만 나간다
-        private bool _counterSucceeded;
 
         public override void OnEnter()
         {
@@ -43,6 +41,7 @@ namespace InGame.Component.State
             switch (ObjectContext.ActionType)
             {
                 case ActionType.Attack:
+                case ActionType.CounterAttack:
                     ApplyAttack();
                     break;
                 case ActionType.Counter:
@@ -71,13 +70,14 @@ namespace InGame.Component.State
             ApplyCounter();
         }
 
+        /// <summary>
+        /// 카운터 대기 중에 공격을 받아냈다. 컨트롤러가 공격한 쪽으로 돌려두고 넘겨준 반격을 바로 휘두른다.
+        /// 반격이 시작되면 대기는 끝나므로 한 번의 대기에서 반격은 한 번만 나간다
+        /// </summary>
         private void HandleCounterSuccess()
         {
-            if (_counterSucceeded) return;
-            _counterSucceeded = true;
-
-            //TODO : 카운터 반격 연결. 지금은 받아내기만 하고 대기 시간이 끝나면 Ground나 Air로 돌아간다
             Debug.Log($"카운터 성공 : {_elapsed:F2}초");
+            ApplyAttack();
         }
 
         /// <summary>
@@ -87,7 +87,6 @@ namespace InGame.Component.State
         private void ApplyCounter()
         {
             _elapsed = 0f;
-            _counterSucceeded = false;
 
             ObjectContext.SetDashing(false);
             ObjectContext.SetAttacking(false);
@@ -155,6 +154,8 @@ namespace InGame.Component.State
 
             var attackCommands = ObjectContext.AttackCommands;
 
+            //카운터 대기에서 반격으로 넘어오면 대기는 여기서 끝난다. 반격 중에 맞지 않는 것은 ActionType으로 따로 본다
+            ObjectContext.SetCountering(false);
             ObjectContext.SetMoveVelocity(0f);
             //휘두르는 동안은 제자리에 고정한다. 커맨드가 이어져도 계속 묶인 채로 간다
             ObjectContext.SetAttacking(true);
@@ -236,6 +237,7 @@ namespace InGame.Component.State
             switch (ObjectContext.ActionType)
             {
                 case ActionType.Attack:
+                case ActionType.CounterAttack:
                     UpdateAttack();
 
                     if (_elapsed < _attackTime) return;

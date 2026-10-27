@@ -149,8 +149,9 @@ namespace InGame.Component
                     return;
                 case FSMState.Action:
                     //대시 중에는 받지 않는다.
-                    //공격 중 재입력은 지금 단계가 끝날 때 이어붙이도록 예약만 해둔다
-                    if (_objectContext.ActionType is ActionType.Attack)
+                    //공격 중 재입력은 지금 단계가 끝날 때 이어붙이도록 예약만 해둔다.
+                    //반격 중에 누르면 반격이 끝날 때 콤보 첫 단계로 이어진다
+                    if (_objectContext.ActionType is ActionType.Attack or ActionType.CounterAttack)
                         _bufferedAttackButton = attackButton;
                     return;
             }
@@ -162,16 +163,21 @@ namespace InGame.Component
         /// 맞았다. Damage는 Ground, Air, Action보다 우선하므로 무엇을 하던 중이든 끊고 들어간다.
         /// 이미 Damage 상태면 상태가 알아서 시간을 다시 세므로 여기서는 들어가기만 한다
         /// </summary>
-        private void OnDamage()
+        private void OnDamage(Direction attackerSide)
         {
             if (_stateMachine.CurrentKey is FSMState.Event or FSMState.Damage) return;
 
-            //카운터 대기 중이면 맞지 않고 받아낸다. 대기가 끝날 때까지는 몇 번을 맞아도 전부 받아낸다
+            //카운터 대기 중이면 맞지 않고 받아내서 공격한 쪽으로 반격한다
             if (_objectContext.IsCountering)
             {
-                _objectContext.NotifyCounterSuccess();
+                StartCounterAttack(attackerSide);
                 return;
             }
+
+            //반격 중에는 맞지 않는다. 받아낸 공격과 같이 들어온 판정(마법+기계)이나
+            //다른 적의 공격에 반격이 끊기지 않도록 반격이 끝날 때까지 받아내기만 한다
+            if (_stateMachine.CurrentKey == FSMState.Action && _objectContext.ActionType is ActionType.CounterAttack)
+                return;
 
             //맞으면 콤보도 끊긴다. 예약해둔 공격이 피격이 끝난 뒤에 튀어나오지 않도록 같이 비운다
             ResetAttackCommand();
@@ -203,6 +209,28 @@ namespace InGame.Component
             ResetAttackCommand();
             _objectContext.SetActionType(ActionType.Counter);
             _stateMachine.ChangeState(FSMState.Action);
+        }
+
+        /// <summary>
+        /// 받아낸 공격에 반격한다. 공격한 쪽으로 돌아선 뒤 카운터 대기를 끊고 반격을 이어붙인다.
+        /// 반격은 콤보가 아니므로 쌓인 커맨드에는 남기지 않는다
+        /// </summary>
+        private void StartCounterAttack(Direction attackerSide)
+        {
+            var record = Global.Instance.TableManager.AttackCommandRecord;
+            var attackCommands = record.GetCommands(_objectContext.ObjectData, CounterAttackCommand);
+            if (attackCommands == null || attackCommands.Count == 0)
+            {
+                //반격할 공격이 없으면 받아내기만 하고 대기가 끝날 때까지 기다린다
+                Debug.LogWarning($"Object {_objectContext.ObjectData.Id} has no counter attack command.");
+                return;
+            }
+
+            //공격이 시작되면 방향이 잠기므로 반격을 걸기 전에 돌려둔다
+            _objectContext.SetDirection(attackerSide);
+            _objectContext.SetAttackCommands(attackCommands);
+            _objectContext.SetActionType(ActionType.CounterAttack);
+            _objectContext.NotifyCounterSuccess();
         }
 
         /// <summary>공격 한 단계가 끝났다. 예약해둔 입력이 있으면 여기서 다음 단계로 이어붙인다</summary>

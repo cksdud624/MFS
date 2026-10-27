@@ -38,7 +38,7 @@ namespace InGame.Component.State
         }
 
         //또 맞았으면 피격 모션도 처음부터 다시 튼다
-        private void HandleDamageRestart()
+        private void HandleDamageRestart(Direction attackerSide)
         {
             _elapsed = 0f;
             ObjectContext.SetAnimation(AnimationType.Damage);
