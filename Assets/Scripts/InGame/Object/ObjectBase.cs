@@ -48,6 +48,9 @@ namespace InGame.Object
             InputContext = new ();
             //진영은 지금 플레이어와 나머지 둘뿐이다. 소환수처럼 플레이어 편이 생기면 스포너가 정해서 넘긴다
             ObjectContext = new(objectData, isPlayer ? Team.Player : Team.Enemy);
+            //같은 ID가 진영만 달리해서 나올 수 있으므로 하이어라키와 로그에서 구분되게 진영을 붙인다.
+            //진영이 정해지는 곳이 여기라 스포너가 아니라 여기서 붙이고, 뒤이은 컴포넌트 Init 로그에도 반영되게 먼저 바꾼다
+            name = $"{ObjectContext.Team}_{objectData.Id}";
             AnimationPlayer = gameObject.AddComponent<AnimationPlayer>();
             await AnimationPlayer.Init(ObjectContext, objectData);
             //이펙트 프리팹은 여기서 미리 로드해두고 재생 요청 때 바로 쓴다

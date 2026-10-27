@@ -108,3 +108,7 @@ InitTestScene*.unity*
 
 # Claude Code 개인 설정 (커밋하지 않음)
 CLAUDE.local.md
+
+# 로컬 전용 에셋 (테스트 등, 커밋하지 않음)
+/[Aa]ssets/[Ll]ocal/
+/[Aa]ssets/[Ll]ocal.meta

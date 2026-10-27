@@ -22,6 +22,9 @@ namespace InGame.Component
 
         private int _counterStack = CounterMaxStack;
         private float _counterChargeTimer;
+        //카운터에 성공했을 때 나갈 반격. 없는 오브젝트는 카운터 자체를 쓸 수 없다
+        private IReadOnlyList<AttackCommandData> _counterAttackCommands;
+        private bool CanCounter => _counterAttackCommands is { Count: > 0 };
 
         //지금까지 쌓인 공격 커맨드. 공격 버튼을 누를 때마다 그 번호가 뒤에 붙는다 ("1" → "11" → "111")
         private string _attackCommand = string.Empty;
@@ -40,6 +43,9 @@ namespace InGame.Component
             _inputContext.OnDash += OnDash;
             _inputContext.OnAttack += OnAttack;
             _inputContext.OnCounter += OnCounter;
+            //반격은 테이블 값이라 도중에 바뀌지 않으므로 처음에 한 번만 찾아둔다
+            _counterAttackCommands = Global.Instance.TableManager.AttackCommandRecord
+                .GetCommands(objectContext.ObjectData, CounterAttackCommand);
 
             _stateMachine = new StateMachine<FSMState>();
             _stateMachine.AddState(FSMState.Ground, new GroundState(_stateMachine, inputContext, objectContext));
@@ -190,7 +196,8 @@ namespace InGame.Component
         /// </summary>
         private void OnCounter()
         {
-            if (_counterStack <= 0) return;
+            //반격이 없으면 받아내기만 하는 무적 구간이 되므로 대기에 들어가지 않는다
+            if (!CanCounter || _counterStack <= 0) return;
             switch (_stateMachine.CurrentKey)
             {
                 case FSMState.Damage:
@@ -213,22 +220,14 @@ namespace InGame.Component
 
         /// <summary>
         /// 받아낸 공격에 반격한다. 공격한 쪽으로 돌아선 뒤 카운터 대기를 끊고 반격을 이어붙인다.
+        /// 반격이 없는 오브젝트는 대기에 들어가지 못하므로 여기서는 반격이 있다고 본다.
         /// 반격은 콤보가 아니므로 쌓인 커맨드에는 남기지 않는다
         /// </summary>
         private void StartCounterAttack(Direction attackerSide)
         {
-            var record = Global.Instance.TableManager.AttackCommandRecord;
-            var attackCommands = record.GetCommands(_objectContext.ObjectData, CounterAttackCommand);
-            if (attackCommands == null || attackCommands.Count == 0)
-            {
-                //반격할 공격이 없으면 받아내기만 하고 대기가 끝날 때까지 기다린다
-                Debug.LogWarning($"Object {_objectContext.ObjectData.Id} has no counter attack command.");
-                return;
-            }
-
             //공격이 시작되면 방향이 잠기므로 반격을 걸기 전에 돌려둔다
             _objectContext.SetDirection(attackerSide);
-            _objectContext.SetAttackCommands(attackCommands);
+            _objectContext.SetAttackCommands(_counterAttackCommands);
             _objectContext.SetActionType(ActionType.CounterAttack);
             _objectContext.NotifyCounterSuccess();
         }

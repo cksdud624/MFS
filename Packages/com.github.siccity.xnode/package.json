@@ -1,0 +1,8 @@
+{
+  "name": "com.github.siccity.xnode",
+  "description": "xNode provides a set of APIs and an editor interface for creating and editing custom node graphs.",
+  "version": "1.8.0",
+  "unity": "2018.1",
+  "displayName": "xNode",
+  "_fingerprint": "8ef01722c4f8297866f98ed82a69a3f8aed218a9"
+}
