@@ -1,6 +1,7 @@
 # CardIdle
 
-Unity 6 (6000.5.0f1) 2D 액션 프로젝트. URP 2D, 새 Input System 전용, Addressables, UniTask, UniRx, FMOD를 쓴다.
+Unity 6 (6000.5.0f1) 2D 액션 프로젝트. URP 2D, 새 Input System 전용, Addressables, UniTask, R3, FMOD를 쓴다.
+R3는 코어(`R3.dll`)를 NuGetForUnity로(`Assets/packages.config`, `Assets/Packages/`), Unity 확장(`com.cysharp.r3`)을 UPM git URL로 받는다. 올릴 때는 두 버전을 같이 맞춘다.
 코드는 `Assets/Scripts` 아래에 있고, 공개 포트폴리오로 쓰이는 코드라서 읽히는 품질을 기능만큼 중요하게 본다.
 
 ## 폴더와 네임스페이스
@@ -128,4 +129,4 @@ Unity 6 (6000.5.0f1) 2D 액션 프로젝트. URP 2D, 새 Input System 전용, Ad
 - 커밋과 푸시는 요청받았을 때만 한다. 커밋 메시지는 한국어로 짧게, 기존 형식을 따른다 (`카운터 판정 기능 구현 완료`, `피격 판정 개선 및 FMOD 2.03 버전 추가`).
 - 새 에셋/스크립트를 만들면 `.meta` 파일도 같이 커밋되어야 한다. `.meta`는 Unity가 만들게 두고 직접 만들지 않는다.
 - 씬(`.unity`), 프리팹, `ProjectSettings/`는 Unity가 직렬화하는 파일이다. 텍스트로 직접 고치지 말고 UnityMCP 도구나 에디터로 수정한다.
-- `Assets/Plugins/`, `Library/`, 서드파티 에셋 폴더(`Sprite Shaders Ultimate`, `Warrior free set`)는 수정하지 않는다.
+- `Assets/Plugins/`, `Assets/Packages/`(NuGetForUnity가 관리), `Library/`, 서드파티 에셋 폴더(`Sprite Shaders Ultimate`, `Warrior free set`)는 수정하지 않는다.

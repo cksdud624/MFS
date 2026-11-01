@@ -1,7 +1,7 @@
 using Cysharp.Threading.Tasks;
 using Generated.Table;
 using InGame.Context;
-using UniRx;
+using R3;
 using UnityEngine;
 using ObjectType = Common.GameDefine.ObjectType;
 using ObjectState  = Common.GameDefine.ObjectState;
@@ -113,6 +113,9 @@ namespace InGame.Object
             EditorTestKeys.OnAIAttack -= OnTestAIAttack;
 #endif
             State.Value = ObjectState.Destroyed;
+            //R3의 ReactiveProperty는 Dispose해야 구독자에게 완료가 전달되고 구독이 정리된다.
+            //파괴 상태를 먼저 알린 뒤 닫는다. 순서가 바뀌면 구독자가 Destroyed를 받지 못한다
+            State.Dispose();
         }
 
 #if UNITY_EDITOR
