@@ -32,8 +32,13 @@ R3는 코어(`R3.dll`)를 NuGetForUnity로(`Assets/packages.config`, `Assets/Pac
 - 상수는 분류를 앞에 붙인다: `LayerHitBox`, `TagMap`, `AssetPathEffect`, `SortingOrderPlayer`
 
 ### 구조와 흐름
-- **초기화는 `Awake`/`Start`가 아니라 명시적인 `Init(...)`으로 한다.** 비동기가 필요하면 `async UniTask Init(...)`을 쓴다.
-  컴포넌트는 `ObjectBase.Init`에서 `AddComponent` 후 순서대로 `await ...Init(...)`을 부른다. 순서에 의존성이 있으면 그 이유를 주석으로 단다.
+- **초기화는 `Awake`/`Start`가 아니라 명시적인 `Init(...)`으로 한다.** 에셋 로드처럼 비동기가 필요할 때만 `async UniTask Init(...)`을 쓰고,
+  나머지는 `void Init(...)`으로 둔다. `await UniTask.CompletedTask`로 모양만 맞추지 않는다.
+  컴포넌트는 `ObjectBase.Init`에서 `AddComponent` 후 순서대로 `Init`을 부른다(비동기인 것만 `await`). 순서에 의존성이 있으면 그 이유를 주석으로 단다.
+- `Init` 안은 **참조 저장 → 자기 준비(컴포넌트, 콜라이더, 에셋 로드) → 이벤트 구독과 `Global.BindXxx`** 순으로 쓴다.
+  준비가 끝나기 전에 구독하면 반쯤 만들어진 상태에서 핸들러가 불릴 수 있다.
+- 붙어 있으면 쓰고 없으면 붙이는 컴포넌트는 `if (!TryGetComponent(out _xxx)) _xxx = gameObject.AddComponent<Xxx>();`로 쓴다.
+- 레이어는 `GameDefine.TryGetLayer(...)`로 찾는다. 없을 때 에러 로그는 여기서 남기므로 부르는 쪽은 없을 때 어떻게 할지만 정한다.
 - 컴포넌트끼리는 서로 직접 참조하지 않고 `ObjectContext`를 거친다.
   상태를 바꿀 때는 `SetXxx(...)`를 부르고, `SetXxx`가 값을 갱신하고 `OnXxxChanged` 이벤트를 쏜다.
 - 이벤트 구독은 `Init`/`OnEnter`에서 하고 해제는 `OnDestroy`/`OnExit`에서 짝을 맞춰 한다. 구독을 추가했으면 해제도 반드시 함께 추가한다.

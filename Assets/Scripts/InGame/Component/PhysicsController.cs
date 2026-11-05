@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Common;
 using Common.Template.Interface;
-using Cysharp.Threading.Tasks;
 using InGame.Context;
 using UnityEngine;
 using static Common.GameDefine;
@@ -27,37 +26,36 @@ namespace InGame.Component
         #endregion
 
         #region Init
-        public async UniTask Init(ObjectContext objectContext)
+        public void Init(ObjectContext objectContext)
         {
             _objectContext = objectContext;
+
+            if (!TryGetComponent(out Rigidbody2D body))
+                body = gameObject.AddComponent<Rigidbody2D>();
+            Rigidbody = body;
+            _gravityScale = 1f;
+            Rigidbody.gravityScale = _gravityScale;
+            Rigidbody.freezeRotation = true;
+            Rigidbody.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+
+            if (!TryGetComponent(out _collider))
+                _collider = gameObject.AddComponent<BoxCollider2D>();
+            //콜라이더 크기와 위치는 오브젝트마다 다르므로 테이블 값을 쓴다
+            _collider.size = _objectContext.ObjectData.ColliderSize;
+            ApplyColliderOffset();
+
+            _probeLayerMask = Physics2D.DefaultRaycastLayers;
+            if (TryGetLayer(LayerHitBox, out int hitBoxLayer))
+                _probeLayerMask &= ~(1 << hitBoxLayer);
+
+            //핸들러가 Rigidbody와 콜라이더를 바로 건드리므로 둘을 만든 뒤에 구독한다
             _objectContext.OnMoveVelocityChanged += OnMoveVelocityChanged;
             _objectContext.OnJumpVelocityChanged += OnJumpVelocityChanged;
             _objectContext.OnDashingChanged += OnDashingChanged;
             _objectContext.OnDashVelocityChanged += OnDashVelocityChanged;
             _objectContext.OnAttackingChanged += OnAttackingChanged;
             _objectContext.OnDirectionChanged += OnDirectionChanged;
-
-            var rb = GetComponent<Rigidbody2D>();
-            Rigidbody = rb != null ? rb : gameObject.AddComponent<Rigidbody2D>();
-            _gravityScale = 1f;
-            Rigidbody.gravityScale = _gravityScale;
-            Rigidbody.freezeRotation = true;
-            Rigidbody.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-
-            var col = GetComponent<BoxCollider2D>();
-            _collider = col != null ? col : gameObject.AddComponent<BoxCollider2D>();
-            //콜라이더 크기와 위치는 오브젝트마다 다르므로 테이블 값을 쓴다
-            _collider.size = _objectContext.ObjectData.ColliderSize;
-            ApplyColliderOffset();
-
-            _probeLayerMask = Physics2D.DefaultRaycastLayers;
-            int hitBoxLayer = LayerMask.NameToLayer(LayerHitBox);
-            if (hitBoxLayer >= 0)
-                _probeLayerMask &= ~(1 << hitBoxLayer);
-
             Global.Instance.BindFixedUpdate(this);
-
-            await UniTask.CompletedTask;
         }
         #endregion
 

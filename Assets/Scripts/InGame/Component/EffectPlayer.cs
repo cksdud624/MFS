@@ -36,24 +36,11 @@ namespace InGame.Component
             _inGameContext = inGameContext;
             _objectContext = objectContext;
             _objectData = objectData;
+
+            await LoadPrefabs(objectData);
+
+            //프리팹이 준비된 뒤에 구독한다. 먼저 구독하면 로드를 기다리는 동안 들어온 재생 요청이 프리팹을 찾지 못한다
             _objectContext.OnEffectPlay += Play;
-
-            var assetManager = Global.Instance.AssetManager;
-            var loadTasks = new List<UniTask>();
-            //이펙트가 없는 오브젝트도 있으므로 번호 없는 기본 프리팹은 없어도 에러로 보지 않는다
-            foreach (EffectType effectType in Enum.GetValues(typeof(EffectType)))
-                loadTasks.Add(LoadPrefab(assetManager, GetAssetName(effectType, 0), logOnMissing: false));
-
-            //공격은 커맨드 단계마다 다른 이펙트를 쓰므로 테이블에 적힌 번호만큼 더 받아둔다.
-            //테이블이 번호를 지정했는데 프리팹이 없으면 만들다 만 것이므로 에러로 알린다
-            var effects = Global.Instance.TableManager.AttackCommandRecord.GetEffects(objectData);
-            if (effects != null)
-            {
-                foreach (int variant in effects)
-                    loadTasks.Add(LoadPrefab(assetManager, GetAssetName(EffectType.Attack, variant), logOnMissing: true));
-            }
-
-            await UniTask.WhenAll(loadTasks);
         }
         #endregion
 
@@ -130,6 +117,27 @@ namespace InGame.Component
         #endregion
 
         #region Private
+        /// <summary>이 오브젝트가 쓸 이펙트 프리팹을 전부 미리 받아둔다</summary>
+        private async UniTask LoadPrefabs(ObjectData objectData)
+        {
+            var assetManager = Global.Instance.AssetManager;
+            var loadTasks = new List<UniTask>();
+            //이펙트가 없는 오브젝트도 있으므로 번호 없는 기본 프리팹은 없어도 에러로 보지 않는다
+            foreach (EffectType effectType in Enum.GetValues(typeof(EffectType)))
+                loadTasks.Add(LoadPrefab(assetManager, GetAssetName(effectType, 0), logOnMissing: false));
+
+            //공격은 커맨드 단계마다 다른 이펙트를 쓰므로 테이블에 적힌 번호만큼 더 받아둔다.
+            //테이블이 번호를 지정했는데 프리팹이 없으면 만들다 만 것이므로 에러로 알린다
+            var effects = Global.Instance.TableManager.AttackCommandRecord.GetEffects(objectData);
+            if (effects != null)
+            {
+                foreach (int variant in effects)
+                    loadTasks.Add(LoadPrefab(assetManager, GetAssetName(EffectType.Attack, variant), logOnMissing: true));
+            }
+
+            await UniTask.WhenAll(loadTasks);
+        }
+
         private async UniTask LoadPrefab(AssetManager assetManager, string assetName, bool logOnMissing)
         {
             var prefab = await assetManager.LoadAssetAsync<GameObject>(LoadTarget.Effect, assetName, logOnMissing);

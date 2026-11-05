@@ -34,40 +34,27 @@ namespace InGame.Component
         {
             _objectContext = objectContext;
             _objectData = objectData;
-            _objectContext.OnDirectionChanged += OnDirectionChanged;
-            _objectContext.OnAnimationChanged += Play;
 
-            var animator = GetComponent<Animator>();
-            _animator = animator != null ? animator : gameObject.AddComponent<Animator>();
+            if (!TryGetComponent(out _animator))
+                _animator = gameObject.AddComponent<Animator>();
             _animator.applyRootMotion = false;
 
-            var spriteRenderer = GetComponent<SpriteRenderer>();
-            _spriteRenderer = spriteRenderer != null ? spriteRenderer : gameObject.AddComponent<SpriteRenderer>();
+            if (!TryGetComponent(out _spriteRenderer))
+                _spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
             _spriteRenderer.flipX = _objectContext.Direction == Direction.Left;
 
             _graph = PlayableGraph.Create($"AnimGraph_{objectData.Id}");
             _graph.SetTimeUpdateMode(DirectorUpdateMode.GameTime);
             _output = AnimationPlayableOutput.Create(_graph, "Animation", _animator);
 
-            var assetManager = Global.Instance.AssetManager;
-            var loadTasks = new List<UniTask>();
-            //애니메이션이 없는 오브젝트도 있으므로 번호 없는 기본 클립은 없어도 에러로 보지 않는다
-            foreach (AnimationType animType in System.Enum.GetValues(typeof(AnimationType)))
-                loadTasks.Add(LoadClip(assetManager, GetAssetName(animType, 0), logOnMissing: false));
-
-            //공격은 커맨드 단계마다 다른 클립을 쓰므로 테이블에 적힌 번호만큼 더 받아둔다.
-            //테이블이 번호를 지정했는데 클립이 없으면 만들다 만 것이므로 에러로 알린다
-            var animations = Global.Instance.TableManager.AttackCommandRecord.GetAnimations(objectData);
-            if (animations != null)
-            {
-                foreach (int variant in animations)
-                    loadTasks.Add(LoadClip(assetManager, GetAssetName(AnimationType.Attack, variant), logOnMissing: true));
-            }
-
-            await UniTask.WhenAll(loadTasks);
+            await LoadClips(objectData);
 
             _graph.Play();
             Play(AnimationType.Idle);
+
+            //그래프와 클립이 준비된 뒤에 구독한다. 먼저 구독하면 로드를 기다리는 동안 들어온 요청이 빈 그래프로 들어간다
+            _objectContext.OnDirectionChanged += OnDirectionChanged;
+            _objectContext.OnAnimationChanged += Play;
         }
         #endregion
 
@@ -130,6 +117,27 @@ namespace InGame.Component
         #endregion
 
         #region Private
+        /// <summary>이 오브젝트가 쓸 클립을 전부 미리 받아둔다</summary>
+        private async UniTask LoadClips(ObjectData objectData)
+        {
+            var assetManager = Global.Instance.AssetManager;
+            var loadTasks = new List<UniTask>();
+            //애니메이션이 없는 오브젝트도 있으므로 번호 없는 기본 클립은 없어도 에러로 보지 않는다
+            foreach (AnimationType animType in Enum.GetValues(typeof(AnimationType)))
+                loadTasks.Add(LoadClip(assetManager, GetAssetName(animType, 0), logOnMissing: false));
+
+            //공격은 커맨드 단계마다 다른 클립을 쓰므로 테이블에 적힌 번호만큼 더 받아둔다.
+            //테이블이 번호를 지정했는데 클립이 없으면 만들다 만 것이므로 에러로 알린다
+            var animations = Global.Instance.TableManager.AttackCommandRecord.GetAnimations(objectData);
+            if (animations != null)
+            {
+                foreach (int variant in animations)
+                    loadTasks.Add(LoadClip(assetManager, GetAssetName(AnimationType.Attack, variant), logOnMissing: true));
+            }
+
+            await UniTask.WhenAll(loadTasks);
+        }
+
         private async UniTask LoadClip(AssetManager assetManager, string assetName, bool logOnMissing)
         {
             var clip = await assetManager.LoadAssetAsync<AnimationClip>(LoadTarget.Animation, assetName, logOnMissing);

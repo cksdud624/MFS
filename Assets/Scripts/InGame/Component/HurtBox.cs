@@ -24,12 +24,8 @@ namespace InGame.Component
         {
             _inGameContext = inGameContext;
             _objectContext = objectContext;
-            _objectContext.OnDirectionChanged += OnDirectionChanged;
 
-            int hitBoxLayer = LayerMask.NameToLayer(LayerHitBox);
-            if (hitBoxLayer < 0)
-                Debug.LogError($"Layer {LayerHitBox} is not defined.");
-            else
+            if (TryGetLayer(LayerHitBox, out int hitBoxLayer))
                 gameObject.layer = hitBoxLayer;
 
             _collider = gameObject.AddComponent<BoxCollider2D>();
@@ -38,6 +34,8 @@ namespace InGame.Component
             ApplyOffset();
 
             _inGameContext.RegisterHurtBox(_collider, _objectContext);
+            //돌아설 때 콜라이더를 옮기므로 콜라이더를 만든 뒤에 구독한다
+            _objectContext.OnDirectionChanged += OnDirectionChanged;
         }
         #endregion
 

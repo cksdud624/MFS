@@ -21,10 +21,9 @@ namespace InGame.Object
         #endregion
 
         #region Init
-        public async UniTask Init(InGameContext inGameContext)
+        public void Init(InGameContext inGameContext)
         {
             _inGameContext = inGameContext;
-            await UniTask.CompletedTask;
         }
         #endregion
 

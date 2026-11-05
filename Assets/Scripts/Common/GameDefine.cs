@@ -108,6 +108,16 @@ namespace Common
         public const string LayerHitBox = "HitBox";
         //캐릭터끼리는 서로 밀지 않도록 이 레이어에 둔다. 충돌 매트릭스에서 자기 자신과의 충돌을 꺼둔 상태
         public const string LayerIndependent = "Independent";
+
+        /// <summary>레이어 이름으로 번호를 찾는다. 프로젝트 설정에 없으면 에러를 남기고 false를 돌려준다</summary>
+        public static bool TryGetLayer(string layerName, out int layer)
+        {
+            layer = LayerMask.NameToLayer(layerName);
+            if (layer >= 0) return true;
+
+            Debug.LogError($"Layer {layerName} is not defined.");
+            return false;
+        }
         #endregion
 
         #region Sorting

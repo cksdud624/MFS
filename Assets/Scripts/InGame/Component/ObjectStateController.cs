@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using Common;
 using Common.Template.FSM;
 using Common.Template.Interface;
-using Cysharp.Threading.Tasks;
 using Generated.Table;
 using InGame.Component.State;
 using InGame.Context;
@@ -39,16 +38,10 @@ namespace InGame.Component
         #endregion
 
         #region Init
-        public async UniTask Init(InputContext inputContext, ObjectContext objectContext)
+        public void Init(InputContext inputContext, ObjectContext objectContext)
         {
             _inputContext = inputContext;
             _objectContext = objectContext;
-            _objectContext.OnGroundedChanged += OnGroundedChanged;
-            _objectContext.OnAttackEnd += OnAttackEnd;
-            _objectContext.OnDamage += OnDamage;
-            _inputContext.OnDash += OnDash;
-            _inputContext.OnAttack += OnAttack;
-            _inputContext.OnCounter += OnCounter;
             //반격은 테이블 값이라 도중에 바뀌지 않으므로 처음에 한 번만 찾아둔다
             _counterAttackCommands = Global.Instance.TableManager.AttackCommandRecord
                 .GetCommands(objectContext.ObjectData, CounterAttackCommand);
@@ -59,12 +52,16 @@ namespace InGame.Component
             _stateMachine.AddState(FSMState.Action, new ActionState(_stateMachine, inputContext, objectContext));
             _stateMachine.AddState(FSMState.Damage, new DamageState(_stateMachine, inputContext, objectContext));
             _stateMachine.AddState(FSMState.Event, new EventState(_stateMachine, inputContext, objectContext));
-
             _stateMachine.ChangeState(objectContext.IsGrounded ? FSMState.Ground : FSMState.Air);
 
+            //핸들러가 상태 머신을 바로 보므로 첫 상태에 들어간 뒤에 구독한다
+            _objectContext.OnGroundedChanged += OnGroundedChanged;
+            _objectContext.OnAttackEnd += OnAttackEnd;
+            _objectContext.OnDamage += OnDamage;
+            _inputContext.OnDash += OnDash;
+            _inputContext.OnAttack += OnAttack;
+            _inputContext.OnCounter += OnCounter;
             Global.Instance.BindFixedUpdate(this);
-
-            await UniTask.CompletedTask;
         }
         #endregion
 

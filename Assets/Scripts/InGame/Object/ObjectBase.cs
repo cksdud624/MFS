@@ -54,21 +54,24 @@ namespace InGame.Object
             //같은 ID가 진영만 달리해서 나올 수 있으므로 하이어라키와 로그에서 구분되게 진영을 붙인다.
             //진영이 정해지는 곳이 여기라 스포너가 아니라 여기서 붙이고, 뒤이은 컴포넌트 Init 로그에도 반영되게 먼저 바꾼다
             name = $"{ObjectContext.Team}_{objectData.Id}";
+
+            //애니메이션과 이펙트는 에셋을 미리 받아두느라 비동기다
             AnimationPlayer = gameObject.AddComponent<AnimationPlayer>();
             await AnimationPlayer.Init(ObjectContext, objectData);
-            //이펙트 프리팹은 여기서 미리 로드해두고 재생 요청 때 바로 쓴다
             EffectPlayer = gameObject.AddComponent<EffectPlayer>();
             await EffectPlayer.Init(InGameContext, ObjectContext, objectData);
             //카메라는 플레이어만 따라간다
             if (isPlayer)
             {
                 CameraController = gameObject.AddComponent<CameraController>();
-                await CameraController.Init();
+                CameraController.Init();
             }
             PhysicsController = gameObject.AddComponent<PhysicsController>();
-            await PhysicsController.Init(ObjectContext);
+            PhysicsController.Init(ObjectContext);
+            //상태 컨트롤러는 첫 상태에 들어가면서 애니메이션과 이동 속도를 바로 바꾼다.
+            //그 요청을 받을 AnimationPlayer와 PhysicsController가 먼저 붙어 있어야 한다
             ObjectStateController = gameObject.AddComponent<ObjectStateController>();
-            await ObjectStateController.Init(InputContext, ObjectContext);
+            ObjectStateController.Init(InputContext, ObjectContext);
 
             //맞는 판정은 캐릭터가 아닌 오브젝트도 가진다. 본체와 레이어가 달라야 하므로 자식으로 둔다.
             //Rigidbody는 PhysicsController가 붙인 본체 것을 쓰므로 그 뒤에 만든다

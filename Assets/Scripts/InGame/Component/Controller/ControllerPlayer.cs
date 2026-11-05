@@ -17,14 +17,14 @@ namespace InGame.Component.Controller
         {
             base.Init(inGameContext, inputContext, objectContext);
             _inputAction = new PlayerInputAction();
-            _inputAction.Enable();
-
             _inputAction.Player.Move.performed += OnMove;
             _inputAction.Player.Move.canceled += OnMove;
             _inputAction.Player.Jump.performed += OnJump;
             _inputAction.Player.Dash.performed += OnDash;
             _inputAction.Player.Attack.performed += OnAttack;
             _inputAction.Player.Counter.performed += OnCounter;
+            //콜백을 다 건 뒤에 켠다. 먼저 켜면 그 사이에 들어온 입력은 받을 곳이 없다
+            _inputAction.Enable();
 
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;

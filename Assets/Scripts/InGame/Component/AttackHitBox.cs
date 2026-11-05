@@ -47,16 +47,9 @@ namespace InGame.Component
             //이펙트는 단계보다 오래 살아남아서 맞히는 시점에는 주인이 다른 행동을 하고 있을 수 있다.
             //그래서 판정을 낸 공격이 무엇이었는지는 이펙트가 뜨는 지금 정해둔다
             _isCounterAttack = objectContext.ActionType is ActionType.CounterAttack;
-            _objectContext.OnAttackHitBoxActiveChanged += SetHitBoxActive;
-            //이펙트가 단계보다 오래 살아남을 수 있다. 다음 단계가 시작되면 그 판정까지 받지 않도록 손을 뗀다
-            _objectContext.OnAttackStart += Retire;
 
-            _hitBoxLayer = LayerMask.NameToLayer(LayerHitBox);
-            if (_hitBoxLayer < 0)
-            {
-                Debug.LogError($"Layer {LayerHitBox} is not defined.");
-                _hitBoxLayer = 0;
-            }
+            //레이어가 없으면 기본 레이어에 둔다. 에러는 TryGetLayer가 남긴다
+            _hitBoxLayer = TryGetLayer(LayerHitBox, out int hitBoxLayer) ? hitBoxLayer : 0;
             _targetLayerMask = 1 << _hitBoxLayer;
 
             //판정은 이펙트 물리와 섞이면 안 되므로 중력도 충돌도 없는 Kinematic으로 둔다.
@@ -68,6 +61,10 @@ namespace InGame.Component
                 Debug.LogWarning($"Effect {name} already has Rigidbody2D. It is overridden to Kinematic for the attack hit box.");
             body.bodyType = RigidbodyType2D.Kinematic;
             body.useFullKinematicContacts = true;
+
+            _objectContext.OnAttackHitBoxActiveChanged += SetHitBoxActive;
+            //이펙트가 단계보다 오래 살아남을 수 있다. 다음 단계가 시작되면 그 판정까지 받지 않도록 손을 뗀다
+            _objectContext.OnAttackStart += Retire;
         }
         #endregion
 

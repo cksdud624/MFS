@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
 using Generated.Table;
 using InGame.Context;
 using UnityEngine;
@@ -37,22 +36,17 @@ namespace InGame.Component
         #endregion
 
         #region Init
-        public async UniTask Init(InGameContext inGameContext, ObjectContext objectContext)
+        public void Init(InGameContext inGameContext, ObjectContext objectContext)
         {
             _inGameContext = inGameContext;
             _objectContext = objectContext;
-            _objectContext.OnAttackStart += BeginAttack;
-            _objectContext.OnAttackHitBoxActiveChanged += SetHitBoxActive;
 
-            _hitBoxLayer = LayerMask.NameToLayer(LayerHitBox);
-            if (_hitBoxLayer < 0)
-            {
-                Debug.LogError($"Layer {LayerHitBox} is not defined.");
-                _hitBoxLayer = 0;
-            }
+            //레이어가 없으면 기본 레이어에 둔다. 에러는 TryGetLayer가 남긴다
+            _hitBoxLayer = TryGetLayer(LayerHitBox, out int hitBoxLayer) ? hitBoxLayer : 0;
             _targetLayerMask = 1 << _hitBoxLayer;
 
-            await UniTask.CompletedTask;
+            _objectContext.OnAttackStart += BeginAttack;
+            _objectContext.OnAttackHitBoxActiveChanged += SetHitBoxActive;
         }
         #endregion
 
