@@ -10,11 +10,7 @@ namespace InGame.Component.State
 {
     public class ActionState : ObjectStateBase
     {
-        public ActionState(StateMachine<FSMState> stateMachine, InputContext inputContext, ObjectContext objectContext)
-            : base(stateMachine, inputContext, objectContext)
-        {
-        }
-
+        #region Fields
         private float _elapsed;
         //이번 단계가 끝나는 시각. 마법과 기계 중 늦게 끝나는 쪽에 맞춘다
         private float _attackTime;
@@ -30,7 +26,16 @@ namespace InGame.Component.State
         private readonly List<bool> _effectPlayed = new();
         //이번 프레임에 다음 커맨드로 이어졌는지. 이어졌으면 Action 상태를 빠져나가지 않는다
         private bool _attackRestarted;
+        #endregion
 
+        #region Init
+        public ActionState(StateMachine<FSMState> stateMachine, InputContext inputContext, ObjectContext objectContext)
+            : base(stateMachine, inputContext, objectContext)
+        {
+        }
+        #endregion
+
+        #region LifeCycle
         public override void OnEnter()
         {
             ObjectContext.OnDashRestart += HandleDashRestart;
@@ -65,6 +70,37 @@ namespace InGame.Component.State
             CloseHitBoxes();
         }
 
+        public override void OnFixedUpdate()
+        {
+            _elapsed += Time.fixedDeltaTime;
+
+            //대시나 카운터로 캔슬되면 ActionType이 바뀌므로 매번 지금 무엇을 하는 중인지 보고 판단한다
+            switch (ObjectContext.ActionType)
+            {
+                case ActionType.Attack:
+                case ActionType.CounterAttack:
+                    UpdateAttack();
+
+                    if (_elapsed < _attackTime) return;
+
+                    //한 단계가 끝났다. 예약된 입력이 있으면 컨트롤러가 여기서 다음 단계를 이어붙인다
+                    _attackRestarted = false;
+                    ObjectContext.EndAttack();
+                    if (_attackRestarted) return;
+                    break;
+                case ActionType.Counter:
+                    if (_elapsed < CounterWaitDuration) return;
+                    break;
+                default:
+                    if (_elapsed < DashDuration) return;
+                    break;
+            }
+
+            StateMachine.ChangeState(ObjectContext.IsGrounded ? FSMState.Ground : FSMState.Air);
+        }
+        #endregion
+
+        #region Event Handlers
         private void HandleCounterRestart()
         {
             ApplyCounter();
@@ -80,6 +116,19 @@ namespace InGame.Component.State
             ApplyAttack();
         }
 
+        private void HandleDashRestart()
+        {
+            ApplyDash();
+        }
+
+        private void HandleAttackRestart()
+        {
+            ApplyAttack();
+            _attackRestarted = true;
+        }
+        #endregion
+
+        #region Private
         /// <summary>
         /// 카운터 대기. 제자리에 서서 정해진 시간 동안 공격을 기다린다.
         /// 대시나 공격을 끊고 들어올 수 있으므로 둘이 남긴 것(대시 속도, 공격 잠금, 판정)을 먼저 거둔다
@@ -99,17 +148,6 @@ namespace InGame.Component.State
                 ObjectContext.SetAnimation(AnimationType.Idle);
             ObjectContext.SetCountering(true);
             Debug.Log($"카운터 대기 시작 ({CounterWaitDuration}초)");
-        }
-
-        private void HandleDashRestart()
-        {
-            ApplyDash();
-        }
-
-        private void HandleAttackRestart()
-        {
-            ApplyAttack();
-            _attackRestarted = true;
         }
 
         private void ApplyDash()
@@ -229,35 +267,6 @@ namespace InGame.Component.State
             }
         }
 
-        public override void OnFixedUpdate()
-        {
-            _elapsed += Time.fixedDeltaTime;
-
-            //대시나 카운터로 캔슬되면 ActionType이 바뀌므로 매번 지금 무엇을 하는 중인지 보고 판단한다
-            switch (ObjectContext.ActionType)
-            {
-                case ActionType.Attack:
-                case ActionType.CounterAttack:
-                    UpdateAttack();
-
-                    if (_elapsed < _attackTime) return;
-
-                    //한 단계가 끝났다. 예약된 입력이 있으면 컨트롤러가 여기서 다음 단계를 이어붙인다
-                    _attackRestarted = false;
-                    ObjectContext.EndAttack();
-                    if (_attackRestarted) return;
-                    break;
-                case ActionType.Counter:
-                    if (_elapsed < CounterWaitDuration) return;
-                    break;
-                default:
-                    if (_elapsed < DashDuration) return;
-                    break;
-            }
-
-            StateMachine.ChangeState(ObjectContext.IsGrounded ? FSMState.Ground : FSMState.Air);
-        }
-
         /// <summary>때가 된 판정 박스를 켜고 이펙트를 띄운다. 마법과 기계가 각자 자기 시점에 나간다</summary>
         private void UpdateAttack()
         {
@@ -311,5 +320,6 @@ namespace InGame.Component.State
             for (int i = 0; i < _hitBoxes.Count; i++)
                 SetHitBoxActive(i, false);
         }
+        #endregion
     }
 }

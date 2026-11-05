@@ -16,6 +16,7 @@ namespace InGame.Object
 {
     public class ObjectBase : MonoBehaviour
     {
+        #region Fields
         protected readonly ReactiveProperty<ObjectState> State = new (ObjectState.Raw);
         public ObjectState ObjectState => State.Value;
 
@@ -40,7 +41,9 @@ namespace InGame.Object
 
         public bool IsPlayer {get; protected set;}
         public ObjectType ObjectType => ObjectContext?.ObjectType ?? ObjectType.Object;
+        #endregion
 
+        #region Init
         public virtual async UniTask Init(InGameContext inGameContext, ObjectData objectData, bool isPlayer = false)
         {
             InGameContext = inGameContext;
@@ -74,7 +77,22 @@ namespace InGame.Object
             HurtBox = hurtBoxObject.AddComponent<HurtBox>();
             HurtBox.Init(InGameContext, ObjectContext);
         }
+        #endregion
 
+        #region LifeCycle
+        protected virtual void OnDestroy()
+        {
+#if UNITY_EDITOR
+            EditorTestKeys.OnAIAttack -= OnTestAIAttack;
+#endif
+            State.Value = ObjectState.Destroyed;
+            //R3의 ReactiveProperty는 Dispose해야 구독자에게 완료가 전달되고 구독이 정리된다.
+            //파괴 상태를 먼저 알린 뒤 닫는다. 순서가 바뀌면 구독자가 Destroyed를 받지 못한다
+            State.Dispose();
+        }
+        #endregion
+
+        #region Public
         /// <summary>Order in Layer. 구간이 겹치지 않도록 스포너가 정해서 넘겨준다</summary>
         public void SetSortingOrder(int sortingOrder) => AnimationPlayer.SetSortingOrder(sortingOrder);
 
@@ -106,18 +124,9 @@ namespace InGame.Object
             Destroy(Controller);
             Controller = null;
         }
+        #endregion
 
-        protected virtual void OnDestroy()
-        {
-#if UNITY_EDITOR
-            EditorTestKeys.OnAIAttack -= OnTestAIAttack;
-#endif
-            State.Value = ObjectState.Destroyed;
-            //R3의 ReactiveProperty는 Dispose해야 구독자에게 완료가 전달되고 구독이 정리된다.
-            //파괴 상태를 먼저 알린 뒤 닫는다. 순서가 바뀌면 구독자가 Destroyed를 받지 못한다
-            State.Dispose();
-        }
-
+        #region Editor
 #if UNITY_EDITOR
         /// <summary>
         /// AI 캐릭터 공격 테스트용. 인스펙터에서 체크한 AI만 대상 쪽으로 돌아서서 공격을 누르고,
@@ -132,5 +141,6 @@ namespace InGame.Object
             controllerAI.RequestAttack();
         }
 #endif
+        #endregion
     }
 }

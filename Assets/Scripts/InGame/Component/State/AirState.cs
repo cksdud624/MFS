@@ -6,11 +6,14 @@ namespace InGame.Component.State
 {
     public class AirState : ObjectStateBase
     {
+        #region Init
         public AirState(StateMachine<FSMState> stateMachine, InputContext inputContext, ObjectContext objectContext)
             : base(stateMachine, inputContext, objectContext)
         {
         }
+        #endregion
 
+        #region LifeCycle
         public override void OnEnter()
         {
             switch (StateMachine.PreviousKey)
@@ -33,7 +36,9 @@ namespace InGame.Component.State
             InputContext.OnMove -= OnMove;
             InputContext.OnJump -= OnJump;
         }
+        #endregion
 
+        #region Event Handlers
         private void OnJump()
         {
             if (ObjectContext.SetJumpCount(ObjectContext.JumpCount - 1))
@@ -42,5 +47,6 @@ namespace InGame.Component.State
                 ObjectContext.SetAnimation(AnimationType.Jump, OnJumpAnimationEnd);
             }
         }
+        #endregion
     }
 }

@@ -6,11 +6,14 @@ namespace InGame.Component.Controller.AI
 {
     public abstract class AIStateBase : IState
     {
+        #region Fields
         protected readonly StateMachine<AIState> StateMachine;
         protected readonly InputContext InputContext;
         protected readonly ObjectContext ObjectContext;
         protected readonly ControllerAI Controller;
+        #endregion
 
+        #region Init
         protected AIStateBase(StateMachine<AIState> stateMachine, InputContext inputContext, ObjectContext objectContext, ControllerAI controller)
         {
             StateMachine = stateMachine;
@@ -18,12 +21,16 @@ namespace InGame.Component.Controller.AI
             ObjectContext = objectContext;
             Controller = controller;
         }
+        #endregion
 
+        #region LifeCycle
         public virtual void OnEnter() { }
         public virtual void OnExit() { }
         public virtual void OnUpdate() { }
         public virtual void OnFixedUpdate() { }
+        #endregion
 
+        #region Protected
         /// <summary>탐지 범위 안에 대상이 있으면 추격 상태로 전환</summary>
         protected bool TryChangeToChase()
         {
@@ -39,5 +46,6 @@ namespace InGame.Component.Controller.AI
         {
             return !Controller.IsWallAhead(directionX) && !Controller.IsLedgeAhead(directionX);
         }
+        #endregion
     }
 }

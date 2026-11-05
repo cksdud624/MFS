@@ -12,13 +12,18 @@ namespace InGame.Component.State
     /// </summary>
     public class DamageState : ObjectStateBase
     {
+        #region Fields
+        private float _elapsed;
+        #endregion
+
+        #region Init
         public DamageState(StateMachine<FSMState> stateMachine, InputContext inputContext, ObjectContext objectContext)
             : base(stateMachine, inputContext, objectContext)
         {
         }
+        #endregion
 
-        private float _elapsed;
-
+        #region LifeCycle
         public override void OnEnter()
         {
             _elapsed = 0f;
@@ -37,13 +42,6 @@ namespace InGame.Component.State
             ObjectContext.SetDamaged(false);
         }
 
-        //또 맞았으면 피격 모션도 처음부터 다시 튼다
-        private void HandleDamageRestart(Direction attackerSide)
-        {
-            _elapsed = 0f;
-            ObjectContext.SetAnimation(AnimationType.Damage);
-        }
-
         public override void OnFixedUpdate()
         {
             _elapsed += Time.fixedDeltaTime;
@@ -51,5 +49,15 @@ namespace InGame.Component.State
 
             StateMachine.ChangeState(ObjectContext.IsGrounded ? FSMState.Ground : FSMState.Air);
         }
+        #endregion
+
+        #region Event Handlers
+        //또 맞았으면 피격 모션도 처음부터 다시 튼다
+        private void HandleDamageRestart(Direction attackerSide, bool counterable)
+        {
+            _elapsed = 0f;
+            ObjectContext.SetAnimation(AnimationType.Damage);
+        }
+        #endregion
     }
 }

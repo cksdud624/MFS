@@ -4,6 +4,7 @@ namespace Common.Template
 {
     public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
     {
+        #region Fields
         private static T _instance;
         private static bool _isQuitting;
 
@@ -21,7 +22,10 @@ namespace Common.Template
                 return _instance;
             }
         }
+        #endregion
 
+        #region LifeCycle
         protected virtual void OnApplicationQuit() => _isQuitting = true;
+        #endregion
     }
 }

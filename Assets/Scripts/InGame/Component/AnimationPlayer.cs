@@ -15,6 +15,7 @@ namespace InGame.Component
 {
     public class AnimationPlayer : MonoBehaviour
     {
+        #region Fields
         private Animator _animator;
         private SpriteRenderer _spriteRenderer;
         private PlayableGraph _graph;
@@ -26,7 +27,9 @@ namespace InGame.Component
         private CancellationTokenSource _animationEndCts;
         private ObjectContext _objectContext;
         private ObjectData _objectData;
+        #endregion
 
+        #region Init
         public async UniTask Init(ObjectContext objectContext, ObjectData objectData)
         {
             _objectContext = objectContext;
@@ -66,28 +69,35 @@ namespace InGame.Component
             _graph.Play();
             Play(AnimationType.Idle);
         }
+        #endregion
 
-        private async UniTask LoadClip(AssetManager assetManager, string assetName, bool logOnMissing)
+        #region LifeCycle
+        private void OnDestroy()
         {
-            var clip = await assetManager.LoadAssetAsync<AnimationClip>(LoadTarget.Animation, assetName, logOnMissing);
-            if (clip == null) return;
-            _clips[assetName] = clip;
-        }
+            if (_objectContext != null)
+            {
+                _objectContext.OnDirectionChanged -= OnDirectionChanged;
+                _objectContext.OnAnimationChanged -= Play;
+            }
 
-        /// <summary>Attack1, Attack2처럼 번호가 붙은 클립의 에셋 이름. 번호가 0이면 번호 없는 기본 클립</summary>
-        private string GetAssetName(AnimationType animType, int variant)
-        {
-            string name = animType.ToString().ToLower();
-            return variant > 0 ? $"{_objectData.Id}/{name}{variant}" : $"{_objectData.Id}/{name}";
-        }
+            _animationEndCts?.Cancel();
+            _animationEndCts?.Dispose();
 
+            if (_graph.IsValid())
+                _graph.Destroy();
+        }
+        #endregion
+
+        #region Public
+        /// <summary>Order in Layer</summary>
+        public void SetSortingOrder(int sortingOrder) => _spriteRenderer.sortingOrder = sortingOrder;
+        #endregion
+
+        #region Event Handlers
         private void OnDirectionChanged(Direction direction)
         {
             _spriteRenderer.flipX = direction == Direction.Left;
         }
-
-        /// <summary>Order in Layer</summary>
-        public void SetSortingOrder(int sortingOrder) => _spriteRenderer.sortingOrder = sortingOrder;
 
         public void Play(AnimationType animType, int variant = 0, Action notifyAnimationEnd = null)
         {
@@ -117,26 +127,28 @@ namespace InGame.Component
             _currentPlayable = AnimationClipPlayable.Create(_graph, clip);
             _output.SetSourcePlayable(_currentPlayable);
         }
+        #endregion
+
+        #region Private
+        private async UniTask LoadClip(AssetManager assetManager, string assetName, bool logOnMissing)
+        {
+            var clip = await assetManager.LoadAssetAsync<AnimationClip>(LoadTarget.Animation, assetName, logOnMissing);
+            if (clip == null) return;
+            _clips[assetName] = clip;
+        }
+
+        /// <summary>Attack1, Attack2처럼 번호가 붙은 클립의 에셋 이름. 번호가 0이면 번호 없는 기본 클립</summary>
+        private string GetAssetName(AnimationType animType, int variant)
+        {
+            string name = animType.ToString().ToLower();
+            return variant > 0 ? $"{_objectData.Id}/{name}{variant}" : $"{_objectData.Id}/{name}";
+        }
 
         private async UniTaskVoid WaitForAnimationEnd(float duration, Action notifyAnimationEnd, CancellationToken cancellationToken)
         {
             await UniTask.Delay(TimeSpan.FromSeconds(duration), cancellationToken: cancellationToken);
             notifyAnimationEnd?.Invoke();
         }
-
-        private void OnDestroy()
-        {
-            if (_objectContext != null)
-            {
-                _objectContext.OnDirectionChanged -= OnDirectionChanged;
-                _objectContext.OnAnimationChanged -= Play;
-            }
-
-            _animationEndCts?.Cancel();
-            _animationEndCts?.Dispose();
-
-            if (_graph.IsValid())
-                _graph.Destroy();
-        }
+        #endregion
     }
 }

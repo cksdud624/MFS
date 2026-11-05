@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class EffectDirection : MonoBehaviour
 {
+    #region Fields
     [SerializeField]
     private Transform _mirrorRoot;
 
@@ -16,12 +17,16 @@ public class EffectDirection : MonoBehaviour
 
     private readonly Dictionary<ParticleSystem, Vector3>
         _originalStartRotations = new();
+    #endregion
 
+    #region LifeCycle
     private void Awake()
     {
         CacheParticleStartRotations();
     }
+    #endregion
 
+    #region Public
     public void SetDirection(Vector2 direction)
     {
         Direction =
@@ -33,7 +38,9 @@ public class EffectDirection : MonoBehaviour
         ApplyRotation();
         ApplyParticleStartRotation();
     }
+    #endregion
 
+    #region Private
     private void ApplyMirror()
     {
         if (_mirrorRoot == null)
@@ -109,4 +116,5 @@ public class EffectDirection : MonoBehaviour
             main.startRotationZ = original.z * sign;
         }
     }
+    #endregion
 }

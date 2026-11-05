@@ -12,14 +12,19 @@ namespace InGame.Component.Controller.AI
     /// </summary>
     public class AIAttackState : AIStateBase
     {
+        #region Fields
         //다음 공격을 시작하기까지 남은 시간
         private float _cooldown;
+        #endregion
 
+        #region Init
         public AIAttackState(StateMachine<AIState> stateMachine, InputContext inputContext, ObjectContext objectContext, ControllerAI controller)
             : base(stateMachine, inputContext, objectContext, controller)
         {
         }
+        #endregion
 
+        #region LifeCycle
         public override void OnEnter()
         {
             _cooldown = 0f;
@@ -64,5 +69,6 @@ namespace InGame.Component.Controller.AI
             //공격이 나가지 못했더라도(대시 중, 공격 없는 오브젝트 등) 매 틱 누르지 않도록 쉬는 시간을 건다
             _cooldown = AIAttackInterval;
         }
+        #endregion
     }
 }

@@ -43,6 +43,24 @@ R3는 코어(`R3.dll`)를 NuGetForUnity로(`Assets/packages.config`, `Assets/Pac
 - 컬렉션은 `readonly`로 만들어두고 `Clear()`해서 재사용한다. 핫패스(`FixedUpdate`, 트리거 콜백)에서는 할당과 LINQ를 피하고 `for` 루프를 쓴다.
 - 생성은 target-typed `new()`를 쓴다 (`private readonly List<bool> _hitBoxActive = new();`).
 
+### region 분류
+클래스 멤버는 아래 순서의 `#region`으로 나눈다. 해당하는 멤버가 없는 region은 만들지 않는다. 기준 파일은 `InGame/Component/ObjectStateController.cs`다.
+
+| region | 들어가는 것 |
+|---|---|
+| `Types` | 중첩 클래스, 구조체, enum |
+| `Fields` | 필드, `[SerializeField]`, 상태를 담는 프로퍼티, 계산 프로퍼티, 상수. 필드끼리의 순서는 바꾸지 않는다 (초기화 순서가 바뀐다) |
+| `Init` | 생성자, `Init(...)` |
+| `LifeCycle` | Unity 생명주기(`Awake`, `Start`, `OnEnable`, `OnDisable`, `OnDestroy`, `Update`, `FixedUpdate`, `LateUpdate`), `IUpdateable` 계열 콜백(`OnUpdate`, `OnFixedUpdate`, `OnLateUpdate`), FSM 상태의 `OnEnter`/`OnExit`/`OnFixedUpdate` |
+| `Public` | 밖에서 부르는 public 메서드 (`Init`은 제외, `Dispose`는 포함). 많으면 `Public - 주제`로 나눠도 된다 |
+| `Protected` | 상속받는 쪽이 쓰는 protected 메서드 |
+| `Event Handlers` | 이벤트에 바인드되는 핸들러 (`OnXxx`, `HandleXxx`, 입력 콜백, 애니메이션 끝 콜백), Unity 물리 콜백(`OnTriggerEnter2D` 등). public/protected여도 이벤트에 묶이는 용도면 여기에 둔다 |
+| `Private` | 내부 함수. 많으면 `Private - 주제`로 나눠도 된다 (`Private - Target`) |
+| `Editor` | `#if UNITY_EDITOR`로 감싼 디버그/테스트 코드 (`OnDrawGizmos`, 테스트 키 핸들러). `#if`는 region 안쪽에 둔다 |
+
+- 멤버가 한 분류뿐인 작은 클래스, 인터페이스, 자동 생성 코드에는 region을 두지 않는다.
+- `ObjectContext`, `InputContext`, `GameDefine`처럼 상태/이벤트/Set 함수가 주제별로 묶여 있는 클래스는 위 분류 대신 주제로 나눈다 (`Direction`, `Attack`, `Counter` ...).
+
 ### GameDefine과 using
 - enum과 상수는 `Common.GameDefine`에 `#region`으로 분류해서 모은다. 코드 곳곳에 매직 넘버를 두지 않는다.
   나중에 테이블로 옮길 값이면 그 사실을 주석으로 남긴다 (`//테이블로 차후 관리해야하는 부분`).

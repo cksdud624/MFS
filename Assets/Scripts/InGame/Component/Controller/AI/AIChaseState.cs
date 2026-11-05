@@ -10,11 +10,14 @@ namespace InGame.Component.Controller.AI
     /// </summary>
     public class AIChaseState : AIStateBase
     {
+        #region Init
         public AIChaseState(StateMachine<AIState> stateMachine, InputContext inputContext, ObjectContext objectContext, ControllerAI controller)
             : base(stateMachine, inputContext, objectContext, controller)
         {
         }
+        #endregion
 
+        #region LifeCycle
         public override void OnExit()
         {
             Controller.StopMove();
@@ -65,5 +68,6 @@ namespace InGame.Component.Controller.AI
 
             Controller.SetMoveInput(directionX);
         }
+        #endregion
     }
 }

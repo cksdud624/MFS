@@ -9,34 +9,29 @@ namespace InGame.Component.State
 {
     public abstract class ObjectStateBase : IState
     {
+        #region Fields
         protected readonly StateMachine<FSMState> StateMachine;
         protected readonly InputContext InputContext;
         protected readonly ObjectContext ObjectContext;
+        #endregion
 
+        #region Init
         protected ObjectStateBase(StateMachine<FSMState> stateMachine, InputContext inputContext, ObjectContext objectContext)
         {
             StateMachine = stateMachine;
             InputContext = inputContext;
             ObjectContext = objectContext;
         }
+        #endregion
 
+        #region LifeCycle
         public virtual void OnEnter() { }
         public virtual void OnExit() { }
         public virtual void OnUpdate() { }
         public virtual void OnFixedUpdate() { }
+        #endregion
 
-        protected void OnMove(Vector2 moveDirection)
-        {
-            float moveSpeed = ObjectContext.ObjectData.MoveSpeed;
-            float velocityX = 0f;
-            if (moveDirection.x > 0f)
-                velocityX = moveSpeed;
-            else if (moveDirection.x < 0f)
-                velocityX = -moveSpeed;
-
-            ObjectContext.SetMoveVelocity(velocityX);
-        }
-
+        #region Protected
         /// <summary>
         /// 이동 입력을 지금 입력 상태로 다시 맞춘다.
         /// OnMove를 구독하지 않는 상태(대시 등)에 있는 동안 들어온 입력 변화는 유실되므로
@@ -60,8 +55,20 @@ namespace InGame.Component.State
             else if (directionX < 0f)
                 ObjectContext.SetDirection(Direction.Left);
         }
+        #endregion
 
-        #region Events
+        #region Event Handlers
+        protected void OnMove(Vector2 moveDirection)
+        {
+            float moveSpeed = ObjectContext.ObjectData.MoveSpeed;
+            float velocityX = 0f;
+            if (moveDirection.x > 0f)
+                velocityX = moveSpeed;
+            else if (moveDirection.x < 0f)
+                velocityX = -moveSpeed;
+
+            ObjectContext.SetMoveVelocity(velocityX);
+        }
 
         protected void OnJumpAnimationEnd()
         {

@@ -15,10 +15,23 @@ namespace InGame.Component.Controller
     /// </summary>
     public class ControllerAI : ControllerBase, IFixedUpdateable
     {
+        #region Fields
         private StateMachine<AIState> _stateMachine;
         private PhysicsController _physicsController;
         private float _moveInput;
 
+        //추격 대상. 지금은 플레이어 고정이지만 이후 진영 개념이 생기면 여기만 바꾸면 된다
+        public Transform Target
+        {
+            get
+            {
+                var player = InGameContext?.Player;
+                return player != null ? player.transform : null;
+            }
+        }
+        #endregion
+
+        #region Init
         public override void Init(InGameContext inGameContext, InputContext inputContext, ObjectContext objectContext)
         {
             base.Init(inGameContext, inputContext, objectContext);
@@ -34,7 +47,9 @@ namespace InGame.Component.Controller
             ObjectContext.OnDamagedChanged += OnDamagedChanged;
             Global.Instance.BindFixedUpdate(this);
         }
+        #endregion
 
+        #region LifeCycle
         public void OnFixedUpdate()
         {
             //피격 중에는 입력이 전부 막히므로 판단도 멈춘다.
@@ -43,19 +58,10 @@ namespace InGame.Component.Controller
             _stateMachine?.OnFixedUpdate();
         }
 
-        /// <summary>
-        /// 맞으면 하던 행동을 내려놓고 대기로 돌아간다. 복귀하면 대기에서 대상을 다시 찾으며 새로 판단한다.
-        /// 이동 입력도 비워둬야 Ground/Air가 복귀할 때 피격 전 입력을 이어받지 않는다
-        /// </summary>
-        private void OnDamagedChanged(bool damaged)
-        {
-            if (!damaged || _stateMachine == null) return;
+        private void OnDestroy() => Dispose();
+        #endregion
 
-            _stateMachine.ChangeState(AIState.Idle);
-            //이미 대기 중이었으면 다시 들어가지 않으므로 입력은 여기서 한 번 더 비운다
-            StopMove();
-        }
-
+        #region Public
         public override void Dispose()
         {
             base.Dispose();
@@ -66,18 +72,9 @@ namespace InGame.Component.Controller
             Global.Instance?.UnBindFixedUpdate(this);
             _stateMachine = null;
         }
+        #endregion
 
-        #region Target
-        //추격 대상. 지금은 플레이어 고정이지만 이후 진영 개념이 생기면 여기만 바꾸면 된다
-        public Transform Target
-        {
-            get
-            {
-                var player = InGameContext?.Player;
-                return player != null ? player.transform : null;
-            }
-        }
-
+        #region Public - Target
         public bool TryGetTargetDistance(out float distance)
         {
             var target = Target;
@@ -101,7 +98,7 @@ namespace InGame.Component.Controller
         }
         #endregion
 
-        #region Input
+        #region Public - Input
         /// <summary>이동 입력. 값이 바뀔 때만 발행해서 플레이어 입력과 동일한 빈도로 동작시킨다</summary>
         public void SetMoveInput(float directionX)
         {
@@ -134,7 +131,7 @@ namespace InGame.Component.Controller
         }
         #endregion
 
-        #region Terrain
+        #region Public - Terrain
         //진행 방향이 낭떠러지인지 (지상에서만 판정)
         public bool IsLedgeAhead(float directionX)
         {
@@ -150,6 +147,19 @@ namespace InGame.Component.Controller
         }
         #endregion
 
-        private void OnDestroy() => Dispose();
+        #region Event Handlers
+        /// <summary>
+        /// 맞으면 하던 행동을 내려놓고 대기로 돌아간다. 복귀하면 대기에서 대상을 다시 찾으며 새로 판단한다.
+        /// 이동 입력도 비워둬야 Ground/Air가 복귀할 때 피격 전 입력을 이어받지 않는다
+        /// </summary>
+        private void OnDamagedChanged(bool damaged)
+        {
+            if (!damaged || _stateMachine == null) return;
+
+            _stateMachine.ChangeState(AIState.Idle);
+            //이미 대기 중이었으면 다시 들어가지 않으므로 입력은 여기서 한 번 더 비운다
+            StopMove();
+        }
+        #endregion
     }
 }

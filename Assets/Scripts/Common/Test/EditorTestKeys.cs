@@ -13,19 +13,20 @@ namespace Common.Test
     /// </summary>
     public class EditorTestKeys : IUpdateable
     {
-        #region Events
+        #region Fields
         //테스트 키가 눌렸다는 신호. 반응할 쪽이 직접 구독하고, 사라질 때 해제한다
 
         //AI 공격 (카운터 테스트). AI 오브젝트(ObjectBase)가 구독하고, 인스펙터에서 체크한 AI만 반응한다
         public static event Action OnAIAttack;
-        #endregion
 
         //테스트 키 목록. 키를 늘릴 때는 위에 이벤트를 하나 만들고 여기에 한 줄 추가한다
         private static readonly (Key key, string description, Action action)[] TestKeys =
         {
             (Key.Digit1, "AI 공격 (카운터 테스트)", () => OnAIAttack?.Invoke()),
         };
+        #endregion
 
+        #region LifeCycle
         public void OnUpdate()
         {
             var keyboard = Keyboard.current;
@@ -39,6 +40,7 @@ namespace Common.Test
                 testKey.action();
             }
         }
+        #endregion
     }
 }
 #endif

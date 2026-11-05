@@ -8,8 +8,11 @@ namespace InGame.Component.Controller
 {
     public class ControllerPlayer : ControllerBase
     {
+        #region Fields
         private PlayerInputAction _inputAction;
+        #endregion
 
+        #region Init
         public override void Init(InGameContext inGameContext, InputContext inputContext, ObjectContext objectContext)
         {
             base.Init(inGameContext, inputContext, objectContext);
@@ -26,7 +29,16 @@ namespace InGame.Component.Controller
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
         }
+        #endregion
 
+        #region LifeCycle
+        private void OnDestroy()
+        {
+            Dispose();
+        }
+        #endregion
+
+        #region Public
         public override void Dispose()
         {
             base.Dispose();
@@ -42,8 +54,9 @@ namespace InGame.Component.Controller
             _inputAction.Dispose();
             _inputAction = null;
         }
+        #endregion
 
-        #region Events
+        #region Event Handlers
         private void OnMove(InputAction.CallbackContext context)
         {
             Vector2 moveDirection = context.ReadValue<Vector2>();
@@ -64,10 +77,5 @@ namespace InGame.Component.Controller
 
         private void OnCounter(InputAction.CallbackContext context) => InputContext.NotifyCounter();
         #endregion
-
-        private void OnDestroy()
-        {
-            Dispose();
-        }
     }
 }

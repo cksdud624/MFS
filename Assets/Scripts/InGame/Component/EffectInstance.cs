@@ -11,8 +11,11 @@ namespace InGame.Component
     /// </summary>
     public class EffectInstance : MonoBehaviour
     {
+        #region Fields
         private ParticleSystem[] _particles;
+        #endregion
 
+        #region Public
         /// <summary>
         /// direction은 이펙트의 진행 방향. 이펙트가 어느 쪽으로 그려지는지(꼬리가 뒤로 끌리는지 등)는
         /// 프리팹이 알아서 들고 있으므로 호출한 쪽에서 뒤집어 넘기지 않는다.
@@ -37,7 +40,9 @@ namespace InGame.Component
 
             Run(fitted ? 0f : duration, this.GetCancellationTokenOnDestroy()).Forget();
         }
+        #endregion
 
+        #region Private
         /// <summary>
         /// 프리팹이 원래 재생되는 길이를 재서, 넘겨받은 시간에 딱 맞게 끝나도록 재생 속도를 곱한다.
         /// 원래 1초짜리를 0.5초로 넘기면 2배속이 된다.
@@ -142,5 +147,6 @@ namespace InGame.Component
 
             return true;
         }
+        #endregion
     }
 }

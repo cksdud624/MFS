@@ -19,6 +19,7 @@ namespace InGame.Component
     /// </summary>
     public class EffectPlayer : MonoBehaviour
     {
+        #region Fields
         //이펙트가 들고 다니는 공격 판정에 넘겨준다. 맞은 대상을 찾을 때 쓴다
         private InGameContext _inGameContext;
         private ObjectContext _objectContext;
@@ -27,7 +28,9 @@ namespace InGame.Component
         private readonly Dictionary<string, GameObject> _prefabs = new();
         //띄워둔 인스턴스. 오브젝트가 사라질 때 같이 정리하려고 들고 있는다
         private readonly List<EffectInstance> _instances = new();
+        #endregion
 
+        #region Init
         public async UniTask Init(InGameContext inGameContext, ObjectContext objectContext, ObjectData objectData)
         {
             _inGameContext = inGameContext;
@@ -52,18 +55,34 @@ namespace InGame.Component
 
             await UniTask.WhenAll(loadTasks);
         }
+        #endregion
 
-        private async UniTask LoadPrefab(AssetManager assetManager, string assetName, bool logOnMissing)
+        #region LifeCycle
+        private void OnDestroy()
         {
-            var prefab = await assetManager.LoadAssetAsync<GameObject>(LoadTarget.Effect, assetName, logOnMissing);
-            if (prefab == null) return;
-            _prefabs[assetName] = prefab;
+            if (_objectContext != null)
+                _objectContext.OnEffectPlay -= Play;
+
+            //월드에 띄운 인스턴스는 오브젝트가 사라져도 살아남으므로, 프리팹 핸들을 반납하기 전에 먼저 지운다
+            foreach (var instance in _instances)
+            {
+                if (instance != null)
+                    Destroy(instance.gameObject);
+            }
+            _instances.Clear();
+
+            var assetManager = Global.Instance?.AssetManager;
+            if (assetManager != null)
+            {
+                foreach (var assetName in _prefabs.Keys)
+                    assetManager.ReleaseAsset<GameObject>(LoadTarget.Effect, assetName);
+            }
+
+            _prefabs.Clear();
         }
+        #endregion
 
-        /// <summary>Attack1, Attack2처럼 번호가 붙은 프리팹의 에셋 이름. 번호가 0이면 번호 없는 기본 프리팹</summary>
-        private string GetAssetName(EffectType effectType, int variant)
-            => variant > 0 ? $"{_objectData.Id}/{effectType}{variant}" : $"{_objectData.Id}/{effectType}";
-
+        #region Event Handlers
         /// <summary>
         /// offset은 콜라이더 중점에서 얼마나 띄울지. 어디에 띄울지는 부르는 쪽이 정한다.
         /// direction은 이펙트의 진행 방향. 0이면 캐릭터가 보는 방향을 그대로 쓴다.
@@ -108,6 +127,19 @@ namespace InGame.Component
             _instances.RemoveAll(played => played == null);
             _instances.Add(effectInstance);
         }
+        #endregion
+
+        #region Private
+        private async UniTask LoadPrefab(AssetManager assetManager, string assetName, bool logOnMissing)
+        {
+            var prefab = await assetManager.LoadAssetAsync<GameObject>(LoadTarget.Effect, assetName, logOnMissing);
+            if (prefab == null) return;
+            _prefabs[assetName] = prefab;
+        }
+
+        /// <summary>Attack1, Attack2처럼 번호가 붙은 프리팹의 에셋 이름. 번호가 0이면 번호 없는 기본 프리팹</summary>
+        private string GetAssetName(EffectType effectType, int variant)
+            => variant > 0 ? $"{_objectData.Id}/{effectType}{variant}" : $"{_objectData.Id}/{effectType}";
 
         //재생 내내 뿜는 이펙트만 오브젝트를 따라간다
         private static bool ShouldFollow(EffectType effectType) => effectType switch
@@ -126,28 +158,6 @@ namespace InGame.Component
             EffectType.Attack => true,
             _ => false
         };
-
-        private void OnDestroy()
-        {
-            if (_objectContext != null)
-                _objectContext.OnEffectPlay -= Play;
-
-            //월드에 띄운 인스턴스는 오브젝트가 사라져도 살아남으므로, 프리팹 핸들을 반납하기 전에 먼저 지운다
-            foreach (var instance in _instances)
-            {
-                if (instance != null)
-                    Destroy(instance.gameObject);
-            }
-            _instances.Clear();
-
-            var assetManager = Global.Instance?.AssetManager;
-            if (assetManager != null)
-            {
-                foreach (var assetName in _prefabs.Keys)
-                    assetManager.ReleaseAsset<GameObject>(LoadTarget.Effect, assetName);
-            }
-
-            _prefabs.Clear();
-        }
+        #endregion
     }
 }

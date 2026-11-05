@@ -13,10 +13,13 @@ namespace InGame.Component
     /// </summary>
     public class HurtBox : MonoBehaviour
     {
+        #region Fields
         private InGameContext _inGameContext;
         private ObjectContext _objectContext;
         private BoxCollider2D _collider;
+        #endregion
 
+        #region Init
         public void Init(InGameContext inGameContext, ObjectContext objectContext)
         {
             _inGameContext = inGameContext;
@@ -36,11 +39,9 @@ namespace InGame.Component
 
             _inGameContext.RegisterHurtBox(_collider, _objectContext);
         }
+        #endregion
 
-        //오프셋은 보는 방향 기준이므로 돌아설 때마다 다시 맞춘다
-        private void OnDirectionChanged(Direction direction) => ApplyOffset();
-        private void ApplyOffset() => _collider.offset = _objectContext.HurtBoxOffset;
-
+        #region LifeCycle
         private void OnDestroy()
         {
             _inGameContext?.UnregisterHurtBox(_collider);
@@ -48,7 +49,18 @@ namespace InGame.Component
             if (_objectContext == null) return;
             _objectContext.OnDirectionChanged -= OnDirectionChanged;
         }
+        #endregion
 
+        #region Event Handlers
+        //오프셋은 보는 방향 기준이므로 돌아설 때마다 다시 맞춘다
+        private void OnDirectionChanged(Direction direction) => ApplyOffset();
+        #endregion
+
+        #region Private
+        private void ApplyOffset() => _collider.offset = _objectContext.HurtBoxOffset;
+        #endregion
+
+        #region Editor
 #if UNITY_EDITOR
         //공격 판정과 겹쳐 보며 맞추기 위한 디버그 표시. 항상 그린다
         private void OnDrawGizmos()
@@ -59,5 +71,6 @@ namespace InGame.Component
             Gizmos.DrawWireCube(_collider.bounds.center, _collider.bounds.size);
         }
 #endif
+        #endregion
     }
 }

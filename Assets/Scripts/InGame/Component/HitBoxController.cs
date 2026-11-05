@@ -15,6 +15,7 @@ namespace InGame.Component
     /// </summary>
     public class HitBoxController : MonoBehaviour
     {
+        #region Fields
         //맞은 콜라이더로 대상을 찾는다
         private InGameContext _inGameContext;
         private ObjectContext _objectContext;
@@ -31,7 +32,11 @@ namespace InGame.Component
         //같은 공격에서 같은 대상을 여러 번 때리지 않도록 기록한다.
         //마법과 기계는 각자 한 번씩 때려야 하므로 타입별로 따로 센다
         private readonly Dictionary<AttackType, HashSet<ObjectContext>> _hitTargets = new();
+        //이번 단계에서 먼저 거둔 타입. 반격이 맞히면 여기에 남기고, 같은 타입의 늦게 켜지는 판정도 더 켜지 않는다
+        private readonly HashSet<AttackType> _closedTypes = new();
+        #endregion
 
+        #region Init
         public async UniTask Init(InGameContext inGameContext, ObjectContext objectContext)
         {
             _inGameContext = inGameContext;
@@ -49,13 +54,26 @@ namespace InGame.Component
 
             await UniTask.CompletedTask;
         }
+        #endregion
 
+        #region LifeCycle
+        private void OnDestroy()
+        {
+            if (_objectContext == null) return;
+
+            _objectContext.OnAttackStart -= BeginAttack;
+            _objectContext.OnAttackHitBoxActiveChanged -= SetHitBoxActive;
+        }
+        #endregion
+
+        #region Event Handlers
         /// <summary>공격(또는 콤보 한 단계)의 시작. 중복 히트 기록을 비우고 남은 판정을 끈다</summary>
         public void BeginAttack()
         {
             //타입별 기록만 비우고 집합 자체는 다음 공격에 다시 쓴다
             foreach (var targets in _hitTargets.Values)
                 targets.Clear();
+            _closedTypes.Clear();
 
             //단계가 끝나기 전에 대시로 끊기는 등, 켜둔 채로 넘어온 판정이 있으면 여기서 확실히 끈다
             for (int i = 0; i < _activeColliders.Count; i++)
@@ -76,7 +94,8 @@ namespace InGame.Component
             var collider = GetCollider(hitBox);
             int index = _activeColliders.IndexOf(collider);
 
-            if (!active)
+            //먼저 거둔 타입은 켜라는 신호가 와도 꺼진 채로 둔다
+            if (!active || _closedTypes.Contains(attackType))
             {
                 collider.enabled = false;
                 if (index < 0) return;
@@ -104,6 +123,12 @@ namespace InGame.Component
             _activeTypes.Add(attackType);
         }
 
+        //켜지는 순간 이미 겹쳐 있던 대상은 Enter가 오지 않을 수 있으므로 Stay도 같이 받는다
+        private void OnTriggerEnter2D(Collider2D other) => DetectAttack(other);
+        private void OnTriggerStay2D(Collider2D other) => DetectAttack(other);
+        #endregion
+
+        #region Private
         /// <summary>판정 박스의 콜라이더. 처음 쓰는 박스면 자식으로 만들어둔다</summary>
         private BoxCollider2D GetCollider(AttackHitBoxData hitBox)
         {
@@ -123,10 +148,6 @@ namespace InGame.Component
             return collider;
         }
 
-        //켜지는 순간 이미 겹쳐 있던 대상은 Enter가 오지 않을 수 있으므로 Stay도 같이 받는다
-        private void OnTriggerEnter2D(Collider2D other) => DetectAttack(other);
-        private void OnTriggerStay2D(Collider2D other) => DetectAttack(other);
-
         /// <summary>
         /// 트리거에 걸린 대상을 판정으로 처리한다.
         /// 콜백은 본체 콜라이더가 받은 접촉까지 같이 들어오므로 실제로 판정 박스와 겹칠 때만 본다.
@@ -145,6 +166,8 @@ namespace InGame.Component
             //맞은 쪽이 카운터로 돌아설 방향. 내 콜라이더 중점과 맞은 피격 판정의 중점으로 좌우를 가린다
             var attackerSide = _objectContext.ResolveAttackerSide(
                 (Vector2)transform.position + _objectContext.ColliderOffset, other.bounds.center);
+            //이 판정은 단계가 끝나면 같이 꺼지므로 지금 하고 있는 행동이 곧 판정을 낸 공격이다
+            bool isCounterAttack = _objectContext.ActionType is ActionType.CounterAttack;
 
             for (int i = 0; i < _activeColliders.Count; i++)
             {
@@ -159,22 +182,43 @@ namespace InGame.Component
                 //한 단계에서 같은 대상을 여러 번 때리지 않는다
                 if (!hitTargets.Add(target)) continue;
 
+                //반격은 카운터로 받아낼 수 없다
+                var damageResult = target.RequestDamage(attackerSide, !isCounterAttack);
+                Debug.Log($"[{_objectContext.Team}] {name} hit [{target.Team}] {other.transform.root.name} ({attackType}, {damageResult})");
+                //카운터에 받아내졌거나 무적이라 맞지 않았으면 히트로 세지 않는다
+                if (damageResult != DamageResult.Hit) continue;
+
                 //다음 커맨드가 히트를 요구할 수 있으므로 맞았다는 것을 남겨둔다.
                 //타입을 가리지 않고 하나라도 맞으면 히트로 본다
                 _objectContext.ReportAttackHit();
-                target.RequestDamage(attackerSide);
-                Debug.Log($"[{_objectContext.Team}] {name} hit [{target.Team}] {other.transform.root.name} ({attackType})");
+                if (!isCounterAttack) continue;
+
+                //반격은 한 번 맞히면 그 타입의 판정을 바로 거둔다. 남겨두면 주변의 다른 대상까지 계속 때린다.
+                //거둔 만큼 목록이 줄었으므로 처음부터 다시 본다. 이미 맞힌 판정은 위의 기록에 걸려 넘어간다
+                CloseHitBoxes(attackType);
+                i = -1;
             }
         }
 
-        private void OnDestroy()
+        /// <summary>
+        /// 한 타입의 판정을 이번 단계에서 먼저 거둔다.
+        /// 나중에 커맨드를 굴리는 쪽이 끄라고 알려와도 이미 목록에서 빠져 있으므로 콜라이더만 다시 끄고 끝난다
+        /// </summary>
+        private void CloseHitBoxes(AttackType attackType)
         {
-            if (_objectContext == null) return;
+            _closedTypes.Add(attackType);
+            for (int i = _activeColliders.Count - 1; i >= 0; i--)
+            {
+                if (_activeTypes[i] != attackType) continue;
 
-            _objectContext.OnAttackStart -= BeginAttack;
-            _objectContext.OnAttackHitBoxActiveChanged -= SetHitBoxActive;
+                _activeColliders[i].enabled = false;
+                _activeColliders.RemoveAt(i);
+                _activeTypes.RemoveAt(i);
+            }
         }
+        #endregion
 
+        #region Editor
 #if UNITY_EDITOR
         //판정 범위를 눈으로 맞추기 위한 디버그 표시. 켜져 있는 동안만 그린다
         private void OnDrawGizmos()
@@ -189,5 +233,6 @@ namespace InGame.Component
             }
         }
 #endif
+        #endregion
     }
 }

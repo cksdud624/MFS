@@ -9,6 +9,7 @@ namespace InGame.Object
 {
     public class ObjectSpawner : MonoBehaviour
     {
+        #region Fields
         private InGameContext _inGameContext;
 
         private List<ObjectBase> _objects = new ();
@@ -17,13 +18,17 @@ namespace InGame.Object
         //구간 안에서 번호가 겹치지 않도록 생성한 개수를 센다
         private int _objectOrder;
         private int _characterOrder;
+        #endregion
 
+        #region Init
         public async UniTask Init(InGameContext inGameContext)
         {
             _inGameContext = inGameContext;
             await UniTask.CompletedTask;
         }
+        #endregion
 
+        #region Public
         public async UniTask SpawnPlayer(ObjectData objectData, Vector2? position = null)
         {
             if (_inGameContext.Player != null || objectData == null)
@@ -45,7 +50,9 @@ namespace InGame.Object
             spawned?.AttachController();
             return spawned;
         }
+        #endregion
 
+        #region Private
         private async UniTask<ObjectBase> Spawn(ObjectData objectData, Vector2? position, bool isPlayer)
         {
             if (objectData == null)
@@ -81,5 +88,6 @@ namespace InGame.Object
 
             return SortingOrderObject + _objectOrder++ % SortingOrderRange;
         }
+        #endregion
     }
 }

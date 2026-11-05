@@ -9,11 +9,15 @@ using System.Linq;
 
 public static class TableUpdater
 {
+    #region Fields
     private const string BytesDirectory = "Generated/Table";
     private const string ScriptsDirectory = "Scripts/Generated/Table";
     private const string TableDirectory = ".Table/";
     private const string TableManifestFile = "TableManifest.json";
     private const string TableManager = "TableManager";
+    #endregion
+
+    #region Public
     [MenuItem("Table/Update Table")]
     public static void UpdateTable()
     {
@@ -241,7 +245,9 @@ public static class TableUpdater
         File.WriteAllText(jsonPath, json);
         AssetDatabase.Refresh();
     }
+    #endregion
 
+    #region Private
     //Vector 계열은 "x,y" / "x;y;z" 처럼 적힌 값을 성분 수만큼 쪼개서 읽는다. 구분자는 쉼표와 세미콜론 둘 다 받는다
     private static void AppendVectorParse(StringBuilder record, string column, int index, int componentCount)
     {
@@ -293,8 +299,10 @@ public static class TableUpdater
         
         File.WriteAllBytes(bytesPath, byteDatas);
     }
-    
+    #endregion
 
+
+    #region Types
     [Serializable]
     public class TableManifest
     {
@@ -313,4 +321,5 @@ public static class TableUpdater
             this.hash = hash;
         }
     }
+    #endregion
 }

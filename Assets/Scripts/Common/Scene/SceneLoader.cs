@@ -7,11 +7,14 @@ namespace Common.Scene
 {
     public class SceneLoader : MonoBehaviour
     {
+        #region Fields
         private SceneType _sceneType = SceneType.BootStrap;
         private SceneLoadBase _currentScene;
 
         private object _sceneParameter;
+        #endregion
 
+        #region Public
         public void LoadScene(SceneType sceneType)
         {
             if (_sceneType == sceneType)
@@ -56,5 +59,6 @@ namespace Common.Scene
             _currentScene = sceneLoadBase;
             _currentScene?.InitScene();
         }
+        #endregion
     }
 }

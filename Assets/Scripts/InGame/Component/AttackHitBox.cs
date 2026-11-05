@@ -15,12 +15,15 @@ namespace InGame.Component
     /// </summary>
     public class AttackHitBox : MonoBehaviour
     {
+        #region Fields
         //맞은 콜라이더로 대상을 찾는다
         private InGameContext _inGameContext;
         private ObjectContext _objectContext;
         //판정을 낸 주인. 히트를 알릴 때 쓴다
         private Transform _owner;
         private AttackType _attackType;
+        //반격이 띄운 판정인지. 반격은 카운터로 받아낼 수 없고, 한 번 맞히면 판정을 거둔다
+        private bool _isCounterAttack;
         //판정 박스를 둘 레이어. 맞출 대상(HurtBox)도 같은 레이어에 있다
         private int _hitBoxLayer;
         private int _targetLayerMask;
@@ -32,13 +35,18 @@ namespace InGame.Component
         //같은 공격에서 같은 대상을 여러 번 때리지 않도록 기록한다.
         //이 인스턴스는 한 타입의 한 단계만 맡으므로 집합 하나로 충분하다
         private readonly HashSet<ObjectContext> _hitTargets = new();
+        #endregion
 
+        #region Init
         public void Init(InGameContext inGameContext, ObjectContext objectContext, Transform owner, AttackType attackType)
         {
             _inGameContext = inGameContext;
             _objectContext = objectContext;
             _owner = owner;
             _attackType = attackType;
+            //이펙트는 단계보다 오래 살아남아서 맞히는 시점에는 주인이 다른 행동을 하고 있을 수 있다.
+            //그래서 판정을 낸 공격이 무엇이었는지는 이펙트가 뜨는 지금 정해둔다
+            _isCounterAttack = objectContext.ActionType is ActionType.CounterAttack;
             _objectContext.OnAttackHitBoxActiveChanged += SetHitBoxActive;
             //이펙트가 단계보다 오래 살아남을 수 있다. 다음 단계가 시작되면 그 판정까지 받지 않도록 손을 뗀다
             _objectContext.OnAttackStart += Retire;
@@ -61,7 +69,13 @@ namespace InGame.Component
             body.bodyType = RigidbodyType2D.Kinematic;
             body.useFullKinematicContacts = true;
         }
+        #endregion
 
+        #region LifeCycle
+        private void OnDestroy() => Retire();
+        #endregion
+
+        #region Event Handlers
         /// <summary>
         /// 판정을 켜고 끈다. 켜는 시점과 유지시간은 커맨드를 굴리는 쪽이 정하고,
         /// 여기서는 그 시간 동안 콜라이더를 살려두기만 한다.
@@ -92,6 +106,25 @@ namespace InGame.Component
                 _activeColliders.Add(collider);
         }
 
+        //켜지는 순간 이미 겹쳐 있던 대상은 Enter가 오지 않을 수 있으므로 Stay도 같이 받는다
+        private void OnTriggerEnter2D(Collider2D other) => DetectAttack(other);
+        private void OnTriggerStay2D(Collider2D other) => DetectAttack(other);
+
+        /// <summary>맡은 단계가 끝났다. 판정을 거두고 더 이상 신호를 받지 않는다. 연출은 수명대로 남는다</summary>
+        private void Retire()
+        {
+            for (int i = 0; i < _activeColliders.Count; i++)
+                _activeColliders[i].enabled = false;
+            _activeColliders.Clear();
+
+            if (_objectContext == null) return;
+
+            _objectContext.OnAttackHitBoxActiveChanged -= SetHitBoxActive;
+            _objectContext.OnAttackStart -= Retire;
+        }
+        #endregion
+
+        #region Private
         /// <summary>판정 박스의 콜라이더. 처음 쓰는 박스면 자식으로 만들어둔다</summary>
         private BoxCollider2D GetCollider(AttackHitBoxData hitBox)
         {
@@ -110,10 +143,6 @@ namespace InGame.Component
             return collider;
         }
 
-        //켜지는 순간 이미 겹쳐 있던 대상은 Enter가 오지 않을 수 있으므로 Stay도 같이 받는다
-        private void OnTriggerEnter2D(Collider2D other) => DetectAttack(other);
-        private void OnTriggerStay2D(Collider2D other) => DetectAttack(other);
-
         /// <summary>
         /// 트리거에 걸린 대상을 판정으로 처리한다.
         /// 콜백은 이 이펙트의 콜라이더 전부를 묶어서 들어오므로 어느 판정에 걸렸는지는 따지지 않는다.
@@ -131,30 +160,26 @@ namespace InGame.Component
             //한 단계에서 같은 대상을 여러 번 때리지 않는다
             if (!_hitTargets.Add(target)) return;
 
+            //맞은 쪽이 카운터로 돌아설 방향. 이펙트가 아니라 공격한 주인이 있는 쪽을 준다
+            var attackerSide = _objectContext.ResolveAttackerSide(
+                (Vector2)_owner.position + _objectContext.ColliderOffset, other.bounds.center);
+            //반격은 카운터로 받아낼 수 없다
+            var damageResult = target.RequestDamage(attackerSide, !_isCounterAttack);
+            Debug.Log($"[{_objectContext.Team}] {_owner.name} hit [{target.Team}] {other.transform.root.name} ({_attackType}, {damageResult})");
+            //카운터에 받아내졌거나 무적이라 맞지 않았으면 히트로 세지 않는다
+            if (damageResult != DamageResult.Hit) return;
+
             //다음 커맨드가 히트를 요구할 수 있으므로 맞았다는 것을 남겨둔다.
             //타입을 가리지 않고 하나라도 맞으면 히트로 본다
             _objectContext.ReportAttackHit();
-            //맞은 쪽이 카운터로 돌아설 방향. 이펙트가 아니라 공격한 주인이 있는 쪽을 준다
-            target.RequestDamage(_objectContext.ResolveAttackerSide(
-                (Vector2)_owner.position + _objectContext.ColliderOffset, other.bounds.center));
-            Debug.Log($"[{_objectContext.Team}] {_owner.name} hit [{target.Team}] {other.transform.root.name} ({_attackType})");
+
+            //반격은 한 번 맞히면 판정을 바로 거둔다. 이펙트가 단계보다 오래 남아서 그대로 두면 주변의 다른 대상까지 계속 때린다
+            if (_isCounterAttack)
+                Retire();
         }
+        #endregion
 
-        /// <summary>맡은 단계가 끝났다. 판정을 거두고 더 이상 신호를 받지 않는다. 연출은 수명대로 남는다</summary>
-        private void Retire()
-        {
-            for (int i = 0; i < _activeColliders.Count; i++)
-                _activeColliders[i].enabled = false;
-            _activeColliders.Clear();
-
-            if (_objectContext == null) return;
-
-            _objectContext.OnAttackHitBoxActiveChanged -= SetHitBoxActive;
-            _objectContext.OnAttackStart -= Retire;
-        }
-
-        private void OnDestroy() => Retire();
-
+        #region Editor
 #if UNITY_EDITOR
         //판정 범위를 눈으로 맞추기 위한 디버그 표시. 켜져 있는 동안만 그린다
         private void OnDrawGizmos()
@@ -169,5 +194,6 @@ namespace InGame.Component
             }
         }
 #endif
+        #endregion
     }
 }

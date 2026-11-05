@@ -12,8 +12,11 @@ namespace Common
 {
     public class AssetManager : MonoBehaviour
     {
+        #region Fields
         private readonly Dictionary<string, List<AsyncOperationHandle>> _addressableCache = new ();
-        
+        #endregion
+
+        #region Public
         public async UniTask<T> LoadAssetAsync<T>(LoadTarget target, string assetName, bool logOnMissing = true) where T : Object
         {
             string key = GetAddressableKey(target, assetName);
@@ -48,6 +51,7 @@ namespace Common
             else
                 Debug.LogError($"{key} not found to release");
         }
+        #endregion
     }
 
     public static class AssetKeys

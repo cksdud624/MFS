@@ -8,13 +8,18 @@ namespace InGame.Component.Controller.AI
     /// <summary>제자리에서 대기하다가 일정 시간이 지나면 순찰로 전환</summary>
     public class AIIdleState : AIStateBase
     {
+        #region Fields
         private float _timer;
+        #endregion
 
+        #region Init
         public AIIdleState(StateMachine<AIState> stateMachine, InputContext inputContext, ObjectContext objectContext, ControllerAI controller)
             : base(stateMachine, inputContext, objectContext, controller)
         {
         }
+        #endregion
 
+        #region LifeCycle
         public override void OnEnter()
         {
             _timer = 0f;
@@ -30,5 +35,6 @@ namespace InGame.Component.Controller.AI
             if (_timer >= IdleDuration)
                 StateMachine.ChangeState(AIState.Patrol);
         }
+        #endregion
     }
 }

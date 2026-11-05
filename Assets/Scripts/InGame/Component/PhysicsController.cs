@@ -10,6 +10,7 @@ namespace InGame.Component
 {
     public class PhysicsController : MonoBehaviour, IFixedUpdateable
     {
+        #region Fields
         public Rigidbody2D Rigidbody { get; private set; }
         private BoxCollider2D _collider;
         private ObjectContext _objectContext;
@@ -23,7 +24,9 @@ namespace InGame.Component
         private int _probeLayerMask;
 
         private readonly HashSet<Collider2D> _groundContacts = new();
+        #endregion
 
+        #region Init
         public async UniTask Init(ObjectContext objectContext)
         {
             _objectContext = objectContext;
@@ -56,8 +59,86 @@ namespace InGame.Component
 
             await UniTask.CompletedTask;
         }
-        
-        #region Events
+        #endregion
+
+        #region LifeCycle
+        public void OnFixedUpdate()
+        {
+            if (_isAttacking)
+            {
+                Rigidbody.linearVelocity = Vector2.zero;
+            }
+            else if (_isDashing)
+            {
+                var dashVelocity = _dashVelocity;
+                //지상 대시 중 낭떠러지 끝에 닿으면 전진만 차단
+                if (IsLedgeAhead(dashVelocity.x))
+                    dashVelocity.x = 0f;
+                Rigidbody.linearVelocity = dashVelocity;
+            }
+            else
+            {
+                //지상은 즉시 반응, 공중은 관성을 받는다.
+                //피격 중에는 땅에 있어도 공중처럼 관성을 받으며 멈춰간다
+                bool useInertia = !_objectContext.IsGrounded || _objectContext.IsDamaged;
+                float velocityX = useInertia ? ResolveAirVelocityX() : _velocityX;
+                Rigidbody.linearVelocity = new Vector2(velocityX, Rigidbody.linearVelocity.y);
+            }
+            _objectContext.SetGrounded(_groundContacts.Count > 0);
+        }
+
+        private void OnDestroy()
+        {
+            Global.Instance?.UnBindFixedUpdate(this);
+            if (_objectContext != null)
+            {
+                _objectContext.OnMoveVelocityChanged -= OnMoveVelocityChanged;
+                _objectContext.OnJumpVelocityChanged -= OnJumpVelocityChanged;
+                _objectContext.OnDashingChanged -= OnDashingChanged;
+                _objectContext.OnDashVelocityChanged -= OnDashVelocityChanged;
+                _objectContext.OnAttackingChanged -= OnAttackingChanged;
+                _objectContext.OnDirectionChanged -= OnDirectionChanged;
+            }
+        }
+        #endregion
+
+        #region Public
+        /// <summary>진행 방향 바로 앞이 낭떠러지인지. 지상에서만 판정한다</summary>
+        public bool IsLedgeAhead(float velocityX)
+        {
+            if (velocityX == 0f) return false;
+            if (!_objectContext.IsGrounded) return false;
+
+            var bounds = _collider.bounds;
+            float direction = Mathf.Sign(velocityX);
+            //이번 프레임에 이동할 거리만큼 미리 내다봐서 끝을 넘어가는 것을 막는다
+            float probeDistance = Mathf.Abs(velocityX) * Time.fixedDeltaTime + LedgeProbeMargin;
+            var origin = new Vector2(
+                direction > 0f ? bounds.max.x + probeDistance : bounds.min.x - probeDistance,
+                bounds.min.y + LedgeProbeMargin);
+
+            var hit = Physics2D.Raycast(origin, Vector2.down, LedgeProbeDepth + LedgeProbeMargin, _probeLayerMask);
+            return hit.collider == null || !hit.collider.CompareTag(TagMap);
+        }
+
+        /// <summary>진행 방향 바로 앞이 벽인지</summary>
+        public bool IsWallAhead(float directionX)
+        {
+            if (directionX == 0f) return false;
+
+            var bounds = _collider.bounds;
+            float direction = Mathf.Sign(directionX);
+            //자기 콜라이더에 맞지 않도록 바깥에서 쏜다
+            var origin = new Vector2(
+                direction > 0f ? bounds.max.x + LedgeProbeMargin : bounds.min.x - LedgeProbeMargin,
+                bounds.center.y);
+
+            var hit = Physics2D.Raycast(origin, new Vector2(direction, 0f), WallProbeDistance, _probeLayerMask);
+            return hit.collider != null && hit.collider.CompareTag(TagMap);
+        }
+        #endregion
+
+        #region Event Handlers
         private void OnMoveVelocityChanged(float velocityX)
         {
             _velocityX = velocityX;
@@ -102,70 +183,17 @@ namespace InGame.Component
         }
 
         private void OnDirectionChanged(Direction direction) => ApplyColliderOffset();
+
+        private void OnCollisionEnter2D(Collision2D collision)
+        {
+            if (IsGroundContact(collision))
+                _groundContacts.Add(collision.collider);
+        }
+
+        private void OnCollisionExit2D(Collision2D collision) => _groundContacts.Remove(collision.collider);
         #endregion
-        
-        #region LifeCycle
-        public void OnFixedUpdate()
-        {
-            if (_isAttacking)
-            {
-                Rigidbody.linearVelocity = Vector2.zero;
-            }
-            else if (_isDashing)
-            {
-                var dashVelocity = _dashVelocity;
-                //지상 대시 중 낭떠러지 끝에 닿으면 전진만 차단
-                if (IsLedgeAhead(dashVelocity.x))
-                    dashVelocity.x = 0f;
-                Rigidbody.linearVelocity = dashVelocity;
-            }
-            else
-            {
-                //지상은 즉시 반응, 공중은 관성을 받는다.
-                //피격 중에는 땅에 있어도 공중처럼 관성을 받으며 멈춰간다
-                bool useInertia = !_objectContext.IsGrounded || _objectContext.IsDamaged;
-                float velocityX = useInertia ? ResolveAirVelocityX() : _velocityX;
-                Rigidbody.linearVelocity = new Vector2(velocityX, Rigidbody.linearVelocity.y);
-            }
-            _objectContext.SetGrounded(_groundContacts.Count > 0);
-        }
-        #endregion
-        
-        #region CheckConditions
-        /// <summary>진행 방향 바로 앞이 낭떠러지인지. 지상에서만 판정한다</summary>
-        public bool IsLedgeAhead(float velocityX)
-        {
-            if (velocityX == 0f) return false;
-            if (!_objectContext.IsGrounded) return false;
 
-            var bounds = _collider.bounds;
-            float direction = Mathf.Sign(velocityX);
-            //이번 프레임에 이동할 거리만큼 미리 내다봐서 끝을 넘어가는 것을 막는다
-            float probeDistance = Mathf.Abs(velocityX) * Time.fixedDeltaTime + LedgeProbeMargin;
-            var origin = new Vector2(
-                direction > 0f ? bounds.max.x + probeDistance : bounds.min.x - probeDistance,
-                bounds.min.y + LedgeProbeMargin);
-
-            var hit = Physics2D.Raycast(origin, Vector2.down, LedgeProbeDepth + LedgeProbeMargin, _probeLayerMask);
-            return hit.collider == null || !hit.collider.CompareTag(TagMap);
-        }
-
-        /// <summary>진행 방향 바로 앞이 벽인지</summary>
-        public bool IsWallAhead(float directionX)
-        {
-            if (directionX == 0f) return false;
-
-            var bounds = _collider.bounds;
-            float direction = Mathf.Sign(directionX);
-            //자기 콜라이더에 맞지 않도록 바깥에서 쏜다
-            var origin = new Vector2(
-                direction > 0f ? bounds.max.x + LedgeProbeMargin : bounds.min.x - LedgeProbeMargin,
-                bounds.center.y);
-
-            var hit = Physics2D.Raycast(origin, new Vector2(direction, 0f), WallProbeDistance, _probeLayerMask);
-            return hit.collider != null && hit.collider.CompareTag(TagMap);
-        }
-        
+        #region Private
         private void ApplyColliderOffset() => _collider.offset = _objectContext.ColliderOffset;
 
         private bool IsGroundContact(Collision2D collision)
@@ -179,18 +207,7 @@ namespace InGame.Component
             }
             return false;
         }
-        #endregion
 
-        #region Collisions
-        private void OnCollisionEnter2D(Collision2D collision)
-        {
-            if (IsGroundContact(collision))
-                _groundContacts.Add(collision.collider);
-        }
-
-        private void OnCollisionExit2D(Collision2D collision) => _groundContacts.Remove(collision.collider);
-        #endregion
-        
         private float ResolveAirVelocityX()
         {
             float currentX = Rigidbody.linearVelocity.x;
@@ -211,18 +228,6 @@ namespace InGame.Component
             float maxDelta = moveSpeed / duration * Time.fixedDeltaTime;
             return Mathf.MoveTowards(currentX, _velocityX, maxDelta);
         }
-        private void OnDestroy()
-        {
-            Global.Instance?.UnBindFixedUpdate(this);
-            if (_objectContext != null)
-            {
-                _objectContext.OnMoveVelocityChanged -= OnMoveVelocityChanged;
-                _objectContext.OnJumpVelocityChanged -= OnJumpVelocityChanged;
-                _objectContext.OnDashingChanged -= OnDashingChanged;
-                _objectContext.OnDashVelocityChanged -= OnDashVelocityChanged;
-                _objectContext.OnAttackingChanged -= OnAttackingChanged;
-                _objectContext.OnDirectionChanged -= OnDirectionChanged;
-            }
-        }
+        #endregion
     }
 }

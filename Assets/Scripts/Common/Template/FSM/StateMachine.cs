@@ -5,12 +5,15 @@ namespace Common.Template.FSM
 {
     public class StateMachine<TKey>
     {
+        #region Fields
         private readonly Dictionary<TKey, IState> _states = new();
 
         public TKey PreviousKey { get; private set; }
         public TKey CurrentKey { get; private set; }
         public IState CurrentState { get; private set; }
+        #endregion
 
+        #region Public
         public void AddState(TKey key, IState state) => _states[key] = state;
 
         public void ChangeState(TKey key)
@@ -31,5 +34,6 @@ namespace Common.Template.FSM
 
         public void OnUpdate() => CurrentState?.OnUpdate();
         public void OnFixedUpdate() => CurrentState?.OnFixedUpdate();
+        #endregion
     }
 }

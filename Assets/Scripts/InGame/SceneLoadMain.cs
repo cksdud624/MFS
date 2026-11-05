@@ -9,11 +9,17 @@ namespace InGame
 {
     public class SceneLoadMain : SceneLoadBase, ISceneParameter<SceneParameterMain>
     {
+        #region Fields
         [SerializeField] private GameController gameController;
-        
+
         private SceneParameterMain _sceneParameterMain;
+        #endregion
+
+        #region LifeCycle
         protected void Awake() => Global.Instance.SceneLoader.SetCurrentScene<SceneParameterMain>(this);
-        
+        #endregion
+
+        #region Public
         public override void InitScene()
         {
             if (_sceneParameterMain == null)
@@ -21,10 +27,11 @@ namespace InGame
                 Debug.LogError($"{typeof(SceneParameterMain)} is null");
                 return;
             }
-            
+
             gameController.Init(_sceneParameterMain).Forget();
         }
 
         public void SetParameter(SceneParameterMain parameter) => _sceneParameterMain = parameter;
+        #endregion
     }
 }

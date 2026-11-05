@@ -13,8 +13,11 @@ namespace InGame.Object
     /// </summary>
     public class CharacterBase : ObjectBase
     {
+        #region Fields
         protected HitBoxController HitBoxController;
+        #endregion
 
+        #region Init
         public override async UniTask Init(InGameContext inGameContext, ObjectData objectData, bool isPlayer = false)
         {
             //캐릭터는 서로 충돌하지 않아야 하므로 콜라이더가 붙기 전에 레이어부터 맞춰둔다
@@ -26,7 +29,9 @@ namespace InGame.Object
             HitBoxController = gameObject.AddComponent<HitBoxController>();
             await HitBoxController.Init(InGameContext, ObjectContext);
         }
+        #endregion
 
+        #region Private
         private void ApplyIndependentLayer()
         {
             int layer = LayerMask.NameToLayer(LayerIndependent);
@@ -38,5 +43,6 @@ namespace InGame.Object
 
             gameObject.layer = layer;
         }
+        #endregion
     }
 }

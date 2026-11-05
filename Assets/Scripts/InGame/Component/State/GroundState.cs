@@ -7,11 +7,14 @@ namespace InGame.Component.State
 {
     public class GroundState : ObjectStateBase
     {
+        #region Init
         public GroundState(StateMachine<FSMState> stateMachine, InputContext inputContext, ObjectContext objectContext)
             : base(stateMachine, inputContext, objectContext)
         {
         }
+        #endregion
 
+        #region LifeCycle
         public override void OnEnter()
         {
             ObjectContext.SetJumpCount(GroundJumpCount);
@@ -28,7 +31,9 @@ namespace InGame.Component.State
             InputContext.OnMove -= OnMoveAnimation;
             InputContext.OnJump -= OnJump;
         }
+        #endregion
 
+        #region Event Handlers
         private void OnMoveAnimation(Vector2 moveDirection)
         {
             ObjectContext.SetAnimation(moveDirection.x != 0f ? AnimationType.Move : AnimationType.Idle);
@@ -42,5 +47,6 @@ namespace InGame.Component.State
                 ObjectContext.SetAnimation(AnimationType.Jump, OnJumpAnimationEnd);
             }
         }
+        #endregion
     }
 }

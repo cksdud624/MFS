@@ -11,14 +11,19 @@ namespace InGame.Component.Controller.AI
     /// </summary>
     public class AIPatrolState : AIStateBase
     {
+        #region Fields
         private float _timer;
         private float _directionX;
+        #endregion
 
+        #region Init
         public AIPatrolState(StateMachine<AIState> stateMachine, InputContext inputContext, ObjectContext objectContext, ControllerAI controller)
             : base(stateMachine, inputContext, objectContext, controller)
         {
         }
+        #endregion
 
+        #region LifeCycle
         public override void OnEnter()
         {
             _timer = 0f;
@@ -54,5 +59,6 @@ namespace InGame.Component.Controller.AI
 
             Controller.SetMoveInput(_directionX);
         }
+        #endregion
     }
 }

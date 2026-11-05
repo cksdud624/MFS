@@ -56,7 +56,8 @@ namespace Common
             Dash,
             Attack,
             Counter,
-            //카운터 대기에서 공격을 받아낸 뒤 나가는 반격. 휘두르는 방식은 Attack과 같고 끝날 때까지 맞지 않는다
+            //카운터 대기에서 공격을 받아낸 뒤 나가는 반격. 휘두르는 방식은 Attack과 같고 끝날 때까지 맞지 않는다.
+            //대시나 카운터로 끊을 수 없고, 상대도 이 공격은 카운터로 받아낼 수 없다
             CounterAttack,
         }
 
@@ -181,6 +182,17 @@ namespace Common
         #endregion
 
         #region Damage
+        //피격을 알렸을 때 맞은 쪽이 어떻게 받았는지. 때린 쪽은 Hit일 때만 맞힌 것으로 센다
+        public enum DamageResult
+        {
+            //맞았다
+            Hit,
+            //카운터 대기에 받아내졌다
+            Countered,
+            //무적이라 받지 않았다 (반격 중, Event 중)
+            Ignored,
+        }
+
         //테이블로 차후 관리해야하는 부분
         //피격 후 Damage 상태에 묶여 있는 시간. 이 시간이 지나면 Ground나 Air로 돌아간다
         public const float DamageDuration = 5f;

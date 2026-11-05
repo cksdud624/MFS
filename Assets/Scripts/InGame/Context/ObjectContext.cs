@@ -10,12 +10,14 @@ using AnimationType = Common.GameDefine.AnimationType;
 using EffectType = Common.GameDefine.EffectType;
 using ActionType = Common.GameDefine.ActionType;
 using Team = Common.GameDefine.Team;
+using DamageResult = Common.GameDefine.DamageResult;
 
 
 namespace InGame.Context
 {
     public class ObjectContext
     {
+        #region Init
         public ObjectContext(ObjectData objectData, Team team)
         {
             //오브젝트 타입은 테이블 데이터에서 결정한다
@@ -33,12 +35,17 @@ namespace InGame.Context
                 CharacterData = character;
             }
         }
+        #endregion
+
+        #region Data
         public ObjectType ObjectType { get; private set; }
         public Team Team { get; private set; }
 
         public ObjectData ObjectData {get; private set;}
         public CharacterData CharacterData {get; private set;}
+        #endregion
 
+        #region Direction
         //캐릭터가 보고 있는 방향
         public Direction Direction { get; private set; } = Direction.Right;
         public event Action<Direction> OnDirectionChanged;
@@ -62,7 +69,9 @@ namespace InGame.Context
                 offset.x = -offset.x;
             return offset;
         }
+        #endregion
 
+        #region Collider
         //오브젝트 원점(발밑)에서 콜라이더 중점까지의 오프셋
         public Vector2 ColliderOffset => GetDirectionalOffset(ObjectData.ColliderOffset);
 
@@ -70,7 +79,9 @@ namespace InGame.Context
         //본체와 따로 맞춰야 하는 캐릭터가 생기면 Object 테이블에 컬럼을 추가하고 여기만 바꾼다
         public Vector2 HurtBoxSize => ObjectData.ColliderSize;
         public Vector2 HurtBoxOffset => ColliderOffset;
+        #endregion
 
+        #region Move
         //이동
         public event Action<float> OnMoveVelocityChanged;
         public void SetMoveVelocity(float velocityX) => OnMoveVelocityChanged?.Invoke(velocityX);
@@ -88,7 +99,7 @@ namespace InGame.Context
             IsGrounded = grounded;
             OnGroundedChanged?.Invoke(grounded);
         }
-        
+
         //가능한 점프 횟수
         public int JumpCount { get; private set; }
         public event Action<int> OnJumpCountChanged;
@@ -101,7 +112,9 @@ namespace InGame.Context
             OnJumpCountChanged?.Invoke(JumpCount);
             return true;
         }
+        #endregion
 
+        #region Dash
         //대시 중인지
         public bool IsDashing { get; private set; }
         public event Action<bool> OnDashingChanged;
@@ -111,7 +124,7 @@ namespace InGame.Context
             IsDashing = dashing;
             OnDashingChanged?.Invoke(dashing);
         }
-        
+
         //대시
         public event Action<Vector2> OnDashVelocityChanged;
         public void SetDashVelocity(Vector2 velocity) => OnDashVelocityChanged?.Invoke(velocity);
@@ -119,7 +132,15 @@ namespace InGame.Context
         //대시 중 대시 재입력 (연속 대시)
         public event Action OnDashRestart;
         public void RequestDashRestart() => OnDashRestart?.Invoke();
+        #endregion
 
+        #region Action
+        //Action 상태에서 무엇을 할지. 상태를 바꾸기 전에 정해둔다
+        public ActionType ActionType { get; private set; }
+        public void SetActionType(ActionType actionType) => ActionType = actionType;
+        #endregion
+
+        #region Attack
         //공격 중인지. 공격이 끝날 때까지 제자리에 묶어둔다
         public bool IsAttacking { get; private set; }
         public event Action<bool> OnAttackingChanged;
@@ -129,10 +150,6 @@ namespace InGame.Context
             IsAttacking = attacking;
             OnAttackingChanged?.Invoke(attacking);
         }
-
-        //Action 상태에서 무엇을 할지. 상태를 바꾸기 전에 정해둔다
-        public ActionType ActionType { get; private set; }
-        public void SetActionType(ActionType actionType) => ActionType = actionType;
 
         //지금 나갈 공격. 어떤 애니메이션을 얼마나, 어떤 판정 박스로 휘두를지는 전부 여기 들어있다.
         //한 번의 커맨드에 마법과 기계가 같이 나가므로 타입별로 한 줄씩 들어온다.
@@ -166,7 +183,9 @@ namespace InGame.Context
         //공격 중 다음 단계로 이어붙이기 (연속 공격)
         public event Action OnAttackRestart;
         public void RequestAttackRestart() => OnAttackRestart?.Invoke();
+        #endregion
 
+        #region Counter
         //카운터 대기 중인지. 이 동안 맞으면 Damage로 가지 않고 카운터가 된다
         public bool IsCountering { get; private set; }
         public void SetCountering(bool countering) => IsCountering = countering;
@@ -178,11 +197,28 @@ namespace InGame.Context
         //카운터 대기 중에 공격을 받아냈다. 반격할 공격(AttackCommands)과 돌아설 방향은 알리기 전에 정해둔다
         public event Action OnCounterSuccess;
         public void NotifyCounterSuccess() => OnCounterSuccess?.Invoke();
+        #endregion
 
+        #region Damage
         //피격. 맞으면 Damage 상태로 들어가고, 이미 Damage 상태면 시간을 처음부터 다시 센다.
-        //attackerSide는 맞은 쪽에서 봤을 때 공격한 쪽이 있는 방향. 카운터에 성공하면 그쪽으로 돌아서서 반격한다
-        public event Action<Direction> OnDamage;
-        public void RequestDamage(Direction attackerSide) => OnDamage?.Invoke(attackerSide);
+        //attackerSide는 맞은 쪽에서 봤을 때 공격한 쪽이 있는 방향. 카운터에 성공하면 그쪽으로 돌아서서 반격한다.
+        //counterable이 false면 카운터 대기 중이어도 받아내지 못하고 그대로 맞는다
+        public event Action<Direction, bool> OnDamage;
+        //이번 피격을 어떻게 받았는지. 피격을 처리하는 쪽이 이벤트 안에서 남긴다
+        private DamageResult _damageResult;
+
+        /// <summary>
+        /// 피격을 알리고 맞은 쪽이 어떻게 받았는지 돌려준다.
+        /// 아무도 결과를 남기지 않으면 받을 쪽이 없다는 뜻이므로 맞지 않은 것으로 본다
+        /// </summary>
+        public DamageResult RequestDamage(Direction attackerSide, bool counterable)
+        {
+            _damageResult = DamageResult.Ignored;
+            OnDamage?.Invoke(attackerSide, counterable);
+            return _damageResult;
+        }
+
+        public void ReportDamageResult(DamageResult damageResult) => _damageResult = damageResult;
 
         /// <summary>
         /// 이 오브젝트가 때린 대상에서 봤을 때 이 오브젝트가 있는 쪽. 맞은 쪽이 반격할 때 돌아설 방향이다.
@@ -205,7 +241,9 @@ namespace InGame.Context
             IsDamaged = damaged;
             OnDamagedChanged?.Invoke(damaged);
         }
+        #endregion
 
+        #region Effect
         //이펙트 재생.
         //variant는 같은 종류 안에서 몇 번째 프리팹인지를 가리킨다. Attack 1이면 Attack1 프리팹이고, 0이면 번호 없는 기본 프리팹.
         //offset은 콜라이더 중점에서 얼마나 띄울지. 오른쪽 기준으로 적은 값이면 GetDirectionalOffset을 거쳐서 넘긴다.
@@ -216,7 +254,9 @@ namespace InGame.Context
         public void PlayEffect(EffectType effectType, int variant, Vector2 offset, Vector2 direction = default,
             float duration = 0f, AttackType attackType = AttackType.None)
             => OnEffectPlay?.Invoke(effectType, variant, offset, direction, duration, attackType);
+        #endregion
 
+        #region Animation
         //현재 재생 중인 애니메이션.
         //variant는 같은 종류 안에서 몇 번째 클립인지를 가리킨다. Attack 1이면 Attack1 클립이고, 0이면 번호 없는 기본 클립
         public AnimationType Animation { get; private set; } = AnimationType.Idle;
@@ -228,5 +268,6 @@ namespace InGame.Context
             Animation = animationType;
             OnAnimationChanged?.Invoke(animationType, variant, onAnimationEnd);
         }
+        #endregion
     }
 }
