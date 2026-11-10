@@ -1,6 +1,6 @@
 # CardIdle
 
-Unity 6 (6000.5.0f1) 2D 액션 프로젝트. URP 2D, 새 Input System 전용, Addressables, UniTask, R3, FMOD를 쓴다.
+Unity 6 (6000.6.8f1) 2D 액션 프로젝트. URP 2D, 새 Input System 전용, Addressables, UniTask, R3, FMOD를 쓴다.
 R3는 코어(`R3.dll`)를 NuGetForUnity로(`Assets/packages.config`, `Assets/Packages/`), Unity 확장(`com.cysharp.r3`)을 UPM git URL로 받는다. 올릴 때는 두 버전을 같이 맞춘다.
 코드는 `Assets/Scripts` 아래에 있고, 공개 포트폴리오로 쓰이는 코드라서 읽히는 품질을 기능만큼 중요하게 본다.
 
@@ -185,3 +185,6 @@ R3는 코어(`R3.dll`)를 NuGetForUnity로(`Assets/packages.config`, `Assets/Pac
 - 새 에셋/스크립트를 만들면 `.meta` 파일도 같이 커밋되어야 한다. `.meta`는 Unity가 만들게 두고 직접 만들지 않는다.
 - 씬(`.unity`), 프리팹, `ProjectSettings/`는 Unity가 직렬화하는 파일이다. 텍스트로 직접 고치지 말고 UnityMCP 도구나 에디터로 수정한다.
 - `Assets/Plugins/`, `Assets/Packages/`(NuGetForUnity가 관리), `Library/`, 서드파티 에셋 폴더(`Sprite Shaders Ultimate`, `Warrior free set`)는 수정하지 않는다.
+  예외는 에디터 버전을 올리며 생긴 경고를 없애는 최소한의 변경뿐이다. 지금까지 한 것: FMOD 플러그인 `.meta` 46개를 새 형식으로 다시 저장
+  (`ForceReserializeAssets`), `Sprite Shaders Ultimate/Scripts/Editor/CodingHelper.cs`의 `prop`에 `[System.NonSerialized]`.
+  에셋을 새 버전으로 덮어쓰면 되돌아갈 수 있으니 같은 경고가 다시 뜨면 같은 방법으로 처리한다.

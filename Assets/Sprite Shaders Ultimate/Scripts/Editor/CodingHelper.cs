@@ -11,7 +11,7 @@ namespace SpriteShadersUltimate
     public class CodingHelper : EditorWindow
     {
         public GUIContent labelContent;
-        public MaterialProperty prop;
+        [System.NonSerialized] public MaterialProperty prop;
 
         public static CodingHelper lastWindow;
         bool isImage;
