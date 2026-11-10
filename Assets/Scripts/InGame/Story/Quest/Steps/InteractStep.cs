@@ -8,7 +8,7 @@ namespace InGame.Story.Quest.Steps
 {
     /// <summary>
     /// Interact (목표) : 플레이어가 대상 가까이에서 Interact(F)를 누르면 넘어간다. 말 걸기에 쓰고, 대상은 Npc여야 한다.
-    /// 멀리서 누른 것은 넘기고 계속 기다린다. 이어지는 대화는 다음 줄의 시나리오에 적는다.
+    /// 멀리서 누른 것은 넘기고 계속 기다린다. 이어지는 대화는 다음 줄에 적는다 (가벼우면 Dialogue, 연출이 필요하면 Scenario).
     /// Actor = 대상
     /// </summary>
     public class InteractStep : StoryStep
@@ -35,8 +35,8 @@ namespace InGame.Story.Quest.Steps
                 {
                     await context.InGameContext.WaitInteract(waitSource.Token);
 
-                    //다른 Npc와 일반 대화 중에 누른 것은 대사를 넘기는 입력이다
-                    if (context.IsTalking) continue;
+                    //대화창이 열려 있는 동안(다른 Npc와 일반 대화) 누른 것은 대사를 넘기는 입력이다
+                    if (context.IsInDialogue) continue;
                     var player = context.InGameContext.Player;
                     if (player == null) continue;
                     if (Mathf.Abs(player.transform.position.x - actor.transform.position.x) <= InteractDistance) return;
@@ -44,7 +44,13 @@ namespace InGame.Story.Quest.Steps
             }
             catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
             {
-                LogError($"{Actor} is destroyed while waiting.");
+                //Play를 멈추거나 씬이 내려갈 때는 오브젝트가 한꺼번에 파괴되고, 대상이 이야기보다 먼저 파괴될 수 있다.
+                //한 프레임 기다려서 이야기도 취소되었으면 에러 없이 취소로 끝낸다
+                await UniTask.Yield(cancellationToken);
+
+                //대상만 사라졌으면 목표를 채울 수 없다. 다음 줄로 넘어가면 말을 걸지 않았는데 대화가 이어지므로 이야기를 멈춘다
+                LogError($"{Actor} is destroyed while waiting. The story stops here.");
+                throw;
             }
             finally
             {

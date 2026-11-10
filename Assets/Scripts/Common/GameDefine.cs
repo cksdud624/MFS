@@ -102,6 +102,8 @@ namespace Common
         public const string AssetPathEffect = "Assets/AddressableAssets/Effect/";
         public const string AssetPathAnimation = "Assets/AddressableAssets/Animation/";
         public const string AssetPathUI = "Assets/AddressableAssets/UI/";
+        //Zone 프리팹. 이 아래에 Zone 번호로 둔다 (Zone/102.prefab)
+        public const string AssetPathZone = "Assets/AddressableAssets/Zone/";
         public const string AssetExtensionPrefab = ".prefab";
         public const string AssetExtensionAnimation = ".anim";
         #endregion
@@ -276,12 +278,28 @@ namespace Common
             //AI가 붙는다. Clear가 기다리는 대상이다
             Enemy,
         }
-        //시나리오와 퀘스트 줄의 Id는 번호(챕터-순번)에서 만든다. 1-2의 줄 → 1002010, 1002020, ...
-        //10 단위로 띄워 적어서 줄을 끼울 때 뒤 번호를 밀지 않고 사이 번호(1002015)를 쓴다
-        public const long StoryLineIdChapter = 1000000;
-        public const long StoryLineIdOrder = 1000;
+        //시나리오와 퀘스트 번호는 챕터 × 이 값 + 순번이다 (1장 2번 → 102). 한 챕터에 99개까지 둔다
+        public const long StoryChapterRange = 100;
+        //시나리오와 퀘스트 줄의 Id는 번호 × 이 값 + 줄 번호다 (102 → 102010, 102020, ...).
+        //10 단위로 띄워 적어서 줄을 끼울 때 뒤 번호를 밀지 않고 사이 번호(102015)를 쓴다
+        public const long StoryLineIdRange = 1000;
+        //Actor 표의 번호는 챕터 × 이 값 + 순번이다 (1장 1번 → 10001). 한 챕터에 9999명까지 둔다.
+        //다섯 자리라서 시나리오/퀘스트 번호(101), Object 번호(1001), 대화 번호(1001)와 눈으로 구분된다
+        public const long StoryActorChapterRange = 10000;
         //Move가 도착했다고 보는 거리. 시간을 정해 빠르게 걸으면 한 물리 스텝에 이보다 멀리 가므로, 목표를 지나친 것도 도착으로 본다
         public const float ScenarioArriveDistance = 0.1f;
+        #endregion
+
+        #region World
+        //메인 씬에서 시작할 맵. 맵 이동이 생기면 씬 파라미터나 진행 저장으로 넘긴다
+        //테이블로 차후 관리해야하는 부분
+        public const long StartMapId = 1;
+        //Zone 번호는 맵 × 이 값 + 순번이다 (1번 맵 2번 Zone → 102). 한 맵에 99칸까지 둔다
+        public const long ZoneMapRange = 100;
+        //불러둘 범위는 카메라 화면을 덮는 칸 수로 맵마다 계산하고, 그 바깥으로 이만큼 더 불러둔다.
+        //Zone 크기가 맵마다 달라서 칸 수를 고정하면 작은 Zone 맵에서는 화면 끝이 비고 큰 Zone 맵에서는 너무 많이 불러온다.
+        //빠르게 이동해서 화면 끝이 비어 보이면 늘린다
+        public const int ZoneLoadMargin = 0;
         #endregion
     }
 }

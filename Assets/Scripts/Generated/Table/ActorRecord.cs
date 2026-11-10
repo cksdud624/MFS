@@ -10,7 +10,7 @@ namespace Generated.Table
 	{
 		private const string Key = "Assets/Generated/Table/Actor.bytes";
 		private List<ActorData> datas = new();
-		private Dictionary<string, ActorData> datasById = new();
+		private Dictionary<long, ActorData> datasById = new();
 		partial void InitCustomRecord();
 		public async UniTask Init()
 		{
@@ -29,7 +29,7 @@ namespace Generated.Table
 			}
 			InitCustomRecord();
 		}
-		public ActorData GetRecord(string id)
+		public ActorData GetRecord(long id)
 		{
 			datasById.TryGetValue(id, out var record);
 			return record;
@@ -42,37 +42,39 @@ namespace Generated.Table
 
 	public class ActorData
 	{
-		public string Id {get; private set;}
+		public long Id {get; private set;}
 		public long ObjectId {get; private set;}
 		public string Type {get; private set;}
 		public bool Resident {get; private set;}
+		public long Zone {get; private set;}
 		public Vector2 Position {get; private set;}
 		public string Note {get; private set;}
 
 		public ActorData(BinaryReader reader)
 		{
 			string[] tableDatas = reader.ReadString().Split('	');
-			Id = tableDatas[0];
+			Id = long.TryParse(tableDatas[0], out long vLong0) ? vLong0 : 0L;
 			ObjectId = long.TryParse(tableDatas[1], out long vLong1) ? vLong1 : 0L;
 			Type = tableDatas[2];
 			Resident = bool.TryParse(tableDatas[3], out bool vBool3) ? vBool3 : false;
-			string[] items4 = tableDatas[4].Split(',', ';');
-			if (items4.Length == 2)
+			Zone = long.TryParse(tableDatas[4], out long vLong4) ? vLong4 : 0L;
+			string[] items5 = tableDatas[5].Split(',', ';');
+			if (items5.Length == 2)
 			{
-				float.TryParse(items4[0], out float resultX4);
-				float.TryParse(items4[1], out float resultY4);
-				Position = new Vector2(resultX4, resultY4);
+				float.TryParse(items5[0], out float resultX5);
+				float.TryParse(items5[1], out float resultY5);
+				Position = new Vector2(resultX5, resultY5);
 			}
-			else if (string.IsNullOrEmpty(tableDatas[4]))
+			else if (string.IsNullOrEmpty(tableDatas[5]))
 			{
 				Position = Vector2.zero;
 			}
 			else
 			{
 				Position = Vector2.zero;
-				Debug.LogError($"Position is not Vector2 : {tableDatas[4]}");
+				Debug.LogError($"Position is not Vector2 : {tableDatas[5]}");
 			}
-			Note = tableDatas[5];
+			Note = tableDatas[6];
 		}
 	}
 }

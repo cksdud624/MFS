@@ -43,9 +43,10 @@ namespace Generated.Table
 	public class QuestData
 	{
 		public long Id {get; private set;}
-		public string Quest {get; private set;}
+		public long Quest {get; private set;}
 		public string Command {get; private set;}
 		public string Actor {get; private set;}
+		public long Zone {get; private set;}
 		public string Param1 {get; private set;}
 		public string Param2 {get; private set;}
 		public string Note {get; private set;}
@@ -54,12 +55,13 @@ namespace Generated.Table
 		{
 			string[] tableDatas = reader.ReadString().Split('	');
 			Id = long.TryParse(tableDatas[0], out long vLong0) ? vLong0 : 0L;
-			Quest = tableDatas[1];
+			Quest = long.TryParse(tableDatas[1], out long vLong1) ? vLong1 : 0L;
 			Command = tableDatas[2];
 			Actor = tableDatas[3];
-			Param1 = tableDatas[4];
-			Param2 = tableDatas[5];
-			Note = tableDatas[6];
+			Zone = long.TryParse(tableDatas[4], out long vLong4) ? vLong4 : 0L;
+			Param1 = tableDatas[5];
+			Param2 = tableDatas[6];
+			Note = tableDatas[7];
 		}
 	}
 }

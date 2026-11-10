@@ -1,0 +1,3 @@
+Id	Map	Column	Row	Note
+long	long	int	int	string
+101	1	0	0	마을과 동쪽 길. Main 씬에 있던 배경과 지형을 옮겼다

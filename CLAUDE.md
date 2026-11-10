@@ -10,7 +10,7 @@ R3는 코어(`R3.dll`)를 NuGetForUnity로(`Assets/packages.config`, `Assets/Pac
 
 | 경로 | 역할 |
 |---|---|
-| `Common/` | 전역(`Global` 싱글톤), 씬 로더, `AssetManager`, `GameDefine`(상수/enum), `ChapterNumber`(표의 `챕터-순번` 번호) |
+| `Common/` | 전역(`Global` 싱글톤), 씬 로더, `AssetManager`, `GameDefine`(상수/enum) |
 | `Common/Template/` | `Singleton`, `StateMachine`/`IState`, `IUpdateable` 계열 인터페이스 |
 | `Common/Test/` | 에디터 전용 테스트 코드 (`EditorTestKeys`) |
 | `InGame/Object/` | `ObjectBase`/`CharacterBase`, `ObjectSpawner` |
@@ -19,9 +19,11 @@ R3는 코어(`R3.dll`)를 NuGetForUnity로(`Assets/packages.config`, `Assets/Pac
 | `InGame/Component/State/` | 오브젝트 FSM 상태 (`Ground`, `Air`, `Action`, `Damage`, `Event`) |
 | `InGame/Component/Controller/` | 플레이어/AI 컨트롤러, AI 상태 |
 | `InGame/Story/` | 인게임 흐름. `StoryPlayer`가 퀘스트를 번호 순으로 실행하고, `StoryValidator`가 실행 전에 표 전체를 검사해 `StoryBook`을 만든다. 월드에 세운 대상은 `StoryContext`가 들고, `TalkPlayer`가 일반 대화를, `DialoguePlayer`가 대사를 띄운다 |
+| `InGame/Story/Steps/` | 시나리오와 퀘스트가 같이 쓰는 명령 (`DialogueStep`. 어디서 쓰는지에 따라 카메라를 쓸지 정한다) |
 | `InGame/Story/Scenario/Steps/` | 시나리오(연출) 명령 하나당 클래스 하나. `ScenarioStepFactory`에 이름을 등록한다 |
 | `InGame/Story/Quest/Steps/` | 퀘스트(목표, 시나리오 재생) 명령 하나당 클래스 하나. `QuestStepFactory`에 이름을 등록한다. 새 명령은 시나리오/퀘스트 모두 `StoryStep`을 상속해서 `Parse`(칸 형식), `Validate`(앞뒤 정합성), `Run`을 구현하고, 시작/종료/목표 명령이면 `Kind`를 다시 정한다. Actor와 Param1~2를 어떻게 쓰는지는 각 클래스 summary에 적는다 |
 | `InGame/UI/` | UI 뷰 (`DialogueView`, `ScreenFadeView`). 프리팹은 `Editor/UIPrefabBuilder`의 메뉴(UI > Build All UI)가 코드로 조립해서 `AddressableAssets/UI/`에 저장한다. 레이아웃은 프리팹이 아니라 빌더 코드를 고친다 |
+| `InGame/World/` | 맵과 Zone. `ZoneLayout`이 Map/Zone 표로 격자 배치를 만들고 로컬↔월드 좌표를 바꾼다. `ZoneStreamer`가 플레이어 주변 Zone만 불러두고, `IZoneLoader`(지금은 `PrefabZoneLoader`)가 Zone 내용물을 불러오고 내린다 |
 | `InGame/CameraDirector.cs` | 연출용 카메라 조작 (확대/축소, 바라볼 곳). 씬 카메라의 처음 상태를 배율 1로 본다 |
 | `Generated/Table/` | **자동 생성 코드. 직접 고치지 않는다** (`Custom/` 폴더의 partial만 손으로 작성) |
 | `Editor/` | 에디터 툴 (`TableUpdater`, `StoryValidatorMenu`, `DefaultSceneSetter`) |
@@ -106,41 +108,80 @@ R3는 코어(`R3.dll`)를 NuGetForUnity로(`Assets/packages.config`, `Assets/Pac
   - `Assets/Generated/Table/*.bytes` (데이터)
   - `Assets/Scripts/Generated/Table/*Record.cs`, `TableManager.cs` (코드)
   - `Assets/.Table/TableManifest.json` (해시)
+- 첫 칸은 Id이고 생성된 Record가 키로 쓴다. 타입은 `long`, `int`, `string` 중 하나다.
+  Update Table은 표를 쓰기 전에 모든 표의 모양(헤더 칸 수, 줄마다 칸 수, 빈 Id, 숫자 Id 형식, 겹친 Id)을 확인하고, 하나라도 틀리면 아무것도 갱신하지 않는다.
+  숫자 Id는 읽은 값으로 비교하고(`010`과 `10`은 같은 Id), 문자열 Id는 적힌 그대로(대소문자 구분) 비교한다.
 - 생성된 Record에 조회 기능이 필요하면 `Generated/Table/Custom/XxxRecord.Custom.cs`에 partial로 추가하고 `partial void InitCustomRecord()`에서 색인을 만든다.
 - 번호 컬럼의 `0`은 "사용 안 함"을 뜻한다.
 - 그 줄에서 쓰지 않는 칸은 빈칸으로 둔다. 빈칸은 숫자면 `0`, `Vector2`/`Vector3`면 `zero`, 문자열이면 빈 문자열로 읽힌다 (에러 없음).
   `0,0` 같은 채움값을 적지 않는다. 실제 값과 구분이 안 된다. 형식이 틀린 값(`1,2,3`을 `Vector2`에)은 지금처럼 에러를 낸다.
 - 테이블 변경은 `.tsv`, `.bytes`, `TableManifest.json`, 생성 코드가 한 세트로 같이 커밋되어야 한다.
+
 ### 이야기 표 (Actor, Scenario, Quest, Talk)
 
-인게임 흐름은 네 표가 나눠 맡는다. 번호는 표마다 따로 `챕터-순번`(1-1, 1-2, 2-1)으로 매기고, 문자열 칸에 그대로 적는다. 정렬은 숫자로 한다(1-10은 1-2 뒤).
+인게임 흐름은 네 표가 나눠 맡는다. 시나리오와 퀘스트 번호는 표마다 따로 `챕터 × 100 + 순번`으로 매긴다 (1장 1번 → 101, 1장 2번 → 102, 2장 1번 → 201).
+대상(Actor)은 `챕터 × 10000 + 순번`으로 매긴다 (1장 1번 → 10001). 다섯 자리라서 시나리오/퀘스트 번호, Object 번호, 대화 번호와 눈으로 구분된다.
+시나리오와 퀘스트 표에서는 번호만 보이므로 누구인지는 Actor 표의 `Note`에 적고, 줄의 `Note`에도 필요하면 같이 적는다.
 
 | 표 | 무엇 | 명령 / 칸 |
 |---|---|---|
-| `Actor.tsv` | 월드의 캐릭터 등록. 시나리오, 퀘스트, 대화는 대상을 이 번호로 가리킨다 | `Id`(1-2), `ObjectId`, `Type`(Npc/Enemy), `Resident`, `Position` |
-| `Scenario.tsv` | 연출. 플레이어가 조작하지 않는 장면 | `Spawn`, `Despawn`, `Move`, `Effect`, `Dialogue`, `Wait`, `FadeOut`/`FadeIn`, `Zoom` |
-| `Quest.tsv` | 진행. 퀘스트 번호 순서가 곧 진행 순서이고, 이야기는 첫 퀘스트부터 시작한다 | `Scenario`(시나리오 재생), 목표 `Interact`, `Reach`, `Clear` |
-| `Talk.tsv` | 일반 대화. 퀘스트 목표가 아닐 때 Npc에게 말을 걸면 나오는 대화 | `Actor`, `Quest`(이 퀘스트가 시작된 뒤부터), `Dialogue` |
+| `Actor.tsv` | 월드의 캐릭터 등록. 시나리오, 퀘스트, 대화는 대상을 이 번호로 가리킨다 | `Id`(10001), `ObjectId`, `Type`(Npc/Enemy), `Resident`, `Zone`, `Position`, `Note`(누구인지) |
+| `Scenario.tsv` | 대형 연출. 플레이어가 조작하지 않는 장면 | `Spawn`, `Despawn`, `Move`, `Effect`, `Dialogue`, `Line`, `CloseDialogue`, `Wait`, `FadeOut`/`FadeIn`, `Zoom` |
+| `Quest.tsv` | 진행. 미션(목표)과 그에 딸린 대화. 퀘스트 번호 순서가 곧 진행 순서이고, 이야기는 첫 퀘스트부터 시작한다 | `Scenario`(시나리오 재생), `Dialogue`, 목표 `Interact`, `Reach`, `Clear` |
+| `Talk.tsv` | 가벼운 일반 대화. 퀘스트 목표가 아닐 때 Npc에게 말을 걸면 나오는 대화 | `Actor`, `Quest`(이 퀘스트가 시작된 뒤부터), `Dialogue` |
 
-- 대상은 `Actor` 한 칸에 `Player` 또는 Actor 번호(`1-2`)로 적는다. 같은 캐릭터를 여럿 세워도 번호가 달라서 위치나 순서로 추측하지 않는다.
-  플레이어는 하나뿐이라 Actor 표에 두지 않고, 캐릭터는 `GameDefine.PlayerObjectId`를 쓴다.
+대사 텍스트는 `Dialogue.tsv`에만 두고 세 표가 가리킨다. 표마다 대화의 무게가 다르다.
+
+| 무게 | 어디서 | 대화하는 동안 |
+|---|---|---|
+| 가벼움 | Talk | 플레이어만 묶고 월드는 움직인다 |
+| 중간 | Quest의 `Dialogue` | 플레이어만 묶고 카메라는 그대로 둔다. 일반 대화 중이면 끝나기를 기다린다 |
+| 대형 | Scenario의 `Dialogue`(대화 하나), `Line`(대사 한 줄) | 월드가 멈춘 연출 안이다. `Dialogue`는 배율을 적으면 카메라를 확대한다 |
+
+- 대상은 `Actor` 한 칸에 `Player` 또는 Actor 표의 번호(`10001`)로 적는다. 같은 캐릭터를 여럿 세워도 번호가 달라서 위치나 순서로 추측하지 않는다.
+  플레이어는 하나뿐이라 Actor 표에 두지 않고 `Player`로 적는다(번호 칸의 0은 "사용 안 함"이라 쓸 수 없다). 캐릭터는 `GameDefine.PlayerObjectId`를 쓴다.
+- Actor 표에는 이야기가 개별로 가리키는 캐릭터만 둔다. 이름 없는 적 무리는 나중에 웨이브/스폰 표로 따로 다루고, 퀘스트는 `Clear`(대상 비움)로 기다린다.
 - 대상은 시나리오나 퀘스트가 아니라 **월드가 갖는다**. `Spawn`으로 들어와서 `Despawn`이나 `Clear`로 나가기 전까지 뒤의 퀘스트와 시나리오가 같은 번호로 쓴다.
-  `Resident`를 켠 대상은 이야기가 시작될 때 `Position`에 서 있다. `Spawn`의 위치를 비우면 `Position`에 선다(플레이어는 위치를 꼭 적는다).
+  `Resident`를 켠 대상은 이야기가 시작될 때 `Zone`의 `Position`에 서 있다. `Spawn`의 Zone과 위치를 둘 다 비우면 Actor 표의 자리에 선다(플레이어는 꼭 적는다).
+- 표의 위치는 모두 **Zone 로컬 좌표**다 (아래 "맵과 Zone"). 위치를 쓰는 명령(`Spawn`, `Move`, `Reach`)은 `Zone` 칸에 기준 Zone을 적고, 다른 명령은 `Zone` 칸을 비운다.
 - 시나리오 하나가 통째로 연출 구간이다. 재생하는 동안 월드의 조작과 AI가 멈추고(도중에 등장한 대상 포함), 끝나면 카메라를 처음 상태로 되돌린 뒤 다시 켠다.
   시나리오가 끝나면 목표가 이어지므로 화면을 덮은 채(`FadeOut`) 끝날 수 없다.
 - 퀘스트 목표를 지나는 동안 월드에 있던 적은 플레이어와 싸워 쓰러졌을 수 있다. 그래서 목표를 지난 적은 시나리오가 다룰 수 없고 `Clear`로만 가리킨다.
   `Clear`는 대상을 적으면 그 적, 비우면 월드의 적 전부가 쓰러질 때까지 기다리고, 통과한 적은 월드에서 나간 것으로 본다.
 - 일반 대화는 시나리오 재생 중이나 다른 대화 중에는 나오지 않고, `Interact` 목표가 기다리는 Npc에게 건 말은 목표로 간다.
-- `Dialogue`의 Param2에 배율을 적으면 대화 상대(없으면 플레이어)를 확대했다가 끝나면 대화 직전 카메라로 되돌린다.
-- 시나리오와 퀘스트 줄의 Id는 번호에서 만든다: `챕터 × 1000000 + 순번 × 1000`부터 10 단위 (1-2 → 1002010, 1002020, ...).
-  줄을 끼울 때는 사이 번호(1002015)를 쓰고 뒤를 밀지 않는다. 줄은 표에 적힌 순서가 아니라 Id 순으로 실행한다.
+- 시나리오의 `Dialogue` Param2에 배율을 적으면 대화 상대(없으면 플레이어)를 확대했다가 끝나면 대화 직전 카메라로 되돌린다. 퀘스트의 `Dialogue`는 배율 칸이 없다.
+- 대사 사이에 연출을 끼울 때는 시나리오에서 `Line`으로 한 줄씩 띄운다. Param1은 대사 한 줄의 Id(`100101`)이고, 대화 번호(`DialogueId`, `1001`)가 아니다.
+  `Line` 뒤의 연출 동안 대화창은 마지막 대사를 띄운 채 남는다. `CloseDialogue`, `Dialogue`(대화 하나)가 끝날 때, 또는 시나리오가 끝날 때 닫힌다.
+  플레이어는 대사를 읽는 동안만 묶이므로 대사 사이에 `Move Player`를 쓸 수 있다.
+- 시나리오와 퀘스트 줄의 Id는 번호에서 만든다: `번호 × 1000`부터 10 단위 (102 → 102010, 102020, ...).
+  줄을 끼울 때는 사이 번호(102015)를 쓰고 뒤를 밀지 않는다. 줄은 표에 적힌 순서가 아니라 Id 순으로 실행한다.
 - `Note` 칸은 설계자 메모다. 장면 구분이나 목표를 적는다. 게임은 읽지 않는다.
 - 이야기 표를 고쳤으면 Update Table 뒤에 **Table > Validate Story**를 실행한다. Play 없이 퀘스트를 번호 순으로, 퀘스트가 부르는 시나리오까지 펼쳐서 따라가며 검사한다:
   칸 형식(타입, 쓰지 않는 칸에 값, 번호 형식, Id 범위와 중복, 표에 없는 명령),
-  앞뒤 관계(세우기 전 사용, 나간 뒤 참조, 이미 있는 대상을 다시 세움, 플레이어 두 번 세움, 목표를 지난 적을 다룸, 덮인 화면으로 끝나는 시나리오),
-  표 참조(Actor 번호, 대상이 캐릭터인지 — Object의 IsCharacter와 Character 표, 없는 시나리오/퀘스트 번호, Dialogue, 이펙트 프리팹, Talk 대상이 Npc인지).
-  어느 퀘스트도 부르지 않는 시나리오는 경고로 알린다.
+  앞뒤 관계(세우기 전 사용, 나간 뒤 참조, 이미 있는 대상을 다시 세움, 플레이어 두 번 세움, 목표를 지난 적을 다룸, 덮인 화면으로 끝나는 시나리오, 열린 창 없이 CloseDialogue),
+  표 참조(Actor 번호, 대상이 캐릭터인지 — Object의 IsCharacter와 Character 표, 없는 시나리오/퀘스트 번호, Dialogue 번호와 대사 Id, 이펙트 프리팹, Talk 대상이 Npc인지, 없는 Zone).
+  어느 퀘스트도 부르지 않는 시나리오는 경고로 알린다. Zone 배치(Map, Zone 표)도 같이 검사한다.
   같은 검사(`StoryValidator`)가 이야기 시작 직전에도 돌고, 틀리면 이야기를 시작하지 않는다.
+
+### 맵과 Zone (Map, Zone)
+
+맵은 칸(Zone)을 격자로 이어 붙여 만든다. **칸 크기는 맵마다 다를 수 있고**(`Map` 표), 한 맵 안에서는 모두 같다. Zone마다 지형, 배경, 발판을 담은 프리팹이 있고, 플레이어가 맵을 걸어가는 동안 주변 Zone만 불러두고 멀어진 Zone은 내린다(포탈 없이 이어서 로드/해제).
+
+| 표 | 칸 |
+|---|---|
+| `Map.tsv` | `Id`, `ZoneWidth`/`ZoneHeight`(그 맵의 칸 크기), `Origin`(Column 0, Row 0 칸의 왼쪽 아래 월드 좌표) |
+| `Zone.tsv` | `Id`(맵 × 100 + 순번, 1번 맵 2번 → 102), `Map`, `Column`, `Row` |
+
+- Zone 안의 위치는 그 칸의 **왼쪽 아래를 0,0으로 보는 로컬 좌표**다. Zone을 다른 칸으로 옮겨도 표에 적은 위치는 고치지 않는다.
+- Zone 프리팹은 `Assets/AddressableAssets/Zone/(Zone 번호).prefab`이고, 루트를 Zone의 왼쪽 아래에 두고 만든다. 그래야 프리팹 편집 화면의 좌표가 표의 로컬 좌표와 같다.
+  프리팹이 없는 Zone은 빈 Zone으로 보고 경고만 남긴다.
+- 플레이어가 있는 Zone과, 카메라 화면을 덮는 이웃을 불러둔다. 몇 칸까지인지는 화면 크기와 그 맵의 칸 크기로 계산하고(칸이 작은 맵일수록 더 많이), `GameDefine.ZoneLoadMargin` 칸을 더 불러둔다. 카메라 배율이 바뀌면 다시 계산한다.
+  플레이어가 없으면 카메라가 보는 곳을 기준으로 한다. 시작 Zone을 다 불러온 뒤 이야기를 시작한다.
+- 내려간 Zone에 있는 캐릭터는 없애지 않고 꺼둔다(이야기가 계속 추적한다). Zone이 다시 올라오면 켠다. 그래서 `Move`의 도착점은 불러와 있는 Zone 안이어야 한다.
+- Main 씬에는 시스템 오브젝트만 둔다: `SceneLoader`, `GameController`, `Main Camera`, `Global Light 2D`, `Global Volume`.
+  배경, 지형, 배경 조명, 그 Zone 바닥 전용 반사 카메라는 Zone 프리팹에 넣는다.
+  `MainCamera` 태그와 `AudioListener`는 게임 카메라 하나에만 둔다. `Camera.main`이 태그로 카메라를 찾아서, 다른 카메라에 태그가 있으면 카메라 연출과 Zone 스트리밍이 그 카메라를 잡을 수 있다.
+- 2D Renderer를 쓰는 동안은 베이크 조명이 없어서 Zone을 프리팹으로 둬도 손해가 없다. 3D Renderer와 베이크 조명으로 바꾸게 되면 `IZoneLoader` 구현을 Additive 씬으로 바꾼다.
 
 ## 검증과 테스트 (Claude Code 작업 절차)
 

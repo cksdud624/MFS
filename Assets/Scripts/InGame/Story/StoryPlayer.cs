@@ -28,10 +28,10 @@ namespace InGame.Story
             if (!TryBuild(out var book)) return;
             _context.SetBook(book);
 
-            foreach (var actor in book.Actors)
+            foreach (var entry in book.Actors)
             {
-                if (actor.Resident)
-                    await _context.Spawn(StoryActor.FromNumber(actor.Number), actor.Position);
+                if (entry.Resident)
+                    await _context.Spawn(entry.Actor, _context.ToWorld(entry.Zone, entry.Position));
             }
 
             foreach (var quest in book.Quests)
@@ -59,7 +59,7 @@ namespace InGame.Story
         private bool TryBuild(out StoryBook book)
         {
             var tableManager = _context.TableManager;
-            var validator = new StoryValidator(new TableStoryReferences(tableManager));
+            var validator = new StoryValidator(new TableStoryReferences(tableManager, _context.ZoneLayout));
             if (validator.Validate(new StoryTables(tableManager), out book)) return true;
 
             Debug.LogError("Story does not start. Fix the errors above (Table > Validate Story shows them without Play).");

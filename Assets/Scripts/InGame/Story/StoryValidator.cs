@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Common;
 using Generated.Table;
 using InGame.Story.Quest;
 using InGame.Story.Scenario;
@@ -32,16 +31,18 @@ namespace InGame.Story
         private readonly StoryActorTracker _actors = new();
 
         //표에서 읽은 것. 검사를 통과하면 그대로 StoryBook이 된다
-        private readonly Dictionary<ChapterNumber, StoryBook.ActorEntry> _actorTable = new();
-        private readonly Dictionary<ChapterNumber, IReadOnlyList<StoryStep>> _scenarios = new();
-        private readonly Dictionary<ChapterNumber, IReadOnlyList<StoryStep>> _quests = new();
-        private readonly Dictionary<ChapterNumber, List<StoryBook.TalkEntry>> _talks = new();
+        private readonly Dictionary<StoryActor, StoryBook.ActorEntry> _actorTable = new();
+        private readonly Dictionary<long, IReadOnlyList<StoryStep>> _scenarios = new();
+        private readonly Dictionary<long, IReadOnlyList<StoryStep>> _quests = new();
+        private readonly Dictionary<StoryActor, List<StoryBook.TalkEntry>> _talks = new();
         //퀘스트가 부른 시나리오. 부르지 않는 시나리오는 실행되지 않으므로 알린다
-        private readonly HashSet<ChapterNumber> _playedScenarios = new();
+        private readonly HashSet<long> _playedScenarios = new();
 
         //지금 화면이 페이드 아웃으로 가려져 있는지
         private bool _screenCovered;
-        //에러 앞에 붙이는 위치 (Scenario 1001020 Spawn, Actor 1-2, Talk 3)
+        //지금 Line으로 연 대화창이 열려 있는지. 시나리오가 끝나면 닫힌다
+        public bool IsDialogueOpen { get; private set; }
+        //에러 앞에 붙이는 위치 (Scenario 101020 Spawn, Actor 10001, Talk 3)
         private string _location;
         private bool _hasError;
         #endregion
@@ -89,8 +90,8 @@ namespace InGame.Story
             var quests = new List<StoryBook.QuestEntry>(questNumbers.Count);
             foreach (var number in questNumbers)
                 quests.Add(new StoryBook.QuestEntry(number, _quests[number]));
-            book = new StoryBook(quests, new Dictionary<ChapterNumber, IReadOnlyList<StoryStep>>(_scenarios),
-                new Dictionary<ChapterNumber, StoryBook.ActorEntry>(_actorTable), new Dictionary<ChapterNumber, List<StoryBook.TalkEntry>>(_talks));
+            book = new StoryBook(quests, new Dictionary<long, IReadOnlyList<StoryStep>>(_scenarios),
+                new Dictionary<StoryActor, StoryBook.ActorEntry>(_actorTable), new Dictionary<StoryActor, List<StoryBook.TalkEntry>>(_talks));
             return true;
         }
 
@@ -105,7 +106,7 @@ namespace InGame.Story
         public StoryActorType GetActorType(StoryActor actor)
         {
             if (actor.IsPlayer) return StoryActorType.Player;
-            return _actorTable.TryGetValue(actor.Number, out var entry) ? entry.Type : StoryActorType.None;
+            return _actorTable.TryGetValue(actor, out var entry) ? entry.Type : StoryActorType.None;
         }
         #endregion
 
@@ -179,7 +180,7 @@ namespace InGame.Story
         /// 퀘스트가 시나리오를 부른다. 시나리오의 줄을 이 자리에서 펼쳐서 검사한다.
         /// 같은 시나리오를 두 번 부르면 그때마다 월드 상태가 달라서 두 번 다 검사한다
         /// </summary>
-        public void PlayScenario(ChapterNumber number)
+        public void PlayScenario(long number)
         {
             if (!_scenarios.TryGetValue(number, out var steps))
             {
@@ -196,10 +197,14 @@ namespace InGame.Story
             if (_screenCovered)
                 Error($"Scenario {number} ends with the screen faded out. Add FadeIn.");
             _screenCovered = false;
+            //Line으로 연 창은 시나리오가 끝나면 닫히므로 다음 시나리오로 이어지지 않는다
+            IsDialogueOpen = false;
             _location = questLocation;
         }
 
         public void SetScreenCovered(bool covered) => _screenCovered = covered;
+
+        public void SetDialogueOpen(bool open) => IsDialogueOpen = open;
         #endregion
 
         #region Public - Table
@@ -209,11 +214,25 @@ namespace InGame.Story
                 Error($"Dialogue {dialogueId} is not defined.");
         }
 
+        /// <summary>위치의 기준 Zone이 Zone 표에 있는지</summary>
+        public void CheckZone(long zoneId)
+        {
+            if (!_references.HasZone(zoneId))
+                Error($"Zone {zoneId} is not defined in Zone table.");
+        }
+
+        /// <summary>대사 한 줄(Dialogue 표의 Id 칸)이 있는지. 대화 번호(DialogueId)와 헷갈리기 쉬워서 따로 확인한다</summary>
+        public void CheckDialogueLine(long lineId)
+        {
+            if (!_references.HasDialogueLine(lineId))
+                Error($"Dialogue line {lineId} is not defined. Line takes the Id column (100101), not DialogueId (1001).");
+        }
+
         /// <summary>대상이 가진 이펙트인지. 확인할 수 없는 곳(런타임)이면 건너뛴다</summary>
         public void CheckEffect(StoryActor actor, string effectName)
         {
             long objectId = actor.IsPlayer ? PlayerObjectId
-                : _actorTable.TryGetValue(actor.Number, out var entry) ? entry.ObjectId : 0;
+                : _actorTable.TryGetValue(actor, out var entry) ? entry.ObjectId : 0;
             if (objectId == 0) return;
             if (_references.HasEffect(objectId, effectName) == false)
                 Error($"Object {objectId} has no effect '{effectName}'.");
@@ -230,6 +249,7 @@ namespace InGame.Story
             _talks.Clear();
             _playedScenarios.Clear();
             _screenCovered = false;
+            IsDialogueOpen = false;
             _hasError = false;
         }
 
@@ -239,14 +259,15 @@ namespace InGame.Story
             foreach (var data in datas)
             {
                 _location = $"Actor {data.Id}";
-                if (!ChapterNumber.TryParse(data.Id, out var number))
+                if (!IsValidNumber(data.Id, StoryActorChapterRange))
                 {
-                    Error("Id must be chapter-order such as 1-2.");
+                    Error($"Id must be chapter × {StoryActorChapterRange} + order such as 10001.");
                     continue;
                 }
-                if (_actorTable.ContainsKey(number))
+                var actor = StoryActor.FromId(data.Id);
+                if (_actorTable.ContainsKey(actor))
                 {
-                    Error($"Id {number} is duplicated.");
+                    Error($"Id {actor} is duplicated.");
                     continue;
                 }
                 //숫자도 Enum.TryParse를 통과하므로 정의된 이름인지 따로 확인한다
@@ -258,7 +279,12 @@ namespace InGame.Story
                 }
 
                 CheckCharacter(data.ObjectId);
-                _actorTable[number] = new StoryBook.ActorEntry(number, data.ObjectId, type, data.Resident, data.Position);
+                //Position은 Zone 기준 로컬 좌표라서 Zone이 없으면 어디에 세울지 정할 수 없다
+                if (data.Zone == 0)
+                    Error("Zone is required. Position is local to the zone (its bottom-left is 0,0).");
+                else
+                    CheckZone(data.Zone);
+                _actorTable[actor] = new StoryBook.ActorEntry(actor, data.ObjectId, type, data.Resident, data.Zone, data.Position);
             }
         }
 
@@ -266,10 +292,10 @@ namespace InGame.Story
         /// 시나리오나 퀘스트 표를 번호별로 묶어 명령으로 만든다. 줄은 표에 적힌 순서가 아니라 Id 순으로 실행한다.
         /// 중간에 줄을 끼울 때 줄을 옮기지 않고 Id만 맞춰 적어도 되게 하려는 것이다
         /// </summary>
-        private void ReadLines<T>(IReadOnlyList<T> datas, string table, Func<T, string> getNumber, Func<T, StoryRow> toRow,
-            StepCreator create, Dictionary<ChapterNumber, IReadOnlyList<StoryStep>> result)
+        private void ReadLines<T>(IReadOnlyList<T> datas, string table, Func<T, long> getNumber, Func<T, StoryRow> toRow,
+            StepCreator create, Dictionary<long, IReadOnlyList<StoryStep>> result)
         {
-            var groups = new Dictionary<ChapterNumber, List<StoryStep>>();
+            var groups = new Dictionary<long, List<StoryStep>>();
             var ids = new HashSet<long>();
             foreach (var data in datas)
             {
@@ -281,15 +307,15 @@ namespace InGame.Story
                     Error($"Id {row.Id} is duplicated.");
                     continue;
                 }
-                string raw = getNumber(data);
-                if (!ChapterNumber.TryParse(raw, out var number))
+                long number = getNumber(data);
+                if (!IsValidNumber(number, StoryChapterRange))
                 {
-                    Error($"{table} must be chapter-order such as 1-2 : '{raw}'");
+                    Error($"{table} must be chapter × {StoryChapterRange} + order such as 101 : {number}");
                     continue;
                 }
                 //번호 범위를 넘으면 다음 번호의 줄 Id와 겹친다
-                if (!number.OwnsLineId(row.Id))
-                    Error($"Id must be between {number.FirstLineId + 1} and {number.FirstLineId + StoryLineIdOrder - 1} for {table} {number}.");
+                if (row.Id / StoryLineIdRange != number || row.Id % StoryLineIdRange == 0)
+                    Error($"Id must be between {number * StoryLineIdRange + 1} and {(number + 1) * StoryLineIdRange - 1} for {table} {number}.");
                 //형식 에러는 명령이 직접 남긴다
                 if (!create(row, out var step))
                 {
@@ -327,29 +353,26 @@ namespace InGame.Story
                     Error($"Id {data.Id} is duplicated.");
                     continue;
                 }
-                if (!StoryActor.TryParse(data.Actor, out var actor) || actor.IsPlayer)
-                {
-                    Error($"Actor must be an Actor number such as 1-2 : '{data.Actor}'");
-                    continue;
-                }
+                var actor = StoryActor.FromId(data.Actor);
                 if (GetActorType(actor) != StoryActorType.Npc)
                 {
-                    Error($"{actor} must be Npc in Actor table.");
+                    Error($"Actor must be an Npc Id in Actor table : {data.Actor}");
                     continue;
                 }
-                if (!ChapterNumber.TryParse(data.Quest, out var quest) || !_quests.ContainsKey(quest))
+                long quest = data.Quest;
+                if (!_quests.ContainsKey(quest))
                 {
-                    Error($"Quest must be a quest number in Quest table : '{data.Quest}'");
+                    Error($"Quest must be a quest number in Quest table : {quest}");
                     continue;
                 }
                 CheckDialogue(data.Dialogue);
 
-                if (!_talks.TryGetValue(actor.Number, out var talks))
+                if (!_talks.TryGetValue(actor, out var talks))
                 {
                     talks = new List<StoryBook.TalkEntry>();
-                    _talks[actor.Number] = talks;
+                    _talks[actor] = talks;
                 }
-                if (talks.Exists(talk => talk.Quest.Equals(quest)))
+                if (talks.Exists(talk => talk.Quest == quest))
                 {
                     Error($"{actor} already has a talk from Quest {quest}.");
                     continue;
@@ -361,22 +384,25 @@ namespace InGame.Story
                 talks.Sort((a, b) => a.Quest.CompareTo(b.Quest));
         }
 
-        private static List<ChapterNumber> SortedKeys(Dictionary<ChapterNumber, IReadOnlyList<StoryStep>> lines)
+        private static List<long> SortedKeys(Dictionary<long, IReadOnlyList<StoryStep>> lines)
         {
-            var keys = new List<ChapterNumber>(lines.Keys);
-            keys.Sort((a, b) => a.CompareTo(b));
+            var keys = new List<long>(lines.Keys);
+            keys.Sort();
             return keys;
         }
+
+        //번호는 챕터 × chapterRange + 순번이고 순번은 1부터다. 100, 200처럼 순번이 0인 번호는 없다
+        private static bool IsValidNumber(long number, long chapterRange) => number > chapterRange && number % chapterRange != 0;
         #endregion
 
         #region Private - Follow
         /// <summary>상주 대상을 세운 상태에서 퀘스트를 번호 순으로 따라간다. 게임이 이야기를 진행하는 순서와 같다</summary>
-        private void FollowStory(List<ChapterNumber> questNumbers)
+        private void FollowStory(List<long> questNumbers)
         {
             foreach (var entry in _actorTable.Values)
             {
                 if (entry.Resident)
-                    _actors.Start(StoryActor.FromNumber(entry.Number), entry.Type);
+                    _actors.Start(entry.Actor, entry.Type);
             }
 
             foreach (var number in questNumbers)
@@ -397,7 +423,7 @@ namespace InGame.Story
         {
             _location = step.ToString();
             var actor = step.Actor;
-            if (!actor.IsNone && !actor.IsPlayer && !_actorTable.ContainsKey(actor.Number))
+            if (!actor.IsNone && !actor.IsPlayer && !_actorTable.ContainsKey(actor))
             {
                 //없는 번호로 뒤의 규칙을 보면 같은 원인으로 에러가 겹친다
                 Error($"{actor} is not defined in Actor table.");

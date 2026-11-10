@@ -1,10 +1,10 @@
 using System.Collections.Generic;
-using Common;
 using Cysharp.Threading.Tasks;
 using Generated.Table;
 using InGame.Context;
 using InGame.Object;
 using InGame.UI;
+using InGame.World;
 using UnityEngine;
 using static Common.GameDefine;
 
@@ -27,11 +27,15 @@ namespace InGame.Story
         public DialoguePlayer DialoguePlayer { get; }
         public ScreenFadeView ScreenFade { get; }
         public CameraDirector CameraDirector { get; }
+        //표의 위치(Zone 로컬 좌표)를 월드 좌표로 바꿀 때 쓰는 Zone 배치
+        public ZoneLayout ZoneLayout { get; }
+        //Zone을 불러오고 내리는 쪽. 세운 대상을 맡겨서, 대상이 있는 Zone이 내려가면 꺼두게 한다
+        private readonly ZoneStreamer _zoneStreamer;
 
         //검사를 통과한 이야기. 이야기를 시작할 때 정해진다
         public StoryBook Book { get; private set; }
         //지금 진행 중인 퀘스트. 일반 대화가 진행에 맞는 대사를 고른다
-        public ChapterNumber Progress { get; private set; }
+        public long Progress { get; private set; }
 
         //월드에 세운 대상. 쓰러진 적은 파괴되어 null로 남다가 Clear가 정리한다
         private readonly Dictionary<StoryActor, ObjectBase> _actors = new();
@@ -43,15 +47,17 @@ namespace InGame.Story
         //시나리오가 멈춰둔 대상. 끝날 때 이것만 다시 켠다. 이동(Move)이 따로 멈춘 것은 멈춘 횟수가 따로 세어지므로 그대로 남는다
         private readonly List<ObjectBase> _scenarioHeld = new();
 
-        //지금 일반 대화 중인지. 이 동안 시나리오는 시작을 기다리고 말 걸기 목표는 입력을 받지 않는다
-        public bool IsTalking { get; private set; }
+        //대화창이 열려 있는지 (일반 대화, 퀘스트 대화, 시나리오 대사). 이 동안 누른 Interact는 대사를 넘기는 입력이라
+        //일반 대화와 말 걸기 목표는 받지 않고, 퀘스트의 대화와 시나리오는 창이 닫힐 때까지 시작을 기다린다
+        public bool IsInDialogue => DialoguePlayer != null && DialoguePlayer.IsOpen;
         //말 걸기 목표(Interact)가 기다리는 대상. 이 대상에게 건 말은 일반 대화가 아니라 목표로 간다
         public StoryActor InteractTarget { get; private set; }
         #endregion
 
         #region Init
         public StoryContext(InGameContext inGameContext, ObjectSpawner objectSpawner, TableManager tableManager,
-            DialoguePlayer dialoguePlayer, ScreenFadeView screenFade, CameraDirector cameraDirector)
+            DialoguePlayer dialoguePlayer, ScreenFadeView screenFade, CameraDirector cameraDirector,
+            ZoneLayout zoneLayout, ZoneStreamer zoneStreamer)
         {
             InGameContext = inGameContext;
             ObjectSpawner = objectSpawner;
@@ -59,18 +65,23 @@ namespace InGame.Story
             DialoguePlayer = dialoguePlayer;
             ScreenFade = screenFade;
             CameraDirector = cameraDirector;
+            ZoneLayout = zoneLayout;
+            _zoneStreamer = zoneStreamer;
         }
+        #endregion
+
+        #region Public - World
+        /// <summary>표에 적은 위치(Zone의 왼쪽 아래를 0,0으로 보는 로컬 좌표)를 월드 좌표로 바꾼다</summary>
+        public Vector2 ToWorld(long zoneId, Vector2 local) => ZoneLayout.ToWorld(zoneId, local);
         #endregion
 
         #region Public - Progress
         public void SetBook(StoryBook book) => Book = book;
 
-        public void SetProgress(ChapterNumber quest) => Progress = quest;
+        public void SetProgress(long quest) => Progress = quest;
         #endregion
 
         #region Public - Talk
-        public void SetTalking(bool talking) => IsTalking = talking;
-
         public void SetInteractTarget(StoryActor actor) => InteractTarget = actor;
 
         /// <summary>플레이어와 좌우 거리가 distance 안인 Npc 중 가장 가까운 것을 찾는다. 말 걸기와 같은 거리 기준을 쓴다</summary>
@@ -81,7 +92,9 @@ namespace InGame.Story
             float nearest = distance;
             foreach (var pair in _actors)
             {
-                if (pair.Value == null || Book.GetActorType(pair.Key) != StoryActorType.Npc) continue;
+                //Zone이 내려가 꺼진 Npc는 화면에 없으므로 말을 걸 수 없다
+                if (pair.Value == null || !pair.Value.gameObject.activeInHierarchy
+                    || Book.GetActorType(pair.Key) != StoryActorType.Npc) continue;
 
                 float gap = Mathf.Abs(pair.Value.transform.position.x - x);
                 if (gap > nearest) continue;
@@ -120,6 +133,8 @@ namespace InGame.Story
             //시나리오 도중에 등장한 대상이 연출 도중 움직이지 않게 같이 멈춘다
             if (IsInScenario)
                 HoldForScenario(spawned);
+            //아직 불러오지 않은 Zone에 세웠으면 바닥이 생길 때까지 꺼둔다
+            _zoneStreamer?.Track(spawned);
             return spawned;
         }
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using InGame.Story.Scenario.Steps;
+using InGame.Story.Steps;
 
 namespace InGame.Story.Scenario
 {
@@ -21,7 +22,9 @@ namespace InGame.Story.Scenario
             //연출
             { "Move", () => new MoveStep() },
             { "Effect", () => new EffectStep() },
-            { "Dialogue", () => new DialogueStep() },
+            { "Dialogue", () => new DialogueStep(true) },
+            { "Line", () => new LineStep() },
+            { "CloseDialogue", () => new CloseDialogueStep() },
             { "Wait", () => new WaitStep() },
             { "FadeOut", () => new FadeStep(true) },
             { "FadeIn", () => new FadeStep(false) },

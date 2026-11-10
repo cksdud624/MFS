@@ -6,6 +6,7 @@ using InGame.Context;
 using InGame.Object;
 using InGame.Story;
 using InGame.UI;
+using InGame.World;
 using UnityEngine;
 using static Common.AssetKeys;
 using static Common.GameDefine;
@@ -21,6 +22,8 @@ namespace InGame
         private readonly List<string> _loadedViews = new();
         //퀘스트 밖에서 Npc에게 말을 걸면 대화를 띄운다. Interact 입력 구독을 씬이 내려갈 때 해제한다
         private TalkPlayer _talkPlayer;
+        //플레이어 주변 Zone만 불러둔다. 매 프레임 갱신 등록을 씬이 내려갈 때 해제한다
+        private ZoneStreamer _zoneStreamer;
         #endregion
 
         #region Init
@@ -37,12 +40,24 @@ namespace InGame
             if (screenFadeView != null)
                 screenFadeView.Init();
 
+            var tableManager = Global.Instance.TableManager;
+            var cancellationToken = this.GetCancellationTokenOnDestroy();
+
+            //맵은 Zone 프리팹을 격자에 이어 붙여 만든다. 표가 틀리면 에러만 남기고 맞는 Zone으로 진행한다 (이야기 검사가 없는 Zone을 다시 잡는다)
+            ZoneLayout.TryBuild(tableManager.MapRecord.GetAllRecord(), tableManager.ZoneRecord.GetAllRecord(), out var zoneLayout);
+            var zoneRoot = new GameObject("Zones").transform;
+            _zoneStreamer = new ZoneStreamer(zoneLayout, new PrefabZoneLoader(Global.Instance.AssetManager, zoneRoot),
+                _inGameContext, Camera.main, cancellationToken);
+            //처음부터 서 있는 캐릭터가 바닥이 생기기 전에 놓이지 않게, 시작 Zone을 다 불러온 뒤에 이야기를 시작한다
+            await _zoneStreamer.LoadInitial();
+
             //플레이어 배치부터 적 등장까지 인게임 흐름은 퀘스트 표가 정하고, 연출은 퀘스트가 부르는 시나리오 표가 정한다
-            var storyContext = new StoryContext(_inGameContext, _objectSpawner, Global.Instance.TableManager,
+            var storyContext = new StoryContext(_inGameContext, _objectSpawner, tableManager,
                 dialogueView != null ? new DialoguePlayer(_inGameContext, dialogueView) : null,
                 screenFadeView,
-                CreateCameraDirector());
-            var cancellationToken = this.GetCancellationTokenOnDestroy();
+                CreateCameraDirector(),
+                zoneLayout,
+                _zoneStreamer);
             _talkPlayer = new TalkPlayer(storyContext, cancellationToken);
             new StoryPlayer(storyContext).Run(cancellationToken).Forget();
         }
@@ -52,6 +67,7 @@ namespace InGame
         private void OnDestroy()
         {
             _talkPlayer?.Dispose();
+            _zoneStreamer?.Dispose();
 
             var assetManager = Global.Instance?.AssetManager;
             if (assetManager == null) return;

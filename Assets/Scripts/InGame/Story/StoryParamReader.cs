@@ -1,11 +1,10 @@
 using System.Globalization;
-using Common;
 using UnityEngine;
 
 namespace InGame.Story
 {
     /// <summary>
-    /// 시나리오나 퀘스트 한 줄의 Actor, Param1~2를 명령이 원하는 타입으로 읽는다.
+    /// 시나리오나 퀘스트 한 줄의 Actor, Zone, Param1~2를 명령이 원하는 타입으로 읽는다.
     /// Param 칸은 표에서 문자열이라 생성기가 타입을 확인해주지 않으므로 여기서 확인하고, 틀리면 어느 칸이 왜 틀렸는지 에러로 남긴다.
     /// 읽은 칸을 기록해두고, 명령이 쓰지 않는 칸에 값이 적혀 있으면 그것도 에러로 본다. 다른 명령의 칸 배치로 잘못 적은 줄을 잡기 위해서다.
     /// Note 칸은 설계자 메모라 읽지 않고, 쓰지 않는 칸 검사에서도 뺀다
@@ -20,6 +19,8 @@ namespace InGame.Story
         private readonly string[] _params;
         //명령이 Actor 칸을 읽었는지
         private bool _actorRead;
+        //명령이 Zone 칸을 읽었는지
+        private bool _zoneRead;
         //명령이 읽은 Param. 인덱스가 Param 번호다 (0은 쓰지 않는다)
         private readonly bool[] _paramRead = new bool[ParamCount + 1];
         #endregion
@@ -34,7 +35,7 @@ namespace InGame.Story
 
         #region Public
         /// <summary>
-        /// 대상을 읽는다. required면 빈칸일 때 에러다. Player 또는 Actor 표의 번호(1-2)를 적는다.
+        /// 대상을 읽는다. required면 빈칸일 때 에러다. Player 또는 Actor 표의 번호(10001)를 적는다.
         /// 번호가 Actor 표에 있는지는 표끼리 맞춰봐야 해서 검사기가 본다
         /// </summary>
         public bool ReadActor(bool required, out StoryActor actor)
@@ -45,15 +46,19 @@ namespace InGame.Story
             if (string.IsNullOrEmpty(_row.Actor))
                 return !required || LogError("Actor is required.");
             if (StoryActor.TryParse(_row.Actor, out actor)) return true;
-            return LogError($"Actor must be {StoryActor.PlayerName} or an Actor number such as 1-2 : '{_row.Actor}'");
+            return LogError($"Actor must be {StoryActor.PlayerName} or an Actor Id such as 10001 : '{_row.Actor}'");
         }
 
-        /// <summary>시나리오, 퀘스트처럼 다른 표의 번호(1-2)를 읽는다</summary>
-        public bool ReadNumber(int number, string name, out ChapterNumber value)
+        /// <summary>
+        /// 위치 칸의 기준 Zone을 읽는다. 위치는 그 Zone의 왼쪽 아래를 0,0으로 보는 로컬 좌표다.
+        /// required면 빈칸(0)일 때 에러다. Zone 표에 있는 번호인지는 검사기가 본다
+        /// </summary>
+        public bool ReadZone(bool required, out long zone)
         {
-            string raw = Take(number);
-            if (ChapterNumber.TryParse(raw, out value)) return true;
-            return Fail(number, name, "chapter-order (1-2)", raw);
+            _zoneRead = true;
+            zone = _row.Zone;
+            if (zone != 0 || !required) return true;
+            return LogError("Zone is required. Positions are local to the zone (its bottom-left is 0,0).");
         }
 
         public bool ReadLong(int number, string name, out long value)
@@ -120,6 +125,8 @@ namespace InGame.Story
             bool valid = true;
             if (!_actorRead && !string.IsNullOrEmpty(_row.Actor))
                 valid = LogError($"{_row.Command} does not use Actor. Leave it empty : '{_row.Actor}'");
+            if (!_zoneRead && _row.Zone != 0)
+                valid = LogError($"{_row.Command} does not use Zone. Leave it empty : {_row.Zone}");
 
             for (int number = 1; number <= ParamCount; number++)
             {

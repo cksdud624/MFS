@@ -43,8 +43,8 @@ namespace Generated.Table
 	public class TalkData
 	{
 		public long Id {get; private set;}
-		public string Actor {get; private set;}
-		public string Quest {get; private set;}
+		public long Actor {get; private set;}
+		public long Quest {get; private set;}
 		public long Dialogue {get; private set;}
 		public string Note {get; private set;}
 
@@ -52,8 +52,8 @@ namespace Generated.Table
 		{
 			string[] tableDatas = reader.ReadString().Split('	');
 			Id = long.TryParse(tableDatas[0], out long vLong0) ? vLong0 : 0L;
-			Actor = tableDatas[1];
-			Quest = tableDatas[2];
+			Actor = long.TryParse(tableDatas[1], out long vLong1) ? vLong1 : 0L;
+			Quest = long.TryParse(tableDatas[2], out long vLong2) ? vLong2 : 0L;
 			Dialogue = long.TryParse(tableDatas[3], out long vLong3) ? vLong3 : 0L;
 			Note = tableDatas[4];
 		}

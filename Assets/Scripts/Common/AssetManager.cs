@@ -61,6 +61,7 @@ namespace Common
             Effect,
             Animation,
             UI,
+            Zone,
         }
 
         public static string GetAddressableKey(LoadTarget target, string assetName)
@@ -76,6 +77,9 @@ namespace Common
                     break;
                 case LoadTarget.UI:
                     key = AssetPathUI + assetName + AssetExtensionPrefab;
+                    break;
+                case LoadTarget.Zone:
+                    key = AssetPathZone + assetName + AssetExtensionPrefab;
                     break;
                 default:
                     key = string.Empty;

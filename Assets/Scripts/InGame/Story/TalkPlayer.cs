@@ -39,7 +39,7 @@ namespace InGame.Story
         private void HandleInteract()
         {
             //이야기가 시작되기 전(검사 실패 포함)에는 진행을 알 수 없다
-            if (_context.Book == null || _context.IsInScenario || _context.IsTalking || _context.DialoguePlayer == null) return;
+            if (_context.Book == null || _context.IsInScenario || _context.IsInDialogue || _context.DialoguePlayer == null) return;
 
             var player = _context.InGameContext.Player;
             if (player == null) return;
@@ -65,15 +65,8 @@ namespace InGame.Story
             }
 
             Debug.Log($"[일반 대화] {actor} : Dialogue {dialogueId}");
-            _context.SetTalking(true);
-            try
-            {
-                await _context.DialoguePlayer.PlayConversation(partner, lines, _cancellationToken);
-            }
-            finally
-            {
-                _context.SetTalking(false);
-            }
+            //대화창은 이 호출 안에서 바로 열린다. 그래서 같은 입력을 뒤에서 받는 말 걸기 목표는 이 입력을 대사 넘기기로 본다
+            await _context.DialoguePlayer.PlayConversation(partner, lines, _cancellationToken);
         }
         #endregion
     }
