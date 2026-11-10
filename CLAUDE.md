@@ -10,7 +10,7 @@ R3는 코어(`R3.dll`)를 NuGetForUnity로(`Assets/packages.config`, `Assets/Pac
 
 | 경로 | 역할 |
 |---|---|
-| `Common/` | 전역(`Global` 싱글톤), 씬 로더, `AssetManager`, `GameDefine`(상수/enum) |
+| `Common/` | 전역(`Global` 싱글톤), 씬 로더, `AssetManager`, `GameDefine`(상수/enum), `ChapterNumber`(표의 `챕터-순번` 번호) |
 | `Common/Template/` | `Singleton`, `StateMachine`/`IState`, `IUpdateable` 계열 인터페이스 |
 | `Common/Test/` | 에디터 전용 테스트 코드 (`EditorTestKeys`) |
 | `InGame/Object/` | `ObjectBase`/`CharacterBase`, `ObjectSpawner` |
@@ -18,8 +18,13 @@ R3는 코어(`R3.dll`)를 NuGetForUnity로(`Assets/packages.config`, `Assets/Pac
 | `InGame/Component/` | 오브젝트에 붙는 기능 컴포넌트 (물리, 애니메이션, 이펙트, 판정) |
 | `InGame/Component/State/` | 오브젝트 FSM 상태 (`Ground`, `Air`, `Action`, `Damage`, `Event`) |
 | `InGame/Component/Controller/` | 플레이어/AI 컨트롤러, AI 상태 |
+| `InGame/Story/` | 인게임 흐름. `StoryPlayer`가 퀘스트를 번호 순으로 실행하고, `StoryValidator`가 실행 전에 표 전체를 검사해 `StoryBook`을 만든다. 월드에 세운 대상은 `StoryContext`가 들고, `TalkPlayer`가 일반 대화를, `DialoguePlayer`가 대사를 띄운다 |
+| `InGame/Story/Scenario/Steps/` | 시나리오(연출) 명령 하나당 클래스 하나. `ScenarioStepFactory`에 이름을 등록한다 |
+| `InGame/Story/Quest/Steps/` | 퀘스트(목표, 시나리오 재생) 명령 하나당 클래스 하나. `QuestStepFactory`에 이름을 등록한다. 새 명령은 시나리오/퀘스트 모두 `StoryStep`을 상속해서 `Parse`(칸 형식), `Validate`(앞뒤 정합성), `Run`을 구현하고, 시작/종료/목표 명령이면 `Kind`를 다시 정한다. Actor와 Param1~2를 어떻게 쓰는지는 각 클래스 summary에 적는다 |
+| `InGame/UI/` | UI 뷰 (`DialogueView`, `ScreenFadeView`). 프리팹은 `Editor/UIPrefabBuilder`의 메뉴(UI > Build All UI)가 코드로 조립해서 `AddressableAssets/UI/`에 저장한다. 레이아웃은 프리팹이 아니라 빌더 코드를 고친다 |
+| `InGame/CameraDirector.cs` | 연출용 카메라 조작 (확대/축소, 바라볼 곳). 씬 카메라의 처음 상태를 배율 1로 본다 |
 | `Generated/Table/` | **자동 생성 코드. 직접 고치지 않는다** (`Custom/` 폴더의 partial만 손으로 작성) |
-| `Editor/` | 에디터 툴 (`TableUpdater`, `DefaultSceneSetter`) |
+| `Editor/` | 에디터 툴 (`TableUpdater`, `StoryValidatorMenu`, `DefaultSceneSetter`) |
 
 ## 코딩 컨벤션
 
@@ -103,7 +108,39 @@ R3는 코어(`R3.dll`)를 NuGetForUnity로(`Assets/packages.config`, `Assets/Pac
   - `Assets/.Table/TableManifest.json` (해시)
 - 생성된 Record에 조회 기능이 필요하면 `Generated/Table/Custom/XxxRecord.Custom.cs`에 partial로 추가하고 `partial void InitCustomRecord()`에서 색인을 만든다.
 - 번호 컬럼의 `0`은 "사용 안 함"을 뜻한다.
+- 그 줄에서 쓰지 않는 칸은 빈칸으로 둔다. 빈칸은 숫자면 `0`, `Vector2`/`Vector3`면 `zero`, 문자열이면 빈 문자열로 읽힌다 (에러 없음).
+  `0,0` 같은 채움값을 적지 않는다. 실제 값과 구분이 안 된다. 형식이 틀린 값(`1,2,3`을 `Vector2`에)은 지금처럼 에러를 낸다.
 - 테이블 변경은 `.tsv`, `.bytes`, `TableManifest.json`, 생성 코드가 한 세트로 같이 커밋되어야 한다.
+### 이야기 표 (Actor, Scenario, Quest, Talk)
+
+인게임 흐름은 네 표가 나눠 맡는다. 번호는 표마다 따로 `챕터-순번`(1-1, 1-2, 2-1)으로 매기고, 문자열 칸에 그대로 적는다. 정렬은 숫자로 한다(1-10은 1-2 뒤).
+
+| 표 | 무엇 | 명령 / 칸 |
+|---|---|---|
+| `Actor.tsv` | 월드의 캐릭터 등록. 시나리오, 퀘스트, 대화는 대상을 이 번호로 가리킨다 | `Id`(1-2), `ObjectId`, `Type`(Npc/Enemy), `Resident`, `Position` |
+| `Scenario.tsv` | 연출. 플레이어가 조작하지 않는 장면 | `Spawn`, `Despawn`, `Move`, `Effect`, `Dialogue`, `Wait`, `FadeOut`/`FadeIn`, `Zoom` |
+| `Quest.tsv` | 진행. 퀘스트 번호 순서가 곧 진행 순서이고, 이야기는 첫 퀘스트부터 시작한다 | `Scenario`(시나리오 재생), 목표 `Interact`, `Reach`, `Clear` |
+| `Talk.tsv` | 일반 대화. 퀘스트 목표가 아닐 때 Npc에게 말을 걸면 나오는 대화 | `Actor`, `Quest`(이 퀘스트가 시작된 뒤부터), `Dialogue` |
+
+- 대상은 `Actor` 한 칸에 `Player` 또는 Actor 번호(`1-2`)로 적는다. 같은 캐릭터를 여럿 세워도 번호가 달라서 위치나 순서로 추측하지 않는다.
+  플레이어는 하나뿐이라 Actor 표에 두지 않고, 캐릭터는 `GameDefine.PlayerObjectId`를 쓴다.
+- 대상은 시나리오나 퀘스트가 아니라 **월드가 갖는다**. `Spawn`으로 들어와서 `Despawn`이나 `Clear`로 나가기 전까지 뒤의 퀘스트와 시나리오가 같은 번호로 쓴다.
+  `Resident`를 켠 대상은 이야기가 시작될 때 `Position`에 서 있다. `Spawn`의 위치를 비우면 `Position`에 선다(플레이어는 위치를 꼭 적는다).
+- 시나리오 하나가 통째로 연출 구간이다. 재생하는 동안 월드의 조작과 AI가 멈추고(도중에 등장한 대상 포함), 끝나면 카메라를 처음 상태로 되돌린 뒤 다시 켠다.
+  시나리오가 끝나면 목표가 이어지므로 화면을 덮은 채(`FadeOut`) 끝날 수 없다.
+- 퀘스트 목표를 지나는 동안 월드에 있던 적은 플레이어와 싸워 쓰러졌을 수 있다. 그래서 목표를 지난 적은 시나리오가 다룰 수 없고 `Clear`로만 가리킨다.
+  `Clear`는 대상을 적으면 그 적, 비우면 월드의 적 전부가 쓰러질 때까지 기다리고, 통과한 적은 월드에서 나간 것으로 본다.
+- 일반 대화는 시나리오 재생 중이나 다른 대화 중에는 나오지 않고, `Interact` 목표가 기다리는 Npc에게 건 말은 목표로 간다.
+- `Dialogue`의 Param2에 배율을 적으면 대화 상대(없으면 플레이어)를 확대했다가 끝나면 대화 직전 카메라로 되돌린다.
+- 시나리오와 퀘스트 줄의 Id는 번호에서 만든다: `챕터 × 1000000 + 순번 × 1000`부터 10 단위 (1-2 → 1002010, 1002020, ...).
+  줄을 끼울 때는 사이 번호(1002015)를 쓰고 뒤를 밀지 않는다. 줄은 표에 적힌 순서가 아니라 Id 순으로 실행한다.
+- `Note` 칸은 설계자 메모다. 장면 구분이나 목표를 적는다. 게임은 읽지 않는다.
+- 이야기 표를 고쳤으면 Update Table 뒤에 **Table > Validate Story**를 실행한다. Play 없이 퀘스트를 번호 순으로, 퀘스트가 부르는 시나리오까지 펼쳐서 따라가며 검사한다:
+  칸 형식(타입, 쓰지 않는 칸에 값, 번호 형식, Id 범위와 중복, 표에 없는 명령),
+  앞뒤 관계(세우기 전 사용, 나간 뒤 참조, 이미 있는 대상을 다시 세움, 플레이어 두 번 세움, 목표를 지난 적을 다룸, 덮인 화면으로 끝나는 시나리오),
+  표 참조(Actor 번호, 대상이 캐릭터인지 — Object의 IsCharacter와 Character 표, 없는 시나리오/퀘스트 번호, Dialogue, 이펙트 프리팹, Talk 대상이 Npc인지).
+  어느 퀘스트도 부르지 않는 시나리오는 경고로 알린다.
+  같은 검사(`StoryValidator`)가 이야기 시작 직전에도 돌고, 틀리면 이야기를 시작하지 않는다.
 
 ## 검증과 테스트 (Claude Code 작업 절차)
 
@@ -136,11 +173,6 @@ R3는 코어(`R3.dll`)를 NuGetForUnity로(`Assets/packages.config`, `Assets/Pac
 - `execute_menu_item`으로 `Table/Update Table`을 실행한다 (또는 사용자에게 요청).
 - `git diff --stat`으로 `.tsv` / `.bytes` / `TableManifest.json` / 생성 코드가 같이 바뀌었는지 확인한다.
 - 컬럼을 추가/변경했으면 생성된 `XxxRecord.cs`의 필드 타입을 확인하고 1단계 빌드를 다시 돌린다.
-
-### 5. 자동 테스트
-- 아직 테스트 어셈블리는 없다 (`com.unity.test-framework`는 설치되어 있음).
-- 테이블 색인, 방향 뒤집기, 커맨드 조회처럼 Unity 씬 없이 확인 가능한 순수 로직을 추가할 때는 EditMode 테스트를 추가할 수 있다.
-  추가할 경우 `Assets/Tests/EditMode/`에 `.asmdef`를 두고 `run_tests`(UnityMCP)로 돌린 뒤 `get_test_job`으로 결과를 확인한다.
 
 ### 완료 보고
 - 어떤 검증을 실제로 했는지, 어떤 것은 못 했는지(예: 플레이 모드 키 입력 확인) 구분해서 적는다.

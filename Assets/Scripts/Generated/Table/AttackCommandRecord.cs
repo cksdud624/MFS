@@ -70,6 +70,10 @@ namespace Generated.Table
 				float.TryParse(items6[1], out float resultY6);
 				EffectOffset = new Vector2(resultX6, resultY6);
 			}
+			else if (string.IsNullOrEmpty(tableDatas[6]))
+			{
+				EffectOffset = Vector2.zero;
+			}
 			else
 			{
 				EffectOffset = Vector2.zero;

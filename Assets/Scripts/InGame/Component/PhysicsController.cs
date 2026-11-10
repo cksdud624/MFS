@@ -209,7 +209,8 @@ namespace InGame.Component
         private float ResolveAirVelocityX()
         {
             float currentX = Rigidbody.linearVelocity.x;
-            float moveSpeed = _objectContext.ObjectData.MoveSpeed;
+            //땅에서 정한 속도와 같은 기준을 써야 시나리오가 빠르게 걷게 한 속도를 공중에서 "초과분"으로 깎지 않는다
+            float moveSpeed = _objectContext.MoveSpeed;
 
             //대시 등으로 최고 속도를 넘어선 구간은 먼저 빠르게 깎는다
             if (Mathf.Abs(currentX) > moveSpeed)

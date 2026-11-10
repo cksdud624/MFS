@@ -154,8 +154,8 @@ namespace InGame.Component
             if (((1 << other.gameObject.layer) & _targetLayerMask) == 0) return;
             //공격 판정끼리도 같은 레이어라 겹치면 콜백이 오므로 등록된 피격 판정만 본다
             if (!_inGameContext.TryGetHurtBoxOwner(other, out var target)) return;
-            //같은 진영은 때리지 않는다. 자기 자신도 여기서 걸러진다
-            if (target.Team == _objectContext.Team) return;
+            //같은 진영과 중립(NPC)은 때리지 않는다. 자기 자신도 여기서 걸러진다
+            if (!_objectContext.IsHostileTo(target)) return;
 
             //맞은 쪽이 카운터로 돌아설 방향. 내 콜라이더 중점과 맞은 피격 판정의 중점으로 좌우를 가린다
             var attackerSide = _objectContext.ResolveAttackerSide(

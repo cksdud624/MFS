@@ -1,0 +1,5 @@
+Id	ObjectId	Type	Resident	Position	Note
+string	long	string	bool	Vector2	string
+1-1	1001	Npc	false	8,-4.05	마을 사람. 도입 연출에서 등장한다
+1-2	1001	Enemy	false	13,-4.05	동쪽 길의 적
+1-3	1001	Npc	true	-4,-4.05	문지기. 처음부터 마을 입구에 서 있다

@@ -15,6 +15,26 @@
         {
             "fileName": "AttackCommand",
             "hash": "ff8f8a67342c5a843628bdc8a6aff77d"
+        },
+        {
+            "fileName": "Dialogue",
+            "hash": "f2c7631a6f2e2606b06554c063ab663b"
+        },
+        {
+            "fileName": "Scenario",
+            "hash": "7aba2b47617fdc3624d0114065009dbd"
+        },
+        {
+            "fileName": "Actor",
+            "hash": "12323679c53fc5a3524af33cb488ed5f"
+        },
+        {
+            "fileName": "Talk",
+            "hash": "e3d08bb58770007d3fd2bfe3f1e5dd6d"
+        },
+        {
+            "fileName": "Quest",
+            "hash": "6445ff52871f9b852f11b557206ba94a"
         }
     ]
 }

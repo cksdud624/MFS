@@ -82,6 +82,12 @@ namespace InGame.Context
         #endregion
 
         #region Move
+        //시나리오가 정한 시간에 맞춰 걷게 할 때 쓰는 속도. 0이면 테이블의 MoveSpeed를 쓴다.
+        //이동 입력이 들어올 때 속도를 정하므로, 이동 입력을 내기 전에 바꿔야 적용된다
+        public float MoveSpeedOverride { get; private set; }
+        public float MoveSpeed => MoveSpeedOverride > 0f ? MoveSpeedOverride : ObjectData.MoveSpeed;
+        public void SetMoveSpeedOverride(float speed) => MoveSpeedOverride = Mathf.Max(0f, speed);
+
         //이동
         public event Action<float> OnMoveVelocityChanged;
         public void SetMoveVelocity(float velocityX) => OnMoveVelocityChanged?.Invoke(velocityX);
@@ -240,6 +246,28 @@ namespace InGame.Context
             if (IsDamaged == damaged) return;
             IsDamaged = damaged;
             OnDamagedChanged?.Invoke(damaged);
+        }
+
+        /// <summary>
+        /// 이 오브젝트의 공격이 대상을 맞출 수 있는지. 같은 진영은 때리지 않고, 중립(NPC)은 때리지도 맞지도 않는다.
+        /// 자기 자신도 같은 진영이라 여기서 걸러진다
+        /// </summary>
+        public bool IsHostileTo(ObjectContext target) => IsHostileTo(target.Team);
+
+        /// <summary>그 진영과 적대인지. 공격 판정과 AI의 추격 대상 고르기가 같은 기준을 쓴다</summary>
+        public bool IsHostileTo(Team targetTeam)
+            => Team != targetTeam && Team != Team.Neutral && targetTeam != Team.Neutral;
+        #endregion
+
+        #region Event
+        //대화 같은 연출 중인지. 연출 중에는 Event 상태에 묶여서 일반 입력을 받지 않고 맞지도 않는다
+        public bool IsInEvent { get; private set; }
+        public event Action<bool> OnInEventChanged;
+        public void SetInEvent(bool inEvent)
+        {
+            if (IsInEvent == inEvent) return;
+            IsInEvent = inEvent;
+            OnInEventChanged?.Invoke(inEvent);
         }
         #endregion
 

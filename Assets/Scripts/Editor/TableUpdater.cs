@@ -262,6 +262,11 @@ public static class TableUpdater
         string arguments = string.Join(", ", Enumerable.Range(0, componentCount).Select(axis => $"result{axisNames[axis]}{index}"));
         record.AppendLine($"\t\t\t\t{column} = new {type}({arguments});");
         record.AppendLine("\t\t\t}");
+        //빈칸은 그 줄에서 쓰지 않는 값이므로 에러 없이 0으로 둔다. 숫자 컬럼이 빈칸을 0으로 읽는 것과 맞춘다
+        record.AppendLine($"\t\t\telse if (string.IsNullOrEmpty(tableDatas[{index}]))");
+        record.AppendLine("\t\t\t{");
+        record.AppendLine($"\t\t\t\t{column} = {type}.zero;");
+        record.AppendLine("\t\t\t}");
         record.AppendLine("\t\t\telse");
         record.AppendLine("\t\t\t{");
         record.AppendLine($"\t\t\t\t{column} = {type}.zero;");

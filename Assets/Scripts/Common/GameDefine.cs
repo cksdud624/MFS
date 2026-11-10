@@ -39,6 +39,8 @@ namespace Common
         {
             Player,
             Enemy,
+            //NPC. 누구도 때리지 않고 누구에게도 맞지 않는다
+            Neutral,
         }
 
         public enum FSMState
@@ -99,6 +101,7 @@ namespace Common
         #region Asset Path
         public const string AssetPathEffect = "Assets/AddressableAssets/Effect/";
         public const string AssetPathAnimation = "Assets/AddressableAssets/Animation/";
+        public const string AssetPathUI = "Assets/AddressableAssets/UI/";
         public const string AssetExtensionPrefab = ".prefab";
         public const string AssetExtensionAnimation = ".anim";
         #endregion
@@ -223,6 +226,62 @@ namespace Common
         public static readonly bool AIAttackEnabled = false;
         //이 거리 안에서는 대상이 좌우 어느 쪽인지 따지지 않는다
         public const float TargetDirectionDeadZone = 0.05f;
+        #endregion
+
+        #region Dialogue
+        //대화창 프리팹. AssetPathUI 아래에 있다. 에디터 메뉴 UI > Build Dialogue View가 만든다
+        public const string UIDialogueView = "DialogueView";
+        //대사가 한 글자씩 나오는 간격(초)
+        public const float DialogueCharInterval = 0.03f;
+        //이 거리(좌우) 안에서 Interact를 누르면 NPC에게 말을 건다
+        public const float InteractDistance = 1.5f;
+        #endregion
+
+        #region Screen
+        //화면을 덮는 페이드 프리팹. AssetPathUI 아래에 있다. 에디터 메뉴 UI > Build Screen Fade View가 만든다
+        public const string UIScreenFadeView = "ScreenFadeView";
+        //캔버스 순서. 페이드는 게임 화면을 덮되, 검은 화면 위에서도 대사는 읽혀야 하므로 대화창이 그보다 위에 온다
+        public const int SortingOrderScreenFade = 90;
+        public const int SortingOrderDialogue = 100;
+        //시나리오 FadeIn/FadeOut이 늘 쓰는 시간(초). 표에서는 정하지 않는다
+        public const float ScreenFadeDuration = 0.5f;
+        //시나리오 Zoom에서 시간을 적지 않았을 때, 그리고 대화 확대와 연출 구간 끝의 카메라 복귀에 쓰는 시간(초)
+        public const float CameraZoomDuration = 0.5f;
+        #endregion
+
+        #region Story
+        //플레이어 캐릭터의 Object 번호. 플레이어는 하나뿐이라 Actor 표에 두지 않고 표에는 Player로만 적는다
+        //테이블로 차후 관리해야하는 부분
+        public const long PlayerObjectId = 1001;
+        //시나리오와 퀘스트 명령의 분류. 대상은 Spawn으로 월드에 들어와서 Despawn이나 Clear로 나가고, 그 사이의 줄은 월드에 있는 대상에만 쓸 수 있다
+        public enum StoryStepKind
+        {
+            //대상을 월드에 세운다 (Spawn)
+            Start,
+            //월드에 있는 대상을 다루거나 대상 없이 연출한다
+            Content,
+            //대상을 월드에서 없앤다 (Despawn)
+            End,
+            //플레이어가 해내야 넘어가는 퀘스트 목표 (Interact, Reach, Clear)
+            Goal,
+        }
+        //대상의 종류. 플레이어는 표에 Player로 적고, 나머지는 Actor 표의 Type 칸에 적는다
+        public enum StoryActorType
+        {
+            //대상이 없는 줄 (Wait, Reach 등)
+            None,
+            Player,
+            //컨트롤러가 없어서 Move로 움직이지 않으면 제자리에 서 있다. 중립이라 싸움에 끼지 않는다
+            Npc,
+            //AI가 붙는다. Clear가 기다리는 대상이다
+            Enemy,
+        }
+        //시나리오와 퀘스트 줄의 Id는 번호(챕터-순번)에서 만든다. 1-2의 줄 → 1002010, 1002020, ...
+        //10 단위로 띄워 적어서 줄을 끼울 때 뒤 번호를 밀지 않고 사이 번호(1002015)를 쓴다
+        public const long StoryLineIdChapter = 1000000;
+        public const long StoryLineIdOrder = 1000;
+        //Move가 도착했다고 보는 거리. 시간을 정해 빠르게 걸으면 한 물리 스텝에 이보다 멀리 가므로, 목표를 지나친 것도 도착으로 본다
+        public const float ScenarioArriveDistance = 0.1f;
         #endregion
     }
 }

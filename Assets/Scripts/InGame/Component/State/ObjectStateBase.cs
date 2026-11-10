@@ -60,7 +60,8 @@ namespace InGame.Component.State
         #region Event Handlers
         protected void OnMove(Vector2 moveDirection)
         {
-            float moveSpeed = ObjectContext.ObjectData.MoveSpeed;
+            //시나리오가 시간을 정해 걷게 하면 그 속도를, 아니면 테이블의 속도를 쓴다
+            float moveSpeed = ObjectContext.MoveSpeed;
             float velocityX = 0f;
             if (moveDirection.x > 0f)
                 velocityX = moveSpeed;

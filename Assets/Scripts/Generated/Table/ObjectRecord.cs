@@ -61,6 +61,10 @@ namespace Generated.Table
 				float.TryParse(items3[1], out float resultY3);
 				ColliderSize = new Vector2(resultX3, resultY3);
 			}
+			else if (string.IsNullOrEmpty(tableDatas[3]))
+			{
+				ColliderSize = Vector2.zero;
+			}
 			else
 			{
 				ColliderSize = Vector2.zero;
@@ -72,6 +76,10 @@ namespace Generated.Table
 				float.TryParse(items4[0], out float resultX4);
 				float.TryParse(items4[1], out float resultY4);
 				ColliderOffset = new Vector2(resultX4, resultY4);
+			}
+			else if (string.IsNullOrEmpty(tableDatas[4]))
+			{
+				ColliderOffset = Vector2.zero;
 			}
 			else
 			{

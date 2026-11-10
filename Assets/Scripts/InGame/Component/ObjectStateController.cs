@@ -58,6 +58,7 @@ namespace InGame.Component
             _objectContext.OnGroundedChanged += OnGroundedChanged;
             _objectContext.OnAttackEnd += OnAttackEnd;
             _objectContext.OnDamage += OnDamage;
+            _objectContext.OnInEventChanged += OnInEventChanged;
             _inputContext.OnDash += OnDash;
             _inputContext.OnAttack += OnAttack;
             _inputContext.OnCounter += OnCounter;
@@ -82,6 +83,7 @@ namespace InGame.Component
                 _objectContext.OnGroundedChanged -= OnGroundedChanged;
                 _objectContext.OnAttackEnd -= OnAttackEnd;
                 _objectContext.OnDamage -= OnDamage;
+                _objectContext.OnInEventChanged -= OnInEventChanged;
             }
             if (_inputContext != null)
             {
@@ -206,6 +208,24 @@ namespace InGame.Component
             ResetAttackCommand();
             _objectContext.SetActionType(ActionType.Counter);
             _stateMachine.ChangeState(FSMState.Action);
+        }
+
+        /// <summary>
+        /// 연출이 시작되면 무엇을 하던 중이든 끊고 Event로 들어가고, 끝나면 Ground나 Air로 돌아간다.
+        /// Event는 가장 높은 단계라 연출 중에는 입력도 피격도 받지 않는다
+        /// </summary>
+        private void OnInEventChanged(bool inEvent)
+        {
+            if (inEvent)
+            {
+                //연출이 끝난 뒤에 예약해둔 공격이 튀어나오지 않도록 콤보를 비운다
+                ResetAttackCommand();
+                _stateMachine.ChangeState(FSMState.Event);
+                return;
+            }
+
+            if (_stateMachine.CurrentKey != FSMState.Event) return;
+            _stateMachine.ChangeState(_objectContext.IsGrounded ? FSMState.Ground : FSMState.Air);
         }
 
         /// <summary>공격 한 단계가 끝났다. 예약해둔 입력이 있으면 여기서 다음 단계로 이어붙인다</summary>

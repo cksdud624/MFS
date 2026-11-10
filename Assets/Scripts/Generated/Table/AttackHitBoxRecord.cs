@@ -59,6 +59,10 @@ namespace Generated.Table
 				float.TryParse(items1[1], out float resultY1);
 				HitBoxOffset = new Vector2(resultX1, resultY1);
 			}
+			else if (string.IsNullOrEmpty(tableDatas[1]))
+			{
+				HitBoxOffset = Vector2.zero;
+			}
 			else
 			{
 				HitBoxOffset = Vector2.zero;
@@ -70,6 +74,10 @@ namespace Generated.Table
 				float.TryParse(items2[0], out float resultX2);
 				float.TryParse(items2[1], out float resultY2);
 				HitBoxSize = new Vector2(resultX2, resultY2);
+			}
+			else if (string.IsNullOrEmpty(tableDatas[2]))
+			{
+				HitBoxSize = Vector2.zero;
 			}
 			else
 			{

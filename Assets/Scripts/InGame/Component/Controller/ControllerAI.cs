@@ -20,13 +20,15 @@ namespace InGame.Component.Controller
         private PhysicsController _physicsController;
         private float _moveInput;
 
-        //추격 대상. 지금은 플레이어 고정이지만 이후 진영 개념이 생기면 여기만 바꾸면 된다
+        //추격 대상. 적대 진영만 노린다. 지금 적대 진영 캐릭터는 플레이어뿐이라 플레이어를 본다.
+        //NPC(중립)는 적대가 아니므로 대상이 되지 않고, 이 AI가 중립(NPC)이면 아무도 쫓지 않는다
         public Transform Target
         {
             get
             {
                 var player = InGameContext?.Player;
-                return player != null ? player.transform : null;
+                if (player == null || !ObjectContext.IsHostileTo(player.Team)) return null;
+                return player.transform;
             }
         }
         #endregion
@@ -55,6 +57,8 @@ namespace InGame.Component.Controller
             //피격 중에는 입력이 전부 막히므로 판단도 멈춘다.
             //계속 돌리면 타이머와 이동 판단만 앞서 나가서 복귀하는 순간 방향과 입력이 어긋난다
             if (ObjectContext.IsDamaged) return;
+            //시나리오가 강제로 제어하는 동안에도 판단을 멈춘다. 돌리면 AI 입력이 시나리오 입력을 덮어쓴다
+            if (IsSuspended) return;
             _stateMachine?.OnFixedUpdate();
         }
 
@@ -145,6 +149,19 @@ namespace InGame.Component.Controller
             if (_physicsController == null || directionX == 0f) return false;
             return _physicsController.IsWallAhead(directionX);
         }
+        #endregion
+
+        #region Protected
+        //AI는 같은 값이면 입력을 다시 내지 않으므로 기억해둔 이동 입력도 같이 비운다.
+        //그대로 두면 다시 켰을 때 같은 방향으로 가려는 입력이 무시되어 멈춘 채로 남는다
+        protected override void OnSuspended()
+        {
+            base.OnSuspended();
+            _moveInput = 0f;
+        }
+
+        //강제로 움직인 사이에 자리가 바뀌었으므로 대기에서 대상을 다시 찾으며 새로 판단한다
+        protected override void OnResumed() => _stateMachine?.ChangeState(AIState.Idle);
         #endregion
 
         #region Event Handlers
