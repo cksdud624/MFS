@@ -6,7 +6,8 @@ using static Common.GameDefine;
 namespace InGame.World
 {
     /// <summary>
-    /// 맵을 이루는 Zone의 배치. 칸 크기는 맵마다 정하고(Map 표), 한 맵 안에서는 같은 크기의 칸이 격자로 놓인다. Zone 번호로 어느 칸인지 찾는다.
+    /// 맵을 이루는 Zone의 배치. Zone은 맵의 한 칸이고, 상하좌우로 맞닿아 이어져 있어서 경계를 넘으면 포탈 없이 그대로 옆 Zone으로 걸어 들어간다.
+    /// 칸 크기는 맵마다 정하고(Map 표), 한 맵 안에서는 같은 크기의 칸이 격자로 놓인다. Zone 번호로 어느 칸인지 찾는다.
     /// Zone 안의 위치는 그 칸의 왼쪽 아래를 0,0으로 보는 로컬 좌표다. Zone을 다른 칸으로 옮겨도 그 안의 좌표(표에 적은 위치)는 그대로 쓸 수 있다.
     /// Map, Zone 표를 읽어서 만들고, 만들 때 표가 맞는지 검사해서 틀리면 에러를 남긴다. 실행 중에는 바뀌지 않는다
     /// </summary>
@@ -119,15 +120,29 @@ namespace InGame.World
         }
 
         /// <summary>
-        /// 그 Zone과 가로 radius.x, 세로 radius.y 칸 안의 이웃 Zone을 모은다 (자기 자신 포함). 빈 칸은 건너뛴다.
-        /// 가로와 세로를 따로 받는 이유는 Zone이 정사각형이 아니어서 화면을 덮는 데 필요한 칸 수가 다르기 때문이다
+        /// 이어서 갈 수 없는 끝. 그 Zone의 왼쪽, 오른쪽, 아래, 위에 Zone이 없으면 그쪽은 Zone 끝이고,
+        /// 있으면 이어서 걸어갈 수 있으므로 막지 않는다(무한대). 카메라는 화면이 이 끝을 넘지 않게, 스트리머는 이 끝에 벽을 세운다. 대각선 칸은 보지 않는다
         /// </summary>
-        public void GetNeighbors(ZoneEntry center, Vector2Int radius, List<ZoneEntry> result)
+        public (Vector2 min, Vector2 max) GetBoundary(ZoneEntry zone)
+        {
+            var rect = zone.Rect;
+            float left = HasZone(zone, Vector2Int.left) ? float.NegativeInfinity : rect.xMin;
+            float right = HasZone(zone, Vector2Int.right) ? float.PositiveInfinity : rect.xMax;
+            float bottom = HasZone(zone, Vector2Int.down) ? float.NegativeInfinity : rect.yMin;
+            float top = HasZone(zone, Vector2Int.up) ? float.PositiveInfinity : rect.yMax;
+            return (new Vector2(left, bottom), new Vector2(right, top));
+        }
+
+        /// <summary>
+        /// 그 Zone에서 상하좌우와 대각선으로 radius 칸 안의 Zone을 모은다 (자기 자신 포함). 빈 칸은 건너뛴다.
+        /// 대각선도 한 칸으로 센다. radius가 1이면 자기 Zone과 둘레 8칸(3×3)이다
+        /// </summary>
+        public void GetNeighbors(ZoneEntry center, int radius, List<ZoneEntry> result)
         {
             result.Clear();
-            for (int y = -radius.y; y <= radius.y; y++)
+            for (int y = -radius; y <= radius; y++)
             {
-                for (int x = -radius.x; x <= radius.x; x++)
+                for (int x = -radius; x <= radius; x++)
                 {
                     var cell = center.Cell + new Vector2Int(x, y);
                     if (_zonesByCell.TryGetValue((center.Map, cell), out var zone))
@@ -138,6 +153,9 @@ namespace InGame.World
         #endregion
 
         #region Private
+        //그 Zone에서 offset만큼 떨어진 칸에 같은 맵의 Zone이 있는지
+        private bool HasZone(ZoneEntry zone, Vector2Int offset) => _zonesByCell.ContainsKey((zone.Map, zone.Cell + offset));
+
         //에러를 남기고 false를 돌려준다. 실패 지점에서 바로 대입할 수 있게 bool을 돌려준다
         private static bool LogError(string location, string message)
         {

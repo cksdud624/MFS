@@ -3,6 +3,9 @@ using InGame.Context;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using static Common.GameDefine;
+#if UNITY_EDITOR
+using Common.Test;
+#endif
 
 namespace InGame.Component.Controller
 {
@@ -10,6 +13,11 @@ namespace InGame.Component.Controller
     {
         #region Fields
         private PlayerInputAction _inputAction;
+#if UNITY_EDITOR
+        //이동 속도 테스트 키 상태. 퀵이동(누르는 동안)이 빠르게(토글)보다 앞선다
+        private bool _testFastMove;
+        private bool _testQuickMove;
+#endif
         #endregion
 
         #region Init
@@ -26,6 +34,10 @@ namespace InGame.Component.Controller
             _inputAction.Player.Interact.performed += OnInteract;
             //콜백을 다 건 뒤에 켠다. 먼저 켜면 그 사이에 들어온 입력은 받을 곳이 없다
             _inputAction.Enable();
+#if UNITY_EDITOR
+            EditorTestKeys.OnToggleFastMove += HandleToggleFastMove;
+            EditorTestKeys.OnQuickMoveChanged += HandleQuickMoveChanged;
+#endif
 
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
@@ -43,6 +55,10 @@ namespace InGame.Component.Controller
         public override void Dispose()
         {
             base.Dispose();
+#if UNITY_EDITOR
+            EditorTestKeys.OnToggleFastMove -= HandleToggleFastMove;
+            EditorTestKeys.OnQuickMoveChanged -= HandleQuickMoveChanged;
+#endif
             if(_inputAction == null) return;
 
             _inputAction.Disable();
@@ -116,6 +132,39 @@ namespace InGame.Component.Controller
             else if (moveDirection.x < 0f)
                 ObjectContext.SetDirection(Direction.Left);
         }
+        #endregion
+
+        #region Editor
+#if UNITY_EDITOR
+        //이동 속도 테스트 키 (빠르게 토글). 넓은 맵을 빨리 오가며 Zone 컬링을 확인할 때 쓴다
+        private void HandleToggleFastMove()
+        {
+            _testFastMove = !_testFastMove;
+            ApplyTestMoveSpeed();
+        }
+
+        //퀵이동 테스트 키. 누르고 있는 동안만 아주 빠르게 가고, 떼면 직전 속도(빠르게 또는 원래)로 돌아간다
+        private void HandleQuickMoveChanged(bool held)
+        {
+            _testQuickMove = held;
+            ApplyTestMoveSpeed();
+        }
+
+        /// <summary>
+        /// 테스트 키 상태로 이동 속도 배율을 정한다. 퀵이동이 빠르게보다 앞선다.
+        /// 걸음 속도는 이동 입력이 들어올 때 정해지므로, 이동 키를 누른 채로 바꿔도 바로 적용되게 지금 입력을 다시 낸다
+        /// </summary>
+        private void ApplyTestMoveSpeed()
+        {
+            float multiplier = _testQuickMove ? EditorTestKeys.QuickMoveMultiplier
+                : _testFastMove ? EditorTestKeys.FastMoveMultiplier
+                : 1f;
+            ObjectContext.SetMoveSpeedMultiplier(multiplier);
+            Debug.Log($"[테스트 키] 플레이어 이동 속도 x{multiplier}");
+            if (!IsSuspended)
+                ApplyMove(_inputAction.Player.Move.ReadValue<Vector2>());
+        }
+#endif
         #endregion
     }
 }

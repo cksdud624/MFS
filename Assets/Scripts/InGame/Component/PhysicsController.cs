@@ -23,6 +23,9 @@ namespace InGame.Component
         private int _probeLayerMask;
 
         private readonly HashSet<Collider2D> _groundContacts = new();
+
+        //캐릭터가 같이 쓰는 마찰 0 머티리얼. 처음 쓸 때 하나만 만들어 공유한다
+        private static PhysicsMaterial2D _frictionless;
         #endregion
 
         #region Init
@@ -43,6 +46,9 @@ namespace InGame.Component
             //콜라이더 크기와 위치는 오브젝트마다 다르므로 테이블 값을 쓴다
             _collider.size = _objectContext.ObjectData.ColliderSize;
             ApplyColliderOffset();
+            //이동은 마찰이 아니라 매 물리 스텝 넣는 속도로 정한다(공중과 피격 감속도 코드가 한다). 기본 마찰이 남아 있으면
+            //공중에서 벽 쪽으로 미는 동안 벽과의 마찰이 낙하 속도를 깎아서 벽에 붙어 천천히 떨어진다
+            _collider.sharedMaterial = GetFrictionlessMaterial();
 
             _probeLayerMask = Physics2D.DefaultRaycastLayers;
             if (TryGetLayer(LayerHitBox, out int hitBoxLayer))
@@ -193,6 +199,22 @@ namespace InGame.Component
 
         #region Private
         private void ApplyColliderOffset() => _collider.offset = _objectContext.ColliderOffset;
+
+        /// <summary>
+        /// 마찰 0 머티리얼. 섞는 방식을 Minimum으로 둬서 상대 콜라이더(벽, 바닥)의 마찰과 상관없이 늘 0이 되게 한다.
+        /// 런타임에 만든 에셋은 씬이 내려가며 정리될 수 있어서 파괴되었으면 다시 만든다
+        /// </summary>
+        private static PhysicsMaterial2D GetFrictionlessMaterial()
+        {
+            if (_frictionless != null) return _frictionless;
+
+            _frictionless = new PhysicsMaterial2D("Character Frictionless")
+            {
+                friction = 0f,
+                frictionCombine = PhysicsMaterialCombine2D.Minimum,
+            };
+            return _frictionless;
+        }
 
         private bool IsGroundContact(Collision2D collision)
         {

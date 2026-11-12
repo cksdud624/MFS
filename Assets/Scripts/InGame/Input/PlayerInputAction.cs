@@ -279,17 +279,6 @@ namespace InGame.Input
                 },
                 {
                     ""name"": """",
-                    ""id"": ""967d57a6-46aa-41a9-855a-8f0a12639b72"",
-                    ""path"": ""<Keyboard>/space"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Dash"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""5cfde7a1-1a3b-41c7-9c88-4a0ec4d1977d"",
                     ""path"": ""<Keyboard>/shift"",
                     ""interactions"": """",

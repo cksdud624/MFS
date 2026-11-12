@@ -102,7 +102,7 @@ namespace Common
         public const string AssetPathEffect = "Assets/AddressableAssets/Effect/";
         public const string AssetPathAnimation = "Assets/AddressableAssets/Animation/";
         public const string AssetPathUI = "Assets/AddressableAssets/UI/";
-        //Zone 프리팹. 이 아래에 Zone 번호로 둔다 (Zone/102.prefab)
+        //Zone 프리팹. 이 아래에 Zone 번호로 둔다 (Zone/1001.prefab)
         public const string AssetPathZone = "Assets/AddressableAssets/Zone/";
         public const string AssetExtensionPrefab = ".prefab";
         public const string AssetExtensionAnimation = ".anim";
@@ -249,6 +249,10 @@ namespace Common
         public const float ScreenFadeDuration = 0.5f;
         //시나리오 Zoom에서 시간을 적지 않았을 때, 그리고 대화 확대와 연출 구간 끝의 카메라 복귀에 쓰는 시간(초)
         public const float CameraZoomDuration = 0.5f;
+        //카메라가 따라갈 때 플레이어 발밑에서 화면 가운데까지의 높이. 발밑이 화면 아래쪽에 오게 해서 위쪽 발판과 하늘이 보이게 한다
+        public const float CameraFollowHeight = 8.2f;
+        //카메라가 플레이어를 따라잡는 데 걸리는 시간(초). 0이면 딱 붙어서 움직이고, 클수록 늦게 따라온다
+        public const float CameraFollowSmoothTime = 0.15f;
         #endregion
 
         #region Story
@@ -294,12 +298,13 @@ namespace Common
         //메인 씬에서 시작할 맵. 맵 이동이 생기면 씬 파라미터나 진행 저장으로 넘긴다
         //테이블로 차후 관리해야하는 부분
         public const long StartMapId = 1;
-        //Zone 번호는 맵 × 이 값 + 순번이다 (1번 맵 2번 Zone → 102). 한 맵에 99칸까지 둔다
-        public const long ZoneMapRange = 100;
-        //불러둘 범위는 카메라 화면을 덮는 칸 수로 맵마다 계산하고, 그 바깥으로 이만큼 더 불러둔다.
-        //Zone 크기가 맵마다 달라서 칸 수를 고정하면 작은 Zone 맵에서는 화면 끝이 비고 큰 Zone 맵에서는 너무 많이 불러온다.
-        //빠르게 이동해서 화면 끝이 비어 보이면 늘린다
-        public const int ZoneLoadMargin = 0;
+        //Zone 번호는 맵 × 이 값 + 순번이다 (1번 맵 1번 Zone → 1001). 한 맵에 999칸까지 둔다
+        public const long ZoneMapRange = 1000;
+        //Zone 컬링 거리. 플레이어가 있는 Zone에서 상하좌우와 대각선으로 이 칸 수 이상 떨어진 Zone은 내린다.
+        //2면 자기 Zone과 둘레 8칸(3×3)만 올라와 있다. 경계를 넘는 순간 넘어간 쪽의 이웃이 이미 올라와 있어서 빈 곳이 보이지 않는다
+        public const int ZoneCullDistance = 2;
+        //옆에 Zone이 없는 쪽에 세우는 보이지 않는 벽의 두께. 빠르게 움직이는 대시가 한 물리 스텝에 뚫고 지나가지 않을 만큼 두껍게 둔다
+        public const float ZoneWallThickness = 4f;
         #endregion
     }
 }

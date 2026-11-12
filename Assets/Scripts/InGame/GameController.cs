@@ -24,6 +24,8 @@ namespace InGame
         private TalkPlayer _talkPlayer;
         //플레이어 주변 Zone만 불러둔다. 매 프레임 갱신 등록을 씬이 내려갈 때 해제한다
         private ZoneStreamer _zoneStreamer;
+        //플레이어를 따라가고 연출을 맡는 카메라. 매 프레임 갱신 등록을 씬이 내려갈 때 해제한다. 메인 카메라가 없으면 null
+        private CameraDirector _cameraDirector;
         #endregion
 
         #region Init
@@ -50,12 +52,14 @@ namespace InGame
                 _inGameContext, Camera.main, cancellationToken);
             //처음부터 서 있는 캐릭터가 바닥이 생기기 전에 놓이지 않게, 시작 Zone을 다 불러온 뒤에 이야기를 시작한다
             await _zoneStreamer.LoadInitial();
+            //카메라는 Zone 끝을 넘어 보여주지 않으므로 Zone 배치와 지금 맵을 받는다
+            _cameraDirector = CreateCameraDirector(zoneLayout);
 
             //플레이어 배치부터 적 등장까지 인게임 흐름은 퀘스트 표가 정하고, 연출은 퀘스트가 부르는 시나리오 표가 정한다
             var storyContext = new StoryContext(_inGameContext, _objectSpawner, tableManager,
                 dialogueView != null ? new DialoguePlayer(_inGameContext, dialogueView) : null,
                 screenFadeView,
-                CreateCameraDirector(),
+                _cameraDirector,
                 zoneLayout,
                 _zoneStreamer);
             _talkPlayer = new TalkPlayer(storyContext, cancellationToken);
@@ -68,6 +72,7 @@ namespace InGame
         {
             _talkPlayer?.Dispose();
             _zoneStreamer?.Dispose();
+            _cameraDirector?.Dispose();
 
             var assetManager = Global.Instance?.AssetManager;
             if (assetManager == null) return;
@@ -100,10 +105,10 @@ namespace InGame
             return null;
         }
 
-        private static CameraDirector CreateCameraDirector()
+        private CameraDirector CreateCameraDirector(ZoneLayout zoneLayout)
         {
             var camera = Camera.main;
-            if (camera != null) return new CameraDirector(camera);
+            if (camera != null) return new CameraDirector(camera, _inGameContext, zoneLayout, _zoneStreamer);
 
             Debug.LogError("Main camera is missing. Tag the scene camera as MainCamera.");
             return null;

@@ -85,8 +85,11 @@ namespace InGame.Context
         //시나리오가 정한 시간에 맞춰 걷게 할 때 쓰는 속도. 0이면 테이블의 MoveSpeed를 쓴다.
         //이동 입력이 들어올 때 속도를 정하므로, 이동 입력을 내기 전에 바꿔야 적용된다
         public float MoveSpeedOverride { get; private set; }
-        public float MoveSpeed => MoveSpeedOverride > 0f ? MoveSpeedOverride : ObjectData.MoveSpeed;
+        //테이블 걸음 속도에 곱하는 배율 (이동 속도 테스트 키 등). 시나리오가 시간을 정한 이동(Override)에는 곱하지 않는다. 그 시간에 도착해야 하기 때문이다
+        public float MoveSpeedMultiplier { get; private set; } = 1f;
+        public float MoveSpeed => MoveSpeedOverride > 0f ? MoveSpeedOverride : ObjectData.MoveSpeed * MoveSpeedMultiplier;
         public void SetMoveSpeedOverride(float speed) => MoveSpeedOverride = Mathf.Max(0f, speed);
+        public void SetMoveSpeedMultiplier(float multiplier) => MoveSpeedMultiplier = Mathf.Max(0f, multiplier);
 
         //이동
         public event Action<float> OnMoveVelocityChanged;

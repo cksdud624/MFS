@@ -24,7 +24,7 @@ R3는 코어(`R3.dll`)를 NuGetForUnity로(`Assets/packages.config`, `Assets/Pac
 | `InGame/Story/Quest/Steps/` | 퀘스트(목표, 시나리오 재생) 명령 하나당 클래스 하나. `QuestStepFactory`에 이름을 등록한다. 새 명령은 시나리오/퀘스트 모두 `StoryStep`을 상속해서 `Parse`(칸 형식), `Validate`(앞뒤 정합성), `Run`을 구현하고, 시작/종료/목표 명령이면 `Kind`를 다시 정한다. Actor와 Param1~2를 어떻게 쓰는지는 각 클래스 summary에 적는다 |
 | `InGame/UI/` | UI 뷰 (`DialogueView`, `ScreenFadeView`). 프리팹은 `Editor/UIPrefabBuilder`의 메뉴(UI > Build All UI)가 코드로 조립해서 `AddressableAssets/UI/`에 저장한다. 레이아웃은 프리팹이 아니라 빌더 코드를 고친다 |
 | `InGame/World/` | 맵과 Zone. `ZoneLayout`이 Map/Zone 표로 격자 배치를 만들고 로컬↔월드 좌표를 바꾼다. `ZoneStreamer`가 플레이어 주변 Zone만 불러두고, `IZoneLoader`(지금은 `PrefabZoneLoader`)가 Zone 내용물을 불러오고 내린다 |
-| `InGame/CameraDirector.cs` | 연출용 카메라 조작 (확대/축소, 바라볼 곳). 씬 카메라의 처음 상태를 배율 1로 본다 |
+| `InGame/CameraDirector.cs` | 게임 카메라를 움직이는 유일한 곳. 평소에는 플레이어를 따라가고, 연출(시나리오 Zoom, 대화 확대) 동안에는 바라볼 곳으로 옮긴다. 화면은 Zone 밖을 보여주지 않는다. 씬 카메라의 처음 화각을 배율 1로 본다 |
 | `Generated/Table/` | **자동 생성 코드. 직접 고치지 않는다** (`Custom/` 폴더의 partial만 손으로 작성) |
 | `Editor/` | 에디터 툴 (`TableUpdater`, `StoryValidatorMenu`, `DefaultSceneSetter`) |
 
@@ -165,18 +165,26 @@ R3는 코어(`R3.dll`)를 NuGetForUnity로(`Assets/packages.config`, `Assets/Pac
 
 ### 맵과 Zone (Map, Zone)
 
-맵은 칸(Zone)을 격자로 이어 붙여 만든다. **칸 크기는 맵마다 다를 수 있고**(`Map` 표), 한 맵 안에서는 모두 같다. Zone마다 지형, 배경, 발판을 담은 프리팹이 있고, 플레이어가 맵을 걸어가는 동안 주변 Zone만 불러두고 멀어진 Zone은 내린다(포탈 없이 이어서 로드/해제).
+**Zone은 맵을 이루는 한 칸이다.** Zone은 상하좌우로 맞닿아 이어져 있고, 경계를 넘으면 포탈이나 로딩 없이 그대로 옆 Zone으로 걸어 들어간다.
+맵은 Zone을 격자로 이어 붙여 만든다. **칸 크기는 맵마다 다를 수 있고**(`Map` 표), 한 맵 안에서는 모두 같다. Zone마다 지형, 배경, 발판을 담은 프리팹이 있다.
 
 | 표 | 칸 |
 |---|---|
 | `Map.tsv` | `Id`, `ZoneWidth`/`ZoneHeight`(그 맵의 칸 크기), `Origin`(Column 0, Row 0 칸의 왼쪽 아래 월드 좌표) |
-| `Zone.tsv` | `Id`(맵 × 100 + 순번, 1번 맵 2번 → 102), `Map`, `Column`, `Row` |
+| `Zone.tsv` | `Id`(맵 × 1000 + 순번, 1번 맵 1번 → 1001), `Map`, `Column`, `Row` |
 
 - Zone 안의 위치는 그 칸의 **왼쪽 아래를 0,0으로 보는 로컬 좌표**다. Zone을 다른 칸으로 옮겨도 표에 적은 위치는 고치지 않는다.
 - Zone 프리팹은 `Assets/AddressableAssets/Zone/(Zone 번호).prefab`이고, 루트를 Zone의 왼쪽 아래에 두고 만든다. 그래야 프리팹 편집 화면의 좌표가 표의 로컬 좌표와 같다.
   프리팹이 없는 Zone은 빈 Zone으로 보고 경고만 남긴다.
-- 플레이어가 있는 Zone과, 카메라 화면을 덮는 이웃을 불러둔다. 몇 칸까지인지는 화면 크기와 그 맵의 칸 크기로 계산하고(칸이 작은 맵일수록 더 많이), `GameDefine.ZoneLoadMargin` 칸을 더 불러둔다. 카메라 배율이 바뀌면 다시 계산한다.
+- 이웃 Zone끼리 경계에서 지형(바닥, 벽, 발판)이 이어지게 만든다. 경계의 바닥 콜라이더 높이가 어긋나면 넘어가는 순간 걸리거나 떨어진다.
+- **Zone 컬링:** 플레이어가 있는 Zone을 기준으로 상하좌우와 대각선으로 `GameDefine.ZoneCullDistance`(2) 칸 이상 떨어진 Zone은 내린다.
+  그래서 자기 Zone과 둘레 8칸(3×3)만 올라와 있고, 경계를 넘으면 기준이 바뀌어 다시 정한다. 넘어간 쪽의 이웃은 이미 올라와 있어서 빈 곳이 보이지 않는다.
+  컬링 거리가 칸 수로 고정이라 **Zone은 카메라 화면 절반보다 커야 한다.** 더 작으면 컬링된 Zone이 화면 가장자리에 보일 수 있어서, 그런 맵에 들어가면 경고를 한 번 남긴다.
   플레이어가 없으면 카메라가 보는 곳을 기준으로 한다. 시작 Zone을 다 불러온 뒤 이야기를 시작한다.
+- **맵 끝:** 불러온 Zone의 상하좌우 중 이웃 Zone이 없는 쪽에는 보이지 않는 벽(`Map` 태그, 두께 `ZoneWallThickness`)을 세운다. 그래서 이어서 갈 Zone이 없으면 나갈 수 없다.
+  벽은 Zone 프리팹이 아니라 Zone 배치에서 자동으로 만들므로, Zone을 옮기거나 새로 붙여도 손으로 고칠 것이 없다. Zone을 내리면 벽도 같이 지운다.
+- **카메라:** 플레이어를 따라가고(`CameraFollowHeight`, `CameraFollowSmoothTime`), 플레이어가 있는 Zone의 상하좌우에 Zone이 없으면 화면이 그 Zone 끝을 넘지 않는다.
+  이웃이 있는 쪽으로는 막지 않는다. 그래서 **Zone은 카메라 화면보다 커야 한다**(화면이 더 크면 그 축은 Zone 가운데에 고정된다). 대각선 칸이 비어 있는 경우는 보지 않는다.
 - 내려간 Zone에 있는 캐릭터는 없애지 않고 꺼둔다(이야기가 계속 추적한다). Zone이 다시 올라오면 켠다. 그래서 `Move`의 도착점은 불러와 있는 Zone 안이어야 한다.
 - Main 씬에는 시스템 오브젝트만 둔다: `SceneLoader`, `GameController`, `Main Camera`, `Global Light 2D`, `Global Volume`.
   배경, 지형, 배경 조명, 그 Zone 바닥 전용 반사 카메라는 Zone 프리팹에 넣는다.
