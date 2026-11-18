@@ -1,0 +1,156 @@
+/* 시나리오 툴 창(StoryToolWindow)의 모양. 색은 에디터의 밝은 테마와 어두운 테마에서 모두 읽히게 반투명으로 얹는다 */
+
+.story-pane {
+    flex-grow: 1;
+    min-width: 160px;
+}
+
+.story-pane__title {
+    padding: 4px 8px;
+    -unity-font-style: bold;
+    background-color: rgba(127, 127, 127, 0.15);
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(0, 0, 0, 0.3);
+}
+
+/* 목차 */
+.story-doc--group {
+    -unity-font-style: bold;
+    opacity: 0.75;
+}
+
+/* 대본 */
+.story-row {
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 2px 6px;
+}
+
+.story-row__id {
+    width: 56px;
+    flex-shrink: 0;
+    opacity: 0.45;
+    font-size: 11px;
+    padding-top: 1px;
+}
+
+.story-row__body {
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.story-row__text {
+    white-space: normal;
+}
+
+.story-row__note {
+    opacity: 0.5;
+    font-size: 11px;
+    white-space: normal;
+}
+
+.story-row__error {
+    color: rgb(255, 110, 110);
+    font-size: 11px;
+    white-space: normal;
+}
+
+/* 대화 아래에 펼친 대사. 표의 줄이 아니라서 흐리게 둔다 */
+.story-row--speech .story-row__text {
+    opacity: 0.7;
+    -unity-font-style: italic;
+}
+
+/* 퀘스트가 부르는 연출의 머리 줄 */
+.story-row--header .story-row__text {
+    -unity-font-style: bold;
+}
+
+.story-row--invalid {
+    background-color: rgba(255, 60, 60, 0.18);
+}
+
+/* 고른 줄 */
+.story-inspector__title {
+    margin: 8px 8px 0 8px;
+    font-size: 13px;
+    -unity-font-style: bold;
+    white-space: normal;
+}
+
+.story-inspector__meta {
+    margin: 2px 8px 6px 8px;
+    opacity: 0.55;
+    font-size: 11px;
+}
+
+.story-inspector__section {
+    margin: 10px 8px 4px 8px;
+    -unity-font-style: bold;
+    opacity: 0.8;
+}
+
+.story-cell {
+    flex-direction: row;
+    margin: 1px 8px;
+}
+
+.story-cell__name {
+    width: 80px;
+    flex-shrink: 0;
+    opacity: 0.55;
+}
+
+.story-cell__value {
+    flex-grow: 1;
+    flex-shrink: 1;
+    white-space: normal;
+}
+
+.story-status {
+    padding: 3px 8px;
+    font-size: 11px;
+    opacity: 0.8;
+    border-top-width: 1px;
+    border-top-color: rgba(0, 0, 0, 0.3);
+}
+
+/* 칸의 제목 아래에 버튼을 놓는 줄 (새 퀘스트, 줄 추가와 삭제) */
+.story-pane__bar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 2px 4px;
+    border-bottom-width: 1px;
+    border-bottom-color: rgba(0, 0, 0, 0.2);
+}
+
+.story-quest-title {
+    margin: 4px 6px;
+}
+
+/* 고른 줄의 입력 칸. 이름표가 길어서(무엇을 적는 칸인지 풀어 적는다) 옆이 아니라 위에 둔다. 옆에 두면 좁은 칸에서 잘린다 */
+.story-inspector__field {
+    flex-direction: column;
+    margin: 4px 8px;
+}
+
+.story-inspector__field > .unity-base-field__label {
+    min-width: 0;
+    margin-bottom: 2px;
+    opacity: 0.75;
+    font-size: 11px;
+    white-space: normal;
+}
+
+.story-inspector__field .unity-text-field__input {
+    white-space: normal;
+}
+
+/* 체크 칸은 이름표 옆에 둔다 */
+.story-inspector__field.unity-toggle {
+    flex-direction: row;
+}
+
+.story-inspector__button {
+    margin: 4px 8px;
+}

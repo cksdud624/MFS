@@ -25,7 +25,7 @@ namespace InGame.Story
         #endregion
 
         #region Fields
-        //다른 표(Object, Character, Dialogue)와 에셋을 확인하는 창구
+        //다른 표(Object, Character, Zone)와 에셋을 확인하는 창구
         private readonly IStoryReferences _references;
         //월드에 있는 대상의 기록
         private readonly StoryActorTracker _actors = new();
@@ -35,12 +35,18 @@ namespace InGame.Story
         private readonly Dictionary<long, IReadOnlyList<StoryStep>> _scenarios = new();
         private readonly Dictionary<long, IReadOnlyList<StoryStep>> _quests = new();
         private readonly Dictionary<StoryActor, List<StoryBook.TalkEntry>> _talks = new();
+        //대사 한 줄(Dialogue 표의 Id) → 그 대사를 말하는 대상. Speaker 칸이 틀린 대사는 None으로 넣어서 없는 대사와 구분한다
+        private readonly Dictionary<long, StoryActor> _speakers = new();
+        //대화 번호(DialogueId) → 그 대화의 대사 Id. StoryBook에는 넣지 않고 검사할 때만 쓴다
+        private readonly Dictionary<long, List<long>> _dialogueLines = new();
+        //퀘스트 번호 → 화면의 퀘스트 안내에 띄우는 제목 (QuestInfo 표)
+        private readonly Dictionary<long, string> _questTitles = new();
         //퀘스트가 부른 시나리오. 부르지 않는 시나리오는 실행되지 않으므로 알린다
         private readonly HashSet<long> _playedScenarios = new();
 
         //지금 화면이 페이드 아웃으로 가려져 있는지
         private bool _screenCovered;
-        //지금 Line으로 연 대화창이 열려 있는지. 시나리오가 끝나면 닫힌다
+        //지금 Line으로 연 말풍선이 열려 있는지. 시나리오가 끝나면 닫힌다
         public bool IsDialogueOpen { get; private set; }
         //에러 앞에 붙이는 위치 (Scenario 101020 Spawn, Actor 10001, Talk 3)
         private string _location;
@@ -67,15 +73,25 @@ namespace InGame.Story
             _location = nameof(PlayerObjectId);
             CheckCharacter(PlayerObjectId);
             ReadActors(tables.Actors);
+            //대사의 화자는 Actor 표의 번호라서 대상을 읽은 뒤에 읽는다
+            ReadDialogues(tables.Dialogues);
             ReadLines(tables.Scenarios, StoryRow.ScenarioTable, data => data.Scenario, StoryRow.From, ScenarioStepFactory.TryCreate, _scenarios);
             ReadLines(tables.Quests, StoryRow.QuestTable, data => data.Quest, StoryRow.From, QuestStepFactory.TryCreate, _quests);
             ReadTalks(tables.Talks);
+            ReadQuestInfos(tables.QuestInfos);
 
             var questNumbers = SortedKeys(_quests);
             if (questNumbers.Count == 0)
             {
                 _location = StoryRow.QuestTable;
                 Error("No quest is defined. The story starts from the first quest.");
+            }
+            //목표를 기다리는 동안 퀘스트 안내에 제목이 같이 뜨므로 퀘스트마다 제목이 있어야 한다
+            foreach (var number in questNumbers)
+            {
+                if (_questTitles.ContainsKey(number)) continue;
+                _location = $"{StoryRow.QuestTable} {number}";
+                Error("Title is not defined in QuestInfo table.");
             }
 
             if (!_hasError)
@@ -89,9 +105,10 @@ namespace InGame.Story
 
             var quests = new List<StoryBook.QuestEntry>(questNumbers.Count);
             foreach (var number in questNumbers)
-                quests.Add(new StoryBook.QuestEntry(number, _quests[number]));
+                quests.Add(new StoryBook.QuestEntry(number, _questTitles[number], _quests[number]));
             book = new StoryBook(quests, new Dictionary<long, IReadOnlyList<StoryStep>>(_scenarios),
-                new Dictionary<StoryActor, StoryBook.ActorEntry>(_actorTable), new Dictionary<StoryActor, List<StoryBook.TalkEntry>>(_talks));
+                new Dictionary<StoryActor, StoryBook.ActorEntry>(_actorTable), new Dictionary<StoryActor, List<StoryBook.TalkEntry>>(_talks),
+                new Dictionary<long, StoryActor>(_speakers));
             return true;
         }
 
@@ -197,7 +214,7 @@ namespace InGame.Story
             if (_screenCovered)
                 Error($"Scenario {number} ends with the screen faded out. Add FadeIn.");
             _screenCovered = false;
-            //Line으로 연 창은 시나리오가 끝나면 닫히므로 다음 시나리오로 이어지지 않는다
+            //Line으로 연 말풍선은 시나리오가 끝나면 닫히므로 다음 시나리오로 이어지지 않는다
             IsDialogueOpen = false;
             _location = questLocation;
         }
@@ -210,8 +227,33 @@ namespace InGame.Story
         #region Public - Table
         public void CheckDialogue(long dialogueId)
         {
-            if (!_references.HasDialogue(dialogueId))
+            if (!_dialogueLines.ContainsKey(dialogueId))
                 Error($"Dialogue {dialogueId} is not defined.");
+        }
+
+        /// <summary>대화의 대사를 말하는 대상이 모두 이 줄 시점에 월드에 있는지</summary>
+        public void CheckSpeakers(long dialogueId)
+        {
+            //없는 대화는 CheckDialogue가 알린다
+            if (!_dialogueLines.TryGetValue(dialogueId, out var lineIds)) return;
+
+            foreach (long lineId in lineIds)
+                CheckSpeaker(lineId);
+        }
+
+        /// <summary>
+        /// 대사를 말하는 대상이 이 줄 시점에 월드에 있는지. 말풍선은 그 대상의 머리 위에 뜨므로 없으면 띄울 곳이 없다.
+        /// 목표를 지난 적은 쓰러졌을 수 있어서 화자로도 쓸 수 없다. 플레이어는 대사를 띄우는 명령이 따로 확인한다 (RequirePlayer)
+        /// </summary>
+        public void CheckSpeaker(long lineId)
+        {
+            //없는 대사는 CheckDialogueLine이 알리고, Speaker 칸이 틀린 대사는 표를 읽을 때 알렸다
+            if (!_speakers.TryGetValue(lineId, out var speaker) || speaker.IsNone || speaker.IsPlayer) return;
+
+            if (!_actors.IsAlive(speaker))
+                Error($"Speaker {speaker} of dialogue line {lineId} is not in the world at this step.");
+            else if (_actors.IsAtRisk(speaker))
+                Error($"Speaker {speaker} of dialogue line {lineId} may have been defeated during an earlier goal.");
         }
 
         /// <summary>위치의 기준 Zone이 Zone 표에 있는지</summary>
@@ -224,7 +266,7 @@ namespace InGame.Story
         /// <summary>대사 한 줄(Dialogue 표의 Id 칸)이 있는지. 대화 번호(DialogueId)와 헷갈리기 쉬워서 따로 확인한다</summary>
         public void CheckDialogueLine(long lineId)
         {
-            if (!_references.HasDialogueLine(lineId))
+            if (!_speakers.ContainsKey(lineId))
                 Error($"Dialogue line {lineId} is not defined. Line takes the Id column (100101), not DialogueId (1001).");
         }
 
@@ -247,6 +289,9 @@ namespace InGame.Story
             _scenarios.Clear();
             _quests.Clear();
             _talks.Clear();
+            _speakers.Clear();
+            _dialogueLines.Clear();
+            _questTitles.Clear();
             _playedScenarios.Clear();
             _screenCovered = false;
             IsDialogueOpen = false;
@@ -284,8 +329,48 @@ namespace InGame.Story
                     Error("Zone is required. Position is local to the zone (its bottom-left is 0,0).");
                 else
                     CheckZone(data.Zone);
-                _actorTable[actor] = new StoryBook.ActorEntry(actor, data.ObjectId, type, data.Resident, data.Zone, data.Position);
+                _actorTable[actor] = new StoryBook.ActorEntry(actor, data.ObjectId, type, data.Name, data.Resident, data.Zone, data.Position);
             }
+        }
+
+        /// <summary>
+        /// Dialogue 표를 읽는다. 대사마다 Speaker 칸에 그 대사를 말하는 대상을 적는다 (Player 또는 Actor 표의 번호).
+        /// 대사가 월드에 있는 대상을 가리켜야 말풍선을 누구 머리 위에 띄울지, 그때 그 대상이 있는지를 표만으로 알 수 있다
+        /// </summary>
+        private void ReadDialogues(IReadOnlyList<DialogueData> datas)
+        {
+            foreach (var data in datas)
+            {
+                _location = $"Dialogue {data.Id}";
+                if (!_dialogueLines.TryGetValue(data.DialogueId, out var lineIds))
+                {
+                    lineIds = new List<long>();
+                    _dialogueLines[data.DialogueId] = lineIds;
+                }
+                lineIds.Add(data.Id);
+                _speakers[data.Id] = ReadSpeaker(data.Speaker);
+            }
+        }
+
+        //Speaker 칸을 읽는다. 틀리면 에러를 남기고 None을 돌려준다
+        private StoryActor ReadSpeaker(string raw)
+        {
+            if (!StoryActor.TryParse(raw, out var speaker))
+            {
+                Error($"Speaker must be {StoryActor.PlayerName} or an Actor Id such as 10001 : '{raw}'");
+                return StoryActor.None;
+            }
+            if (speaker.IsPlayer) return speaker;
+
+            if (!_actorTable.TryGetValue(speaker, out var entry))
+            {
+                Error($"Speaker {speaker} is not defined in Actor table.");
+                return StoryActor.None;
+            }
+            //말풍선에 이름을 띄우므로 말하는 대상은 이름이 있어야 한다. 말하지 않는 대상은 비워도 된다
+            if (string.IsNullOrEmpty(entry.Name))
+                Error($"Speaker {speaker} has no Name in Actor table. The name is shown on the speech bubble.");
+            return speaker;
         }
 
         /// <summary>
@@ -353,6 +438,12 @@ namespace InGame.Story
                     Error($"Id {data.Id} is duplicated.");
                     continue;
                 }
+                //표를 챕터 폴더로 나누므로 Talk도 챕터를 번호에 넣는다. 그래야 챕터마다 1번부터 매겨서 겹치는 일이 없다
+                if (!IsValidNumber(data.Id, StoryChapterRange))
+                {
+                    Error($"Id must be chapter × {StoryChapterRange} + order such as 101 : {data.Id}");
+                    continue;
+                }
                 var actor = StoryActor.FromId(data.Actor);
                 if (GetActorType(actor) != StoryActorType.Npc)
                 {
@@ -365,7 +456,14 @@ namespace InGame.Story
                     Error($"Quest must be a quest number in Quest table : {quest}");
                     continue;
                 }
+                //다른 챕터의 퀘스트를 가리키면 그 줄이 엉뚱한 챕터 폴더에 들어 있다는 뜻이다
+                if (data.Id / StoryChapterRange != quest / StoryChapterRange)
+                {
+                    Error($"Quest {quest} is not in chapter {data.Id / StoryChapterRange}.");
+                    continue;
+                }
                 CheckDialogue(data.Dialogue);
+                CheckTalkSpeakers(data.Dialogue, actor);
 
                 if (!_talks.TryGetValue(actor, out var talks))
                 {
@@ -382,6 +480,45 @@ namespace InGame.Story
 
             foreach (var talks in _talks.Values)
                 talks.Sort((a, b) => a.Quest.CompareTo(b.Quest));
+        }
+
+        /// <summary>
+        /// QuestInfo 표를 읽는다. 퀘스트마다 화면의 퀘스트 안내에 띄울 제목을 적는다.
+        /// 줄을 묶는 번호만 있는 Quest 표에는 퀘스트 하나에 대한 것을 적을 자리가 없어서 표를 따로 둔다
+        /// </summary>
+        private void ReadQuestInfos(IReadOnlyList<QuestInfoData> datas)
+        {
+            foreach (var data in datas)
+            {
+                _location = $"QuestInfo {data.Id}";
+                if (!_quests.ContainsKey(data.Id))
+                {
+                    Error($"Quest {data.Id} is not defined in Quest table.");
+                    continue;
+                }
+                if (string.IsNullOrEmpty(data.Title))
+                {
+                    Error("Title is required. It is shown on the quest guide.");
+                    continue;
+                }
+                _questTitles[data.Id] = data.Title;
+            }
+        }
+
+        /// <summary>
+        /// 일반 대화의 대사는 말을 건 Npc나 플레이어가 말해야 한다.
+        /// 일반 대화는 진행 중 아무 때나 걸 수 있어서, 다른 대상이 그 자리에 있는지는 표만으로 알 수 없다
+        /// </summary>
+        private void CheckTalkSpeakers(long dialogueId, StoryActor partner)
+        {
+            if (!_dialogueLines.TryGetValue(dialogueId, out var lineIds)) return;
+
+            foreach (long lineId in lineIds)
+            {
+                var speaker = _speakers[lineId];
+                if (speaker.IsNone || speaker.IsPlayer || speaker.Equals(partner)) continue;
+                Error($"Speaker {speaker} of dialogue line {lineId} is not {StoryActor.PlayerName} or {partner}. Only the two are in a talk.");
+            }
         }
 
         private static List<long> SortedKeys(Dictionary<long, IReadOnlyList<StoryStep>> lines)

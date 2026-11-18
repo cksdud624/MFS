@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Common.Scene;
-using Common.Scene.Parameter;
 using Common.Template;
 using Common.Template.Interface;
 using Cysharp.Threading.Tasks;
@@ -63,16 +62,19 @@ namespace Common
         #region Private
         private async UniTask Load()
         {
+            AssetManager = InitGlobal<AssetManager>();
+            //로딩 화면을 가장 먼저 띄운다. 표를 읽는 동안에도 화면을 덮고, 타이틀이 준비되면 걷힌다
+            SceneLoader = InitGlobal<SceneLoader>();
+            await SceneLoader.Init(AssetManager);
             TableManager = InitGlobal<TableManager>();
             await TableManager.Init();
-            SceneLoader = InitGlobal<SceneLoader>();
-            AssetManager = InitGlobal<AssetManager>();
 #if UNITY_EDITOR
             //에디터 전용 테스트 키
             BindUpdate(new Test.EditorTestKeys());
 #endif
 
-            SceneLoader.LoadScene<SceneParameterMain>(GameDefine.SceneType.Main, new SceneParameterMain());
+            //준비가 끝나면 타이틀로 간다. 게임(Main)은 타이틀에서 시작을 골랐을 때 들어간다
+            SceneLoader.LoadScene(GameDefine.SceneType.Title);
         }
 
         private T InitGlobal<T>() where T : MonoBehaviour

@@ -11,6 +11,8 @@ using EffectType = Common.GameDefine.EffectType;
 using ActionType = Common.GameDefine.ActionType;
 using Team = Common.GameDefine.Team;
 using DamageResult = Common.GameDefine.DamageResult;
+using StatType = Common.GameDefine.StatType;
+using StatusTrait = Common.GameDefine.StatusTrait;
 
 
 namespace InGame.Context
@@ -24,6 +26,8 @@ namespace InGame.Context
             ObjectType = objectData.IsCharacter ? ObjectType.Character : ObjectType.Object;
             ObjectData = objectData;
             Team = team;
+            //하이어라키의 오브젝트 이름과 같게 지어서 로그에서 같은 대상으로 읽히게 한다
+            StatusEffects = new StatusEffects(Global.Instance.TableManager, $"{team}_{objectData.Id}");
             if (ObjectType is ObjectType.Character)
             {
                 var character = Global.Instance.TableManager.CharacterRecord.GetRecord(objectData.Id);
@@ -33,6 +37,18 @@ namespace InGame.Context
                     return;
                 }
                 CharacterData = character;
+                //Hp가 0이면 등장하자마자 쓰러진 캐릭터가 된다. 표의 칸을 비워둔 경우다
+                if (character.Hp <= 0)
+                    Debug.LogError($"Character {objectData.Id} : Hp must be greater than 0.");
+                //전투는 Hp를 가득 채운 채로 시작한다
+                Hp = character.Hp;
+
+                //타고난 상태 효과(늘 경직 면역인 보스 등). 빈칸은 0 하나로 읽히므로 건너뛴다
+                foreach (long effectId in character.StatusEffects)
+                {
+                    if (effectId != 0)
+                        StatusEffects.Add(effectId);
+                }
             }
         }
         #endregion
@@ -43,6 +59,53 @@ namespace InGame.Context
 
         public ObjectData ObjectData {get; private set;}
         public CharacterData CharacterData {get; private set;}
+        #endregion
+
+        #region Status
+        //전투 수치는 캐릭터만 가진다 (Character 표). 캐릭터가 아닌 오브젝트는 모두 0이다.
+        //공격력과 방어력은 표의 값에 걸려 있는 상태 효과를 반영해서 읽는다. 최대 Hp는 표의 값 그대로다
+        public int MaxHp => CharacterData?.Hp ?? 0;
+        public int Hp { get; private set; }
+        //Hp가 바뀌었다 (지금 Hp, 최대 Hp)
+        public event Action<int, int> OnHpChanged;
+        //Hp가 0이 되었다. 0이 되는 순간에 한 번만 알린다. 그 뒤에 무엇을 할지(쓰러짐)는 오브젝트가 정한다
+        public event Action OnHpDepleted;
+        public void SetHp(int hp)
+        {
+            hp = Mathf.Clamp(hp, 0, MaxHp);
+            if (Hp == hp) return;
+            Hp = hp;
+            OnHpChanged?.Invoke(Hp, MaxHp);
+            if (Hp == 0)
+                OnHpDepleted?.Invoke();
+        }
+
+        /// <summary>
+        /// 공격 종류에 맞는 공격력. 공격이 마법과 기계로 나뉘어 나가므로(AttackCommand 표의 Type) 수치도 종류마다 따로 둔다.
+        /// 종류가 없으면(None) 0이다
+        /// </summary>
+        public int GetAttack(AttackType attackType) => attackType switch
+        {
+            AttackType.Magic => GetStat(StatType.MagicAttack, CharacterData?.MagicAttack ?? 0),
+            AttackType.Machine => GetStat(StatType.MachineAttack, CharacterData?.MachineAttack ?? 0),
+            _ => 0,
+        };
+
+        /// <summary>공격 종류에 맞는 방어력. 마법 공격은 마법 방어력으로, 기계 공격은 기계 방어력으로 받는다</summary>
+        public int GetDefense(AttackType attackType) => attackType switch
+        {
+            AttackType.Magic => GetStat(StatType.MagicDefense, CharacterData?.MagicDefense ?? 0),
+            AttackType.Machine => GetStat(StatType.MachineDefense, CharacterData?.MachineDefense ?? 0),
+            _ => 0,
+        };
+
+        //표의 기본값에 걸려 있는 상태 효과를 반영한다. 곱하기 보정으로 소수가 나오면 반올림한다
+        private int GetStat(StatType stat, int baseValue) => Mathf.RoundToInt(StatusEffects.Apply(stat, baseValue));
+        #endregion
+
+        #region Status Effect
+        //걸려 있는 상태 효과(버프, 디버프, 타고난 특성). 걸고 푸는 것도 이쪽으로 한다
+        public StatusEffects StatusEffects { get; }
         #endregion
 
         #region Direction
@@ -166,6 +229,28 @@ namespace InGame.Context
         public IReadOnlyList<AttackCommandData> AttackCommands { get; private set; }
         public void SetAttackCommands(IReadOnlyList<AttackCommandData> attackCommands) => AttackCommands = attackCommands;
 
+        /// <summary>
+        /// 지금 나가는 공격이 맞았을 때 맞은 쪽에 넘길 것을 만든다. 위력은 그 종류의 공격 줄에 적힌 Damage(AttackCommand 표)에
+        /// 공격력을 더한 값이고, 경직 시간은 그 줄의 Stagger다. 반격은 카운터로 받아낼 수 없다.
+        /// 지금 공격에 그 종류의 줄이 없으면 공격력만 있고 굳히지 않는 공격이 된다
+        /// </summary>
+        public AttackHit GetAttackHit(AttackType attackType)
+        {
+            int damage = 0;
+            float stagger = 0f;
+            if (AttackCommands != null)
+            {
+                for (int i = 0; i < AttackCommands.Count; i++)
+                {
+                    if ((AttackType)AttackCommands[i].Type != attackType) continue;
+                    damage = AttackCommands[i].Damage;
+                    stagger = AttackCommands[i].Stagger;
+                    break;
+                }
+            }
+            return new AttackHit(attackType, damage + GetAttack(attackType), stagger, ActionType is not ActionType.CounterAttack);
+        }
+
         //공격 한 단계의 시작. 여기서 중복 히트 기록을 비운다
         public event Action OnAttackStart;
         public void StartAttack()
@@ -209,23 +294,47 @@ namespace InGame.Context
         #endregion
 
         #region Damage
-        //피격. 맞으면 Damage 상태로 들어가고, 이미 Damage 상태면 시간을 처음부터 다시 센다.
+        //피격. 맞으면 Damage 상태로 들어가서 StaggerDuration만큼 굳는다.
         //attackerSide는 맞은 쪽에서 봤을 때 공격한 쪽이 있는 방향. 카운터에 성공하면 그쪽으로 돌아서서 반격한다.
         //counterable이 false면 카운터 대기 중이어도 받아내지 못하고 그대로 맞는다
         public event Action<Direction, bool> OnDamage;
         //이번 피격을 어떻게 받았는지. 피격을 처리하는 쪽이 이벤트 안에서 남긴다
         private DamageResult _damageResult;
+        //이번 피격으로 굳는 시간(초). 피격을 알리기 전에 정해둔다.
+        //0이면 굳지 않는다. 맞기는 해서 Hp는 깎이지만 Damage 상태에 들어가지 않고 하던 행동을 이어간다
+        public float StaggerDuration { get; private set; }
 
         /// <summary>
         /// 피격을 알리고 맞은 쪽이 어떻게 받았는지 돌려준다.
-        /// 아무도 결과를 남기지 않으면 받을 쪽이 없다는 뜻이므로 맞지 않은 것으로 본다
+        /// 아무도 결과를 남기지 않으면 받을 쪽이 없다는 뜻이므로 맞지 않은 것으로 본다.
+        /// 맞았을 때(Hit)만 Hp를 깎는다. 카운터로 받아냈거나 무적이면 깎지 않는다
         /// </summary>
-        public DamageResult RequestDamage(Direction attackerSide, bool counterable)
+        public DamageResult RequestDamage(Direction attackerSide, AttackHit hit)
         {
+            StaggerDuration = ResolveStagger(hit.Stagger);
             _damageResult = DamageResult.Ignored;
-            OnDamage?.Invoke(attackerSide, counterable);
+            OnDamage?.Invoke(attackerSide, hit.Counterable);
+            if (_damageResult == DamageResult.Hit)
+                SetHp(Hp - CalculateDamage(hit.Type, hit.Power));
             return _damageResult;
         }
+
+        /// <summary>
+        /// 공격의 경직 시간을 맞은 쪽의 상태 효과로 고친다. 경직 면역이면 공격이 얼마나 굳히든 0이고,
+        /// 아니면 받는 경직 배율(StaggerTaken)을 곱한다
+        /// </summary>
+        private float ResolveStagger(float stagger)
+        {
+            if (StatusEffects.HasTrait(StatusTrait.StaggerImmune)) return 0f;
+            return Mathf.Max(0f, stagger * StatusEffects.Apply(StatType.StaggerTaken, 1f));
+        }
+
+        /// <summary>
+        /// 맞았을 때 깎이는 Hp. 공격한 쪽의 위력에서 맞은 쪽의 방어력을 뺀다 (마법은 마법 방어력, 기계는 기계 방어력).
+        /// 방어력이 더 높으면 0이다. 음수가 되면 맞을수록 Hp가 차오른다
+        /// </summary>
+        public int CalculateDamage(AttackType attackType, int attackPower)
+            => Mathf.Max(0, attackPower - GetDefense(attackType));
 
         public void ReportDamageResult(DamageResult damageResult) => _damageResult = damageResult;
 
@@ -260,6 +369,22 @@ namespace InGame.Context
         /// <summary>그 진영과 적대인지. 공격 판정과 AI의 추격 대상 고르기가 같은 기준을 쓴다</summary>
         public bool IsHostileTo(Team targetTeam)
             => Team != targetTeam && Team != Team.Neutral && targetTeam != Team.Neutral;
+        #endregion
+
+        #region Death
+        //쓰러졌는지. 쓰러지면 Dead 상태에 묶여서 입력도 피격도 받지 않고, 쓰러지는 모션이 끝나면 사라진다
+        public bool IsDead { get; private set; }
+        public event Action OnDead;
+        public void Die()
+        {
+            if (IsDead) return;
+            IsDead = true;
+            OnDead?.Invoke();
+        }
+
+        //쓰러지는 모션이 끝났다. 오브젝트를 없앨 때다
+        public event Action OnDeathEnd;
+        public void EndDeath() => OnDeathEnd?.Invoke();
         #endregion
 
         #region Event

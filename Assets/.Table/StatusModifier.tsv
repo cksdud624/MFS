@@ -1,0 +1,5 @@
+Id	StatusEffect	Kind	Target	Operation	Value	Note
+long	long	string	string	string	float	string
+101	1	Trait	StaggerImmune			
+201	2	Stat	MachineAttack	Add	10	
+202	2	Stat	MagicAttack	Add	10	

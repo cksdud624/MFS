@@ -20,7 +20,7 @@ namespace InGame
         #endregion
 
         #region Public
-        public override void InitScene()
+        public override async UniTask InitScene()
         {
             if (_sceneParameterMain == null)
             {
@@ -28,7 +28,7 @@ namespace InGame
                 return;
             }
 
-            gameController.Init(_sceneParameterMain).Forget();
+            await gameController.Init(_sceneParameterMain);
         }
 
         public void SetParameter(SceneParameterMain parameter) => _sceneParameterMain = parameter;

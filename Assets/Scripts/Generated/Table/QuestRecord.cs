@@ -49,6 +49,7 @@ namespace Generated.Table
 		public long Zone {get; private set;}
 		public string Param1 {get; private set;}
 		public string Param2 {get; private set;}
+		public string Text {get; private set;}
 		public string Note {get; private set;}
 
 		public QuestData(BinaryReader reader)
@@ -61,7 +62,8 @@ namespace Generated.Table
 			Zone = long.TryParse(tableDatas[4], out long vLong4) ? vLong4 : 0L;
 			Param1 = tableDatas[5];
 			Param2 = tableDatas[6];
-			Note = tableDatas[7];
+			Text = tableDatas[7];
+			Note = tableDatas[8];
 		}
 	}
 }

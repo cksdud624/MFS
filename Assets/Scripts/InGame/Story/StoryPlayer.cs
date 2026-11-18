@@ -36,10 +36,14 @@ namespace InGame.Story
 
             foreach (var quest in book.Quests)
             {
-                _context.SetProgress(quest.Number);
+                _context.SetProgress(quest);
                 Debug.Log($"[퀘스트] {quest.Number} 시작");
-                foreach (var step in quest.Steps)
+                var steps = quest.Steps;
+                for (int i = 0; i < steps.Count; i++)
                 {
+                    var step = steps[i];
+                    //이 줄이 목표라면, 채웠을 때 바로 연출이 이어지는지를 목표 아이콘이 알 수 있게 미리 남긴다
+                    _context.SetScenarioNext(i + 1 < steps.Count && steps[i + 1].PlaysScenario);
                     Debug.Log($"[퀘스트] {step} {step.Actor}");
                     await step.Run(_context, cancellationToken);
                 }

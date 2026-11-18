@@ -24,6 +24,8 @@ namespace InGame.Component
         private AttackType _attackType;
         //반격이 띄운 판정인지. 반격은 카운터로 받아낼 수 없고, 한 번 맞히면 판정을 거둔다
         private bool _isCounterAttack;
+        //이 판정이 맞혔을 때 맞은 쪽에 넘길 것 (위력, 경직 시간)
+        private AttackHit _attackHit;
         //판정 박스를 둘 레이어. 맞출 대상(HurtBox)도 같은 레이어에 있다
         private int _hitBoxLayer;
         private int _targetLayerMask;
@@ -45,8 +47,9 @@ namespace InGame.Component
             _owner = owner;
             _attackType = attackType;
             //이펙트는 단계보다 오래 살아남아서 맞히는 시점에는 주인이 다른 행동을 하고 있을 수 있다.
-            //그래서 판정을 낸 공격이 무엇이었는지는 이펙트가 뜨는 지금 정해둔다
+            //그래서 판정을 낸 공격이 무엇이었는지와 그 위력, 경직 시간은 이펙트가 뜨는 지금 정해둔다
             _isCounterAttack = objectContext.ActionType is ActionType.CounterAttack;
+            _attackHit = objectContext.GetAttackHit(attackType);
 
             //레이어가 없으면 기본 레이어에 둔다. 에러는 TryGetLayer가 남긴다
             _hitBoxLayer = TryGetLayer(LayerHitBox, out int hitBoxLayer) ? hitBoxLayer : 0;
@@ -143,7 +146,7 @@ namespace InGame.Component
         /// <summary>
         /// 트리거에 걸린 대상을 판정으로 처리한다.
         /// 콜백은 이 이펙트의 콜라이더 전부를 묶어서 들어오므로 어느 판정에 걸렸는지는 따지지 않는다.
-        /// 데미지 처리가 생기기 전까지는 맞은 대상만 알린다
+        /// 맞은 쪽에 위력을 넘기고, Hp를 얼마나 깎을지는 맞은 쪽이 자기 방어력으로 정한다
         /// </summary>
         private void DetectAttack(Collider2D other)
         {
@@ -160,9 +163,11 @@ namespace InGame.Component
             //맞은 쪽이 카운터로 돌아설 방향. 이펙트가 아니라 공격한 주인이 있는 쪽을 준다
             var attackerSide = _objectContext.ResolveAttackerSide(
                 (Vector2)_owner.position + _objectContext.ColliderOffset, other.bounds.center);
-            //반격은 카운터로 받아낼 수 없다
-            var damageResult = target.RequestDamage(attackerSide, !_isCounterAttack);
-            Debug.Log($"[{_objectContext.Team}] {_owner.name} hit [{target.Team}] {other.transform.root.name} ({_attackType}, {damageResult})");
+            //위력과 경직 시간, 카운터로 받아낼 수 있는지(반격은 받아낼 수 없다)는 이펙트가 뜰 때 정해둔 것을 넘긴다
+            int hpBefore = target.Hp;
+            var damageResult = target.RequestDamage(attackerSide, _attackHit);
+            Debug.Log($"[{_objectContext.Team}] {_owner.name} hit [{target.Team}] {other.transform.root.name} "
+                      + $"({_attackType}, {damageResult}, 피해 {hpBefore - target.Hp}, Hp {target.Hp}/{target.MaxHp}, 경직 {target.StaggerDuration:0.##}초)");
             //카운터에 받아내졌거나 무적이라 맞지 않았으면 히트로 세지 않는다
             if (damageResult != DamageResult.Hit) return;
 

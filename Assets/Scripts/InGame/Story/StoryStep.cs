@@ -21,9 +21,13 @@ namespace InGame.Story
         public long Id { get; private set; }
         public string Command { get; private set; }
         public StoryActor Actor { get; private set; }
+        //플레이어에게 보여주는 글 (표의 Text 칸). 퀘스트의 목표 줄만 쓰고, 기다리는 동안 화면의 퀘스트 안내에 뜬다
+        public string Text { get; private set; }
 
         //명령의 분류. 대부분이 내용이라 기본값으로 두고, 시작/종료/목표 명령만 다시 정한다
         public virtual StoryStepKind Kind => StoryStepKind.Content;
+        //시나리오를 재생하는 줄인지. 목표 바로 뒤에 이런 줄이 오면 그 목표는 연출로 이어지는 목표다
+        public virtual bool PlaysScenario => false;
         #endregion
 
         #region Init
@@ -33,11 +37,32 @@ namespace InGame.Story
             Table = row.Table;
             Id = row.Id;
             Command = row.Command;
+            Text = row.Text;
 
             var reader = new StoryParamReader(row);
             bool parsed = Parse(reader, out var actor);
             Actor = actor;
-            return reader.CheckUnused() & parsed;
+            return reader.CheckUnused() & CheckText() & parsed;
+        }
+
+        /// <summary>
+        /// Text 칸은 목표 줄에만 적는다. 목표는 무엇을 해야 하는지를 화면의 퀘스트 안내에 띄워야 해서 꼭 적고,
+        /// 다른 줄은 띄울 곳이 없으므로 적혀 있으면 다른 줄에 잘못 적은 것으로 본다
+        /// </summary>
+        private bool CheckText()
+        {
+            bool written = !string.IsNullOrEmpty(Text);
+            if (Kind == StoryStepKind.Goal && !written)
+            {
+                LogError("Text is required. A goal shows it on the quest guide.");
+                return false;
+            }
+            if (Kind != StoryStepKind.Goal && written)
+            {
+                LogError($"{Command} does not use Text. Only goals use it. Leave it empty : '{Text}'");
+                return false;
+            }
+            return true;
         }
         #endregion
 
@@ -65,6 +90,13 @@ namespace InGame.Story
         /// 그래서 여기서는 명령마다 다른 것만 본다. 따로 볼 것이 없는 명령은 다시 정하지 않는다
         /// </summary>
         public virtual void Validate(StoryValidator validator) { }
+
+        /// <summary>
+        /// 이 줄이 무대로 쓰는 Zone (대상을 세우거나 옮기는 곳). 없으면 0.
+        /// 시나리오는 시작할 때 자기 줄들의 무대 Zone을 모두 올려둔다. 내려가 있는 Zone에 세운 대상은 꺼져서 연출이 그 줄에서 멈추기 때문이다.
+        /// Zone 칸이 비어 있으면 Actor 표의 자리를 쓰는 명령이 있어서 표(book)를 같이 받는다
+        /// </summary>
+        public virtual long GetStageZone(StoryBook book) => 0;
 
         public abstract UniTask Run(StoryContext context, CancellationToken cancellationToken);
 

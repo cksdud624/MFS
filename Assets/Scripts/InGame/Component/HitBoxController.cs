@@ -145,7 +145,7 @@ namespace InGame.Component
         /// <summary>
         /// 트리거에 걸린 대상을 판정으로 처리한다.
         /// 콜백은 본체 콜라이더가 받은 접촉까지 같이 들어오므로 실제로 판정 박스와 겹칠 때만 본다.
-        /// 데미지 처리가 생기기 전까지는 맞은 대상만 알린다
+        /// 맞은 쪽에 위력을 넘기고, Hp를 얼마나 깎을지는 맞은 쪽이 자기 방어력으로 정한다
         /// </summary>
         private void DetectAttack(Collider2D other)
         {
@@ -176,9 +176,11 @@ namespace InGame.Component
                 //한 단계에서 같은 대상을 여러 번 때리지 않는다
                 if (!hitTargets.Add(target)) continue;
 
-                //반격은 카운터로 받아낼 수 없다
-                var damageResult = target.RequestDamage(attackerSide, !isCounterAttack);
-                Debug.Log($"[{_objectContext.Team}] {name} hit [{target.Team}] {other.transform.root.name} ({attackType}, {damageResult})");
+                //이 판정은 지금 나가는 공격의 것이라 위력과 경직 시간, 카운터로 받아낼 수 있는지(반격은 받아낼 수 없다)를 지금 공격에서 읽는다
+                int hpBefore = target.Hp;
+                var damageResult = target.RequestDamage(attackerSide, _objectContext.GetAttackHit(attackType));
+                Debug.Log($"[{_objectContext.Team}] {name} hit [{target.Team}] {other.transform.root.name} "
+                          + $"({attackType}, {damageResult}, 피해 {hpBefore - target.Hp}, Hp {target.Hp}/{target.MaxHp}, 경직 {target.StaggerDuration:0.##}초)");
                 //카운터에 받아내졌거나 무적이라 맞지 않았으면 히트로 세지 않는다
                 if (damageResult != DamageResult.Hit) continue;
 

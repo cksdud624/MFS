@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using Common;
 using Common.Scene.Parameter;
 using Cysharp.Threading.Tasks;
@@ -26,6 +27,8 @@ namespace InGame
         private ZoneStreamer _zoneStreamer;
         //플레이어를 따라가고 연출을 맡는 카메라. 매 프레임 갱신 등록을 씬이 내려갈 때 해제한다. 메인 카메라가 없으면 null
         private CameraDirector _cameraDirector;
+        //퀘스트 안내와 목표/대화 아이콘을 정해서 띄운다. 매 프레임 갱신 등록을 씬이 내려갈 때 해제한다
+        private StoryHudPresenter _hudPresenter;
         #endregion
 
         #region Init
@@ -37,10 +40,16 @@ namespace InGame
 
             var dialogueView = await CreateView<DialogueView>(UIDialogueView);
             if (dialogueView != null)
-                dialogueView.Init();
+                dialogueView.Init(Camera.main);
             var screenFadeView = await CreateView<ScreenFadeView>(UIScreenFadeView);
             if (screenFadeView != null)
                 screenFadeView.Init();
+            var markerView = await CreateView<MarkerView>(UIMarkerView);
+            if (markerView != null)
+                markerView.Init(Camera.main);
+            var questView = await CreateView<QuestView>(UIQuestView);
+            if (questView != null)
+                questView.Init();
 
             var tableManager = Global.Instance.TableManager;
             var cancellationToken = this.GetCancellationTokenOnDestroy();
@@ -63,7 +72,9 @@ namespace InGame
                 zoneLayout,
                 _zoneStreamer);
             _talkPlayer = new TalkPlayer(storyContext, cancellationToken);
-            new StoryPlayer(storyContext).Run(cancellationToken).Forget();
+            //프리팹이 없는 뷰는 null로 넘어가고, 있는 것만 띄운다
+            _hudPresenter = new StoryHudPresenter(storyContext, markerView, questView);
+            await StartStory(storyContext, cancellationToken);
         }
         #endregion
 
@@ -71,6 +82,7 @@ namespace InGame
         private void OnDestroy()
         {
             _talkPlayer?.Dispose();
+            _hudPresenter?.Dispose();
             _zoneStreamer?.Dispose();
             _cameraDirector?.Dispose();
 
@@ -84,6 +96,21 @@ namespace InGame
         #endregion
 
         #region Private
+        /// <summary>
+        /// 이야기를 시작하고, 플레이어가 월드에 설 때까지만 기다린다. 이야기 자체는 끝까지 기다리지 않고 계속 진행된다.
+        /// Init이 끝나면 로딩 화면이 걷히는데, 이야기는 그 뒤에야 플레이어를 세우므로 바로 걷히면 아무도 없는 맵이 먼저 보인다.
+        /// 플레이어가 서지 못하고 이야기가 끝났으면(검사에 걸려 시작하지 못했을 때) 기다리지 않는다. 로딩 화면이 걷히지 않으면 원인을 볼 수 없다
+        /// </summary>
+        private async UniTask StartStory(StoryContext storyContext, CancellationToken cancellationToken)
+        {
+            //UniTask는 한 번만 기다릴 수 있다. 끝났는지를 아래에서 계속 물어봐야 하므로 여러 번 볼 수 있게 바꿔 둔다
+            var story = new StoryPlayer(storyContext).Run(cancellationToken).Preserve();
+            story.Forget();
+
+            await UniTask.WaitUntil(() => _inGameContext.Player != null || story.Status != UniTaskStatus.Pending,
+                cancellationToken: cancellationToken);
+        }
+
         /// <summary>
         /// UI 프리팹을 받아 띄운다. 없으면 null을 돌려준다.
         /// 프리팹이 없어도 배치와 전투는 확인할 수 있어야 하므로 여기서 멈추지 않고, 그 UI를 쓰는 시나리오 명령만 에러를 남긴다

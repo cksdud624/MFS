@@ -6,8 +6,9 @@ using static Common.GameDefine;
 namespace InGame.Story.Steps
 {
     /// <summary>
-    /// Dialogue : Dialogue 표의 대화 하나를 끝까지 한다. 마지막 대사를 넘기면 대화창을 닫고 다음 줄로 넘어간다.
+    /// Dialogue : Dialogue 표의 대화 하나를 끝까지 한다. 마지막 대사를 넘기면 말풍선을 닫고 다음 줄로 넘어간다.
     /// 대화 중에는 플레이어를 Event 상태로 묶어서 움직이거나 맞지 않게 하고, 대화 상대를 적으면 서로 마주 본다.
+    /// 말풍선은 대사마다 그 대사를 말하는 대상(Dialogue 표의 Speaker)의 머리 위에 뜬다. 그래서 대사를 말하는 대상은 모두 월드에 있어야 한다.
     /// 시나리오와 퀘스트가 같이 쓰고, 어디서 쓰느냐에 따라 무게가 다르다.
     /// - 퀘스트(중간) : 월드는 멈추지 않고 카메라도 건드리지 않는다. 일반 대화 중이면 끝날 때까지 기다렸다가 시작한다.
     /// - 시나리오(대형) : 월드가 멈춘 연출 안이고, 배율을 적으면 대화 상대(없으면 플레이어)를 확대했다가 대화 직전 카메라로 되돌린다.
@@ -37,11 +38,12 @@ namespace InGame.Story.Steps
         {
             validator.RequirePlayer();
             validator.CheckDialogue(_dialogueId);
+            validator.CheckSpeakers(_dialogueId);
             if (Actor.IsPlayer)
                 validator.Error("Dialogue partner cannot be Player. Leave Actor empty or write the partner.");
             if (_zoom < 0f)
                 validator.Error($"Param2 (Zoom) must be greater than 0, or empty : {_zoom}");
-            //대화 하나는 끝나면 창을 닫으므로, 앞에서 Line으로 열어둔 창도 같이 닫힌다
+            //대화 하나는 끝나면 말풍선을 닫으므로, 앞에서 Line으로 열어둔 말풍선도 같이 닫힌다
             if (_inScenario)
                 validator.SetDialogueOpen(false);
         }
@@ -50,14 +52,14 @@ namespace InGame.Story.Steps
         {
             var lines = context.GetDialogueLines(_dialogueId);
             var player = context.InGameContext.Player;
-            //대화창은 에셋이라 정합성 검사로는 잡을 수 없다. 프리팹을 만들지 않았으면 여기서 걸린다
+            //말풍선은 에셋이라 정합성 검사로는 잡을 수 없다. 프리팹을 만들지 않았으면 여기서 걸린다
             if (lines == null || player == null || context.DialoguePlayer == null)
             {
                 LogError("Dialogue needs dialogue lines, a dialogue view and a player.");
                 return;
             }
 
-            //퀘스트의 대화는 월드가 움직이는 중에 나오므로, 플레이어가 다른 Npc와 일반 대화 중일 수 있다. 대화창을 같이 쓰므로 끝나기를 기다린다
+            //퀘스트의 대화는 월드가 움직이는 중에 나오므로, 플레이어가 다른 Npc와 일반 대화 중일 수 있다. 말풍선을 같이 쓰므로 끝나기를 기다린다
             if (!_inScenario)
                 await UniTask.WaitUntil(() => !context.IsInDialogue, cancellationToken: cancellationToken);
 
@@ -72,7 +74,7 @@ namespace InGame.Story.Steps
             if (camera != null)
                 await camera.Zoom(_zoom, (partner != null ? partner : player).Center, CameraZoomDuration, cancellationToken);
 
-            await context.DialoguePlayer.PlayConversation(partner, lines, cancellationToken);
+            await context.DialoguePlayer.PlayConversation(context, partner, lines, cancellationToken);
 
             if (camera != null)
                 await camera.Zoom(previousZoom, previousFocus, CameraZoomDuration, cancellationToken);

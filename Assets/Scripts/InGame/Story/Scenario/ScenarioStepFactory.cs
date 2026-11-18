@@ -20,6 +20,7 @@ namespace InGame.Story.Scenario
             { "Despawn", () => new DespawnStep() },
 
             //연출
+            { "Place", () => new PlaceStep() },
             { "Move", () => new MoveStep() },
             { "Effect", () => new EffectStep() },
             { "Dialogue", () => new DialogueStep(true) },

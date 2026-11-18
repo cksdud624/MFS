@@ -42,6 +42,9 @@ namespace InGame.Component
             if (!TryGetComponent(out _spriteRenderer))
                 _spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
             _spriteRenderer.flipX = _objectContext.Direction == Direction.Left;
+            //같은 그림을 쓰는 오브젝트를 색으로 구분한다 (Object 표의 Tint, r,g,b 0~1). 빈칸(0,0,0)이면 원래 색 그대로 둔다
+            if (objectData.Tint != Vector3.zero)
+                _spriteRenderer.color = new Color(objectData.Tint.x, objectData.Tint.y, objectData.Tint.z);
 
             _graph = PlayableGraph.Create($"AnimGraph_{objectData.Id}");
             _graph.SetTimeUpdateMode(DirectorUpdateMode.GameTime);
@@ -94,6 +97,9 @@ namespace InGame.Component
                 //번호가 붙은 클립은 테이블이 쓰겠다고 지정한 것이므로 조용히 넘기지 않는다
                 if (variant > 0)
                     Debug.LogError($"Animation {AssetPathAnimation}{assetName}{AssetExtensionAnimation} not found");
+                //클립이 없으면 기다릴 것이 없으므로 바로 끝난 것으로 알린다.
+                //알리지 않으면 끝나기를 기다리는 쪽이 멈춘다 (쓰러지는 모션이 없는 오브젝트가 사라지지 않는다)
+                notifyAnimationEnd?.Invoke();
                 return;
             }
 

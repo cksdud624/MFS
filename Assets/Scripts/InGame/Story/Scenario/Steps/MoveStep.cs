@@ -8,7 +8,8 @@ namespace InGame.Story.Scenario.Steps
     /// Move : 대상을 x 위치까지 강제로 걸어가게 한다. 도착하면 다음 줄로 넘어간다.
     /// Player와 Enemy도 움직일 수 있다. 움직이는 동안은 조작과 AI를 멈춰서 키를 눌러도 따라가지 않고, 도착하면 다시 켠다.
     /// 시간을 적으면 거리에 맞춰 걷는 속도를 바꿔서 그 시간에 도착한다. 걷는 애니메이션의 빠르기는 그대로다.
-    /// 도착할 곳은 불러와 있는 Zone 안이어야 한다. 대상이 내려간 Zone으로 들어가면 꺼져서 도착하지 못한다.
+    /// 도착할 Zone과 대상이 서 있는 Zone은 시나리오가 시작할 때 올려두지만, 그 사이의 Zone까지 올려두지는 않는다.
+    /// 대상이 내려간 Zone으로 들어가면 꺼져서 도착하지 못하므로, 멀리 있는 대상은 Place로 옮긴 뒤에 걷게 한다.
     /// Actor = 대상, Zone + Param1 = 도착할 x (Zone의 왼쪽 끝을 0으로 보는 로컬 좌표), Param2 = 걸리는 시간 (초, 비우면 자기 걸음 속도)
     /// </summary>
     public class MoveStep : StoryStep
@@ -27,6 +28,8 @@ namespace InGame.Story.Scenario.Steps
             if (_seconds < 0f)
                 validator.Error($"Param2 (Seconds) must be greater than 0, or empty : {_seconds}");
         }
+
+        public override long GetStageZone(StoryBook book) => _zone;
 
         public override async UniTask Run(StoryContext context, CancellationToken cancellationToken)
         {

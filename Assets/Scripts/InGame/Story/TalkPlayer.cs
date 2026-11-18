@@ -65,8 +65,8 @@ namespace InGame.Story
             }
 
             Debug.Log($"[일반 대화] {actor} : Dialogue {dialogueId}");
-            //대화창은 이 호출 안에서 바로 열린다. 그래서 같은 입력을 뒤에서 받는 말 걸기 목표는 이 입력을 대사 넘기기로 본다
-            await _context.DialoguePlayer.PlayConversation(partner, lines, _cancellationToken);
+            //말풍선은 이 호출 안에서 바로 열린다. 그래서 같은 입력을 뒤에서 받는 말 걸기 목표는 이 입력을 대사 넘기기로 본다
+            await _context.DialoguePlayer.PlayConversation(_context, partner, lines, _cancellationToken);
         }
         #endregion
     }

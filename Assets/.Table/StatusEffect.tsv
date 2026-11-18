@@ -1,0 +1,4 @@
+Id	Duration	MaxStack	Note
+long	float	int	string
+1		1	경직 면역. 맞아도 피격 상태에 들어가지 않는다 (Hp는 깎인다)
+2	10	3	공격력 증가. 10초 동안 걸리고 3번까지 겹친다

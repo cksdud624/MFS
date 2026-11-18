@@ -18,7 +18,8 @@ namespace InGame.World
     /// 플레이어가 아직 없으면(도입 연출 전) 카메라가 보는 곳을 기준으로 한다.
     /// 불러온 Zone의 상하좌우 중 이웃 Zone이 없는 쪽에는 보이지 않는 벽을 세워서, 이어서 갈 곳이 없는 맵 끝을 넘어가지 못하게 한다.
     /// 내려간 Zone에 있는 캐릭터는 꺼두고, 그 Zone이 다시 올라오면 켠다. 바닥이 사라진 자리에서 떨어지지 않게 하려는 것이다.
-    /// 캐릭터를 없애지 않는 이유는 이야기가 대상을 계속 추적하기 때문이다 (뒤의 퀘스트가 같은 번호로 다시 쓴다)
+    /// 캐릭터를 없애지 않는 이유는 이야기가 대상을 계속 추적하기 때문이다 (뒤의 퀘스트가 같은 번호로 다시 쓴다).
+    /// 시나리오가 무대로 쓰는 Zone은 고정(Pin)해서 컬링 거리 밖이어도 올려둔다. 연출에 나오는 대상이 꺼지지 않게 하려는 것이다
     /// </summary>
     public class ZoneStreamer : IUpdateable, IDisposable
     {
@@ -46,6 +47,8 @@ namespace InGame.World
         private readonly Dictionary<long, ZoneState> _states = new();
         //지금 올라와 있어야 하는 Zone. 불러오는 사이에 컬링 거리 밖으로 나간 Zone은 다 불러온 뒤 바로 내린다
         private readonly HashSet<long> _wanted = new();
+        //고정한 Zone (시나리오의 무대). 컬링 거리 밖이어도 올려둔다
+        private readonly HashSet<long> _pinned = new();
         //프리팹이 없다고 이미 알린 Zone. 같은 경고가 Zone을 오갈 때마다 쌓이지 않게 한다
         private readonly HashSet<long> _reportedMissing = new();
         //Zone이 화면보다 작다고 이미 알린 맵
@@ -117,6 +120,36 @@ namespace InGame.World
 
         public bool IsLoaded(long zoneId) => _states.TryGetValue(zoneId, out var state) && state == ZoneState.Loaded;
 
+        /// <summary>
+        /// Zone을 고정한다. 고정한 Zone은 컬링 거리 밖이어도 올려두고, 다 올라올 때까지 기다린다. 이미 올라와 있으면 바로 끝난다.
+        /// 고정은 한 묶음만 둔다 (시나리오는 겹쳐서 재생되지 않는다). 다시 부르면 앞의 고정을 새 묶음으로 바꾼다
+        /// </summary>
+        public async UniTask Pin(IReadOnlyCollection<long> zoneIds, CancellationToken cancellationToken)
+        {
+            _pinned.Clear();
+            foreach (long zoneId in zoneIds)
+                _pinned.Add(zoneId);
+
+            UpdateCulling(null);
+            if (!IsPinnedLoaded())
+            {
+                Debug.Log($"[Zone] 무대 Zone {string.Join(", ", _pinned)} 올라오기를 기다림");
+                await UniTask.WaitUntil(IsPinnedLoaded, cancellationToken: cancellationToken);
+            }
+            //방금 올라온 Zone에 꺼져 있던 캐릭터를 다음 프레임까지 기다리지 않고 켠다. 바로 이어지는 연출의 첫 줄이 그 캐릭터를 쓸 수 있다
+            UpdateTrackedActive();
+        }
+
+        /// <summary>고정을 푼다. 컬링 거리 밖에 있던 Zone은 내리고, 그 안의 캐릭터는 꺼둔다</summary>
+        public void Unpin()
+        {
+            if (_pinned.Count == 0) return;
+
+            _pinned.Clear();
+            UpdateCulling(null);
+            UpdateTrackedActive();
+        }
+
         public void Dispose() => Global.Instance?.UnBindUpdate(this);
         #endregion
 
@@ -140,23 +173,23 @@ namespace InGame.World
         }
 
         /// <summary>
-        /// 기준 Zone에서 컬링 거리 안의 Zone을 불러오고, 밖으로 나간 Zone을 내린다.
+        /// 기준 Zone에서 컬링 거리 안의 Zone과 고정한 Zone을 불러오고, 나머지를 내린다.
         /// loads를 주면 새로 불러오는 작업을 담아서 돌려주고(처음에 기다릴 때), 없으면 기다리지 않고 진행한다
         /// </summary>
         private void UpdateCulling(List<UniTask> loads)
         {
-            _layout.GetNeighbors(_center, ZoneCullDistance - 1, _neighbors);
             _wanted.Clear();
-            foreach (var zone in _neighbors)
+            //기준 Zone이 아직 없어도(플레이어도 카메라도 Zone 밖) 고정한 Zone은 올린다
+            if (_center != null)
             {
-                _wanted.Add(zone.Id);
-                if (_states.ContainsKey(zone.Id)) continue;
-
-                var load = LoadZone(zone);
-                if (loads != null)
-                    loads.Add(load);
-                else
-                    load.Forget();
+                _layout.GetNeighbors(_center, ZoneCullDistance - 1, _neighbors);
+                foreach (var zone in _neighbors)
+                    Want(zone, loads);
+            }
+            foreach (long zoneId in _pinned)
+            {
+                if (_layout.TryGetZone(zoneId, out var zone))
+                    Want(zone, loads);
             }
 
             //불러오는 중인 Zone은 다 불러온 뒤 LoadZone이 내린다. 지금 내리면 불러오기가 끝나고 내용물만 남는다
@@ -168,6 +201,30 @@ namespace InGame.World
             }
             foreach (long zoneId in _toUnload)
                 UnloadZone(zoneId);
+        }
+
+        //올려둘 Zone으로 넣고, 아직 불러오지 않았으면 불러온다
+        private void Want(ZoneLayout.ZoneEntry zone, List<UniTask> loads)
+        {
+            //고정한 Zone이 컬링 거리 안에도 있으면 두 번 들어온다
+            if (!_wanted.Add(zone.Id) || _states.ContainsKey(zone.Id)) return;
+
+            var load = LoadZone(zone);
+            if (loads != null)
+                loads.Add(load);
+            else
+                load.Forget();
+        }
+
+        //고정한 Zone이 다 올라왔는지. 배치에 없는 번호는 불러올 수 없으므로 기다리지 않는다 (검사를 통과했으면 늘 있다)
+        private bool IsPinnedLoaded()
+        {
+            foreach (long zoneId in _pinned)
+            {
+                if (_layout.HasZone(zoneId) && !IsLoaded(zoneId))
+                    return false;
+            }
+            return true;
         }
 
         private async UniTask LoadZone(ZoneLayout.ZoneEntry zone)

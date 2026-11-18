@@ -26,6 +26,8 @@ namespace InGame.Story.Quest.Steps
 
             //이 대상에게 거는 말은 일반 대화가 아니라 이 목표로 받는다
             context.SetInteractTarget(Actor);
+            //기다리는 동안 대상 위에 목표 아이콘이 뜬다
+            context.SetGoal(StoryGoal.ForActor(Actor), Text);
             //기다리는 사이에 대상이 사라지면 조건을 채울 수 없다. 입력만 기다리면 퀘스트가 원인을 남기지 않고 그 자리에서 멈추므로
             //대상이 파괴되는 것도 같이 기다린다
             using var waitSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, actor.GetCancellationTokenOnDestroy());
@@ -35,7 +37,7 @@ namespace InGame.Story.Quest.Steps
                 {
                     await context.InGameContext.WaitInteract(waitSource.Token);
 
-                    //대화창이 열려 있는 동안(다른 Npc와 일반 대화) 누른 것은 대사를 넘기는 입력이다
+                    //말풍선이 열려 있는 동안(다른 Npc와 일반 대화) 누른 것은 대사를 넘기는 입력이다
                     if (context.IsInDialogue) continue;
                     var player = context.InGameContext.Player;
                     if (player == null) continue;
@@ -55,6 +57,7 @@ namespace InGame.Story.Quest.Steps
             finally
             {
                 context.SetInteractTarget(StoryActor.None);
+                context.ClearGoal();
             }
         }
         #endregion

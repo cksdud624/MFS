@@ -9,11 +9,14 @@ namespace InGame.Story.Quest.Steps
     /// Scenario : Scenario 표의 시나리오 하나를 처음부터 끝까지 재생한다. 끝나면 다음 줄로 넘어간다.
     /// 시나리오 하나가 통째로 연출 구간이라, 재생하는 동안 월드의 조작과 AI가 모두 멈추고(도중에 등장한 대상 포함)
     /// 끝나면 카메라를 처음 상태로 되돌린 뒤 다시 켠다. 카메라가 돌아오는 동안 움직이지 않게 순서를 이렇게 둔다.
+    /// 시작할 때 이 시나리오가 무대로 쓰는 Zone(세우거나 옮기는 곳, 출연하는 대상이 서 있는 곳)을 올려두고, 끝나면 푼다.
     /// Param1 = 시나리오 번호 (102)
     /// </summary>
     public class PlayScenarioStep : StoryStep
     {
         #region Fields
+        public override bool PlaysScenario => true;
+
         private long _scenario;
         #endregion
 
@@ -24,9 +27,10 @@ namespace InGame.Story.Quest.Steps
         {
             var steps = context.Book.GetScenario(_scenario);
 
-            //목표를 채운 순간 다른 Npc와 일반 대화 중일 수 있다. 대화창을 같이 쓰므로 대화가 끝난 뒤에 시작한다
+            //목표를 채운 순간 다른 Npc와 일반 대화 중일 수 있다. 말풍선을 같이 쓰므로 대화가 끝난 뒤에 시작한다
             await UniTask.WaitUntil(() => !context.IsInDialogue, cancellationToken: cancellationToken);
-            context.BeginScenario();
+            //무대로 쓸 Zone이 내려가 있으면 다 올라올 때까지 여기서 기다린다
+            await context.BeginScenario(steps, cancellationToken);
             foreach (var step in steps)
             {
                 Debug.Log($"[시나리오] {_scenario} {step} {step.Actor}");

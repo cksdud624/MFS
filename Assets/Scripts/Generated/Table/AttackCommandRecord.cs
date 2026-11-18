@@ -46,6 +46,8 @@ namespace Generated.Table
 		public long ObjectId {get; private set;}
 		public string Command {get; private set;}
 		public int Type {get; private set;}
+		public int Damage {get; private set;}
+		public float Stagger {get; private set;}
 		public int Animation {get; private set;}
 		public int Effect {get; private set;}
 		public Vector2 EffectOffset {get; private set;}
@@ -61,32 +63,34 @@ namespace Generated.Table
 			ObjectId = long.TryParse(tableDatas[1], out long vLong1) ? vLong1 : 0L;
 			Command = tableDatas[2];
 			Type = int.TryParse(tableDatas[3], out int vInt3) ? vInt3 : 0;
-			Animation = int.TryParse(tableDatas[4], out int vInt4) ? vInt4 : 0;
-			Effect = int.TryParse(tableDatas[5], out int vInt5) ? vInt5 : 0;
-			string[] items6 = tableDatas[6].Split(',', ';');
-			if (items6.Length == 2)
+			Damage = int.TryParse(tableDatas[4], out int vInt4) ? vInt4 : 0;
+			Stagger = float.TryParse(tableDatas[5], out float vFloat5) ? vFloat5 : 0f;
+			Animation = int.TryParse(tableDatas[6], out int vInt6) ? vInt6 : 0;
+			Effect = int.TryParse(tableDatas[7], out int vInt7) ? vInt7 : 0;
+			string[] items8 = tableDatas[8].Split(',', ';');
+			if (items8.Length == 2)
 			{
-				float.TryParse(items6[0], out float resultX6);
-				float.TryParse(items6[1], out float resultY6);
-				EffectOffset = new Vector2(resultX6, resultY6);
+				float.TryParse(items8[0], out float resultX8);
+				float.TryParse(items8[1], out float resultY8);
+				EffectOffset = new Vector2(resultX8, resultY8);
 			}
-			else if (string.IsNullOrEmpty(tableDatas[6]))
+			else if (string.IsNullOrEmpty(tableDatas[8]))
 			{
 				EffectOffset = Vector2.zero;
 			}
 			else
 			{
 				EffectOffset = Vector2.zero;
-				Debug.LogError($"EffectOffset is not Vector2 : {tableDatas[6]}");
+				Debug.LogError($"EffectOffset is not Vector2 : {tableDatas[8]}");
 			}
-			EffectDuration = float.TryParse(tableDatas[7], out float vFloat7) ? vFloat7 : 0f;
-			IsHitRequired = bool.TryParse(tableDatas[8], out bool vBool8) ? vBool8 : false;
-			AttackTime = float.TryParse(tableDatas[9], out float vFloat9) ? vFloat9 : 0f;
+			EffectDuration = float.TryParse(tableDatas[9], out float vFloat9) ? vFloat9 : 0f;
+			IsHitRequired = bool.TryParse(tableDatas[10], out bool vBool10) ? vBool10 : false;
+			AttackTime = float.TryParse(tableDatas[11], out float vFloat11) ? vFloat11 : 0f;
 			AttackHitBox = new ();
-			string[] items10 = tableDatas[10].Split(',');
-			foreach (var item in items10)
+			string[] items12 = tableDatas[12].Split(',');
+			foreach (var item in items12)
 			{
-				AttackHitBox.Add(long.TryParse(item, out long vLong10) ? vLong10 : 0L);
+				AttackHitBox.Add(long.TryParse(item, out long vLong12) ? vLong12 : 0L);
 			}
 		}
 	}

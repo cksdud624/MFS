@@ -45,6 +45,7 @@ namespace Generated.Table
 		public long Id {get; private set;}
 		public long ObjectId {get; private set;}
 		public string Type {get; private set;}
+		public string Name {get; private set;}
 		public bool Resident {get; private set;}
 		public long Zone {get; private set;}
 		public Vector2 Position {get; private set;}
@@ -56,25 +57,26 @@ namespace Generated.Table
 			Id = long.TryParse(tableDatas[0], out long vLong0) ? vLong0 : 0L;
 			ObjectId = long.TryParse(tableDatas[1], out long vLong1) ? vLong1 : 0L;
 			Type = tableDatas[2];
-			Resident = bool.TryParse(tableDatas[3], out bool vBool3) ? vBool3 : false;
-			Zone = long.TryParse(tableDatas[4], out long vLong4) ? vLong4 : 0L;
-			string[] items5 = tableDatas[5].Split(',', ';');
-			if (items5.Length == 2)
+			Name = tableDatas[3];
+			Resident = bool.TryParse(tableDatas[4], out bool vBool4) ? vBool4 : false;
+			Zone = long.TryParse(tableDatas[5], out long vLong5) ? vLong5 : 0L;
+			string[] items6 = tableDatas[6].Split(',', ';');
+			if (items6.Length == 2)
 			{
-				float.TryParse(items5[0], out float resultX5);
-				float.TryParse(items5[1], out float resultY5);
-				Position = new Vector2(resultX5, resultY5);
+				float.TryParse(items6[0], out float resultX6);
+				float.TryParse(items6[1], out float resultY6);
+				Position = new Vector2(resultX6, resultY6);
 			}
-			else if (string.IsNullOrEmpty(tableDatas[5]))
+			else if (string.IsNullOrEmpty(tableDatas[6]))
 			{
 				Position = Vector2.zero;
 			}
 			else
 			{
 				Position = Vector2.zero;
-				Debug.LogError($"Position is not Vector2 : {tableDatas[5]}");
+				Debug.LogError($"Position is not Vector2 : {tableDatas[6]}");
 			}
-			Note = tableDatas[6];
+			Note = tableDatas[7];
 		}
 	}
 }

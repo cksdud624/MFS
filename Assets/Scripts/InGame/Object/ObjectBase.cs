@@ -49,6 +49,8 @@ namespace InGame.Object
         public Team Team => ObjectContext.Team;
         //몸통 중심(콜라이더 중점). 원점은 발밑이라 카메라가 바라볼 곳처럼 몸을 가리킬 때는 이쪽을 쓴다
         public Vector2 Center => (Vector2)transform.position + ObjectContext.ColliderOffset;
+        //머리 위(콜라이더 윗변의 가운데). 말풍선이 이 위에 뜬다
+        public Vector2 Top => Center + new Vector2(0f, ObjectContext.ObjectData.ColliderSize.y * 0.5f);
         public ObjectType ObjectType => ObjectContext?.ObjectType ?? ObjectType.Object;
         #endregion
 
@@ -87,6 +89,9 @@ namespace InGame.Object
             hurtBoxObject.transform.SetParent(transform, false);
             HurtBox = hurtBoxObject.AddComponent<HurtBox>();
             HurtBox.Init(InGameContext, ObjectContext);
+
+            ObjectContext.OnHpDepleted += HandleHpDepleted;
+            ObjectContext.OnDeathEnd += HandleDeathEnd;
         }
         #endregion
 
@@ -96,6 +101,12 @@ namespace InGame.Object
 #if UNITY_EDITOR
             EditorTestKeys.OnAIAttack -= OnTestAIAttack;
 #endif
+            //Init이 끝나기 전에(에셋을 받는 중에) 파괴되면 아직 만들어지지 않았을 수 있다
+            if (ObjectContext != null)
+            {
+                ObjectContext.OnHpDepleted -= HandleHpDepleted;
+                ObjectContext.OnDeathEnd -= HandleDeathEnd;
+            }
             State.Value = ObjectState.Destroyed;
             //R3의 ReactiveProperty는 Dispose해야 구독자에게 완료가 전달되고 구독이 정리된다.
             //파괴 상태를 먼저 알린 뒤 닫는다. 순서가 바뀌면 구독자가 Destroyed를 받지 못한다
@@ -117,6 +128,18 @@ namespace InGame.Object
             //거의 겹쳐 있으면 좌우를 가릴 수 없으므로 보던 방향을 그대로 둔다
             if (Mathf.Abs(diffX) < Common.GameDefine.TargetDirectionDeadZone) return;
             ObjectContext.SetDirection(diffX > 0f ? Direction.Right : Direction.Left);
+        }
+
+        /// <summary>
+        /// 발밑을 position으로 바로 옮긴다 (걷지 않는다). 시나리오가 연출을 시작할 자리에 세울 때 쓴다.
+        /// 떨어지던 속도가 남아 있으면 옮긴 자리에서 이어서 떨어지므로 속도도 지운다
+        /// </summary>
+        public void Place(Vector2 position)
+        {
+            //Transform만 바꾸면 물리 쪽 위치는 다음 물리 스텝에야 따라오고, Rigidbody만 바꾸면 그때까지 화면과 카메라가 옛 자리를 본다
+            transform.position = position;
+            PhysicsController.Rigidbody.position = position;
+            PhysicsController.Rigidbody.linearVelocity = Vector2.zero;
         }
 
         /// <summary>
@@ -217,6 +240,29 @@ namespace InGame.Object
             Destroy(Controller);
             Controller = null;
         }
+        #endregion
+
+        #region Event Handlers
+        /// <summary>
+        /// Hp가 0이 되었다. 쓰러지는 모션을 한 뒤 사라진다.
+        /// 플레이어는 쓰러진 뒤의 처리(다시 시작 등)가 아직 없어서 알리기만 하고 계속 움직일 수 있게 둔다
+        /// </summary>
+        private void HandleHpDepleted()
+        {
+            if (IsPlayer)
+            {
+                Debug.Log("[전투] 플레이어 사망");
+                return;
+            }
+
+            Debug.Log($"[전투] {name} 사망");
+            //쓰러지는 동안 AI가 입력을 내지 않게 한다. 그대로 사라지므로 다시 켜지 않는다
+            SuspendControl();
+            ObjectContext.Die();
+        }
+
+        //쓰러지는 모션이 끝났다. 생성한 쪽(스포너)이 목록에서 빼고 없애도록 알린다
+        private void HandleDeathEnd() => InGameContext.NotifyObjectDefeated(this);
         #endregion
 
         #region Editor

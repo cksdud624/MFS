@@ -15,15 +15,23 @@ public static class TableUpdater
     private const string TableDirectory = ".Table/";
     private const string TableManifestFile = "TableManifest.json";
     private const string TableManager = "TableManager";
+    //챕터 폴더 이름. 뒤에 챕터 번호를 붙인다 (Chapter1). 이야기 표처럼 챕터마다 길어지는 표를 나눠 둔다
+    public const string ChapterDirectoryPrefix = "Chapter";
+    private const string TableExtension = "*.tsv";
     //첫 칸(Id)은 생성된 Record가 키로 쓴다. 키로 쓸 수 있는 타입. Vector2나 List는 값으로 비교할 수 없어서 키가 되지 못한다
     private static readonly string[] KeyTypes = { "long", "int", "string" };
+
+    private static string TableDirectoryPath => Path.Combine(Application.dataPath, TableDirectory);
     #endregion
 
     #region Public
     [MenuItem("Table/Update Table")]
-    public static void UpdateTable()
+    public static void UpdateTable() => Run();
+
+    /// <summary>표를 갱신하고 끝까지 했는지 돌려준다. 틀린 표가 있어서 멈췄으면 false다. 메뉴와 시나리오 툴이 같이 쓴다</summary>
+    public static bool Run()
     {
-        string tableDirectoryPath = Path.Combine(Application.dataPath, TableDirectory);
+        string tableDirectoryPath = TableDirectoryPath;
         string tableManifestFilePath = Path.Combine(tableDirectoryPath, TableManifestFile);
         
         TableManifest tableManifest;
@@ -35,24 +43,28 @@ public static class TableUpdater
         if (!Directory.Exists(tableDirectoryPath))
             Directory.CreateDirectory(tableDirectoryPath);
         
-        string[] tablePaths = Directory.GetFiles(tableDirectoryPath, "*.tsv", SearchOption.TopDirectoryOnly);
-
         //하나라도 틀린 표가 있으면 아무것도 갱신하지 않는다. 일부만 갱신하면 표끼리 번호가 어긋난 채로 남는다
-        bool valid = true;
-        foreach (var tablePath in tablePaths)
-            valid &= ValidateTable(Path.GetFileNameWithoutExtension(tablePath), File.ReadAllLines(tablePath));
+        bool valid = TryCollectTables(out var tableFiles);
+        var tables = new SortedDictionary<string, string[]>(StringComparer.Ordinal);
+        foreach (var pair in tableFiles)
+        {
+            if (TryMergeTable(pair.Value, out var mergedLines))
+                tables[pair.Key] = mergedLines;
+            else
+                valid = false;
+        }
         if (!valid)
         {
             Debug.LogError("Update Table stopped. Fix the errors above. Nothing is updated.");
-            return;
+            return false;
         }
 
         TableManifest newTableManifest = new TableManifest();
         Dictionary<TableHashData, List<string>> scriptReference = new();
-        foreach (var tablePath in tablePaths)
+        foreach (var table in tables)
         {
-            string[] lines = File.ReadAllLines(tablePath);
-            string tableName = Path.GetFileNameWithoutExtension(tablePath);
+            string tableName = table.Key;
+            string[] lines = table.Value;
 
             byte[] tableDataBytes;
             using (MemoryStream ms = new MemoryStream())
@@ -244,6 +256,46 @@ public static class TableUpdater
         string jsonPath = Path.Combine(tableDirectoryPath, TableManifestFile);
         File.WriteAllText(jsonPath, json);
         AssetDatabase.Refresh();
+        return true;
+    }
+
+    /// <summary>
+    /// 표 이름 → 그 표를 이루는 tsv 파일들. 맨 위 폴더의 파일은 혼자서 표 하나이고,
+    /// 챕터 폴더(Chapter1, Chapter2 ...)에 같은 이름으로 있는 파일들은 챕터 순으로 이어 붙여 표 하나가 된다.
+    /// 폴더 이름이 틀렸거나 같은 표가 맨 위와 챕터 폴더에 같이 있으면 에러를 남기고 false를 돌려준다
+    /// </summary>
+    public static bool TryCollectTables(out SortedDictionary<string, List<string>> tables)
+    {
+        tables = new SortedDictionary<string, List<string>>(StringComparer.Ordinal);
+        string root = TableDirectoryPath;
+        if (!Directory.Exists(root)) return true;
+
+        foreach (var path in Directory.GetFiles(root, TableExtension, SearchOption.TopDirectoryOnly))
+            tables[Path.GetFileNameWithoutExtension(path)] = new List<string> { path };
+        var topLevelTables = new HashSet<string>(tables.Keys);
+
+        bool valid = TryGetChapterDirectories(root, out var chapterDirectories);
+        foreach (var directory in chapterDirectories)
+        {
+            foreach (var path in Directory.GetFiles(directory, TableExtension, SearchOption.TopDirectoryOnly))
+            {
+                string tableName = Path.GetFileNameWithoutExtension(path);
+                //맨 위에도 있으면 어느 쪽이 그 표인지 정할 수 없다. 이어 붙이면 같은 줄이 두 번 들어갈 수 있다
+                if (topLevelTables.Contains(tableName))
+                {
+                    valid = LogTableError(ToLabel(path), $"{tableName}.tsv is also at the top folder. Keep a table either at the top or in chapter folders.");
+                    continue;
+                }
+
+                if (!tables.TryGetValue(tableName, out var files))
+                {
+                    files = new List<string>();
+                    tables[tableName] = files;
+                }
+                files.Add(path);
+            }
+        }
+        return valid;
     }
     #endregion
 
@@ -296,26 +348,92 @@ public static class TableUpdater
     }
 
     /// <summary>
-    /// 표를 만들기 전에 모양을 확인한다. 생성된 코드는 칸 수가 맞고 Id가 겹치지 않는다고 보고 읽으므로,
-    /// 여기서 놓치면 게임에서 표를 불러올 때 칸을 벗어나거나 키가 겹쳐서 멈춘다
+    /// 챕터 폴더를 챕터 번호 순으로 모은다. Chapter10이 Chapter2보다 앞에 오지 않게 이름이 아니라 번호로 정렬한다.
+    /// 챕터 폴더가 아닌 폴더는 표가 들어 있어도 읽히지 않으므로 에러로 알린다
     /// </summary>
-    private static bool ValidateTable(string tableName, string[] lines)
+    private static bool TryGetChapterDirectories(string root, out List<string> directories)
+    {
+        bool valid = true;
+        var chapters = new SortedDictionary<int, string>();
+        foreach (var directory in Directory.GetDirectories(root))
+        {
+            string name = Path.GetFileName(directory);
+            string number = name.StartsWith(ChapterDirectoryPrefix, StringComparison.Ordinal) ? name.Substring(ChapterDirectoryPrefix.Length) : string.Empty;
+            if (number.Length == 0 || !number.All(char.IsDigit) || !int.TryParse(number, out int chapter) || chapter <= 0)
+            {
+                valid = LogTableError(ToLabel(directory), $"folder name must be {ChapterDirectoryPrefix} + chapter number such as {ChapterDirectoryPrefix}1.");
+                continue;
+            }
+            //Chapter1과 Chapter01은 같은 챕터다. 둘 다 두면 이어 붙이는 순서를 정할 수 없다
+            if (chapters.TryGetValue(chapter, out var other))
+            {
+                valid = LogTableError(ToLabel(directory), $"is the same chapter as {ToLabel(other)}.");
+                continue;
+            }
+            chapters[chapter] = directory;
+        }
+        directories = chapters.Values.ToList();
+        return valid;
+    }
+
+    /// <summary>
+    /// 표를 이루는 파일들의 모양을 확인하고 한 표로 이어 붙인다. 생성된 코드는 칸 수가 맞고 Id가 겹치지 않는다고 보고 읽으므로,
+    /// 여기서 놓치면 게임에서 표를 불러올 때 칸을 벗어나거나 키가 겹쳐서 멈춘다.
+    /// 머리 두 줄(컬럼 이름, 타입)은 파일마다 같아야 하고, Id는 파일을 넘어서도 겹치면 안 된다. 게임은 이어 붙인 표 하나를 읽는다
+    /// </summary>
+    private static bool TryMergeTable(List<string> files, out string[] lines)
+    {
+        lines = null;
+        string firstLabel = ToLabel(files[0]);
+        string[] firstLines = File.ReadAllLines(files[0]);
+        if (!ValidateHeader(firstLabel, firstLines)) return false;
+
+        string[] columns = firstLines[0].Split('\t');
+        string keyType = firstLines[1].Split('\t')[0];
+        var merged = new List<string> { firstLines[0], firstLines[1] };
+        //Id → 처음 나온 파일과 줄. 숫자 Id는 읽은 값으로 비교한다 (010과 10은 같은 Id다)
+        var keyLocations = new Dictionary<string, string>();
+        bool valid = true;
+        foreach (var path in files)
+        {
+            string label = ToLabel(path);
+            string[] fileLines = path == files[0] ? firstLines : File.ReadAllLines(path);
+            //머리가 다르면 같은 칸 번호가 다른 값을 가리키게 된다
+            if (fileLines.Length < 2 || fileLines[0] != merged[0] || fileLines[1] != merged[1])
+            {
+                valid = LogTableError(label, $"column names and types must be the same as {firstLabel}.");
+                continue;
+            }
+
+            valid &= ValidateRows(label, fileLines, columns, keyType, keyLocations);
+            for (int i = 2; i < fileLines.Length; i++)
+                merged.Add(fileLines[i]);
+        }
+
+        if (!valid) return false;
+        lines = merged.ToArray();
+        return true;
+    }
+
+    private static bool ValidateHeader(string label, string[] lines)
     {
         if (lines.Length < 2)
-            return LogTableError(tableName, "needs a column name line and a type line.");
+            return LogTableError(label, "needs a column name line and a type line.");
 
         string[] columns = lines[0].Split('\t');
         string[] types = lines[1].Split('\t');
         if (columns.Length != types.Length)
-            return LogTableError(tableName, $"has {columns.Length} column names but {types.Length} types.");
+            return LogTableError(label, $"has {columns.Length} column names but {types.Length} types.");
 
         string keyType = types[0];
         if (!KeyTypes.Contains(keyType))
-            return LogTableError(tableName, $"first column {columns[0]} is the key. Its type must be {string.Join(", ", KeyTypes)} : {keyType}");
+            return LogTableError(label, $"first column {columns[0]} is the key. Its type must be {string.Join(", ", KeyTypes)} : {keyType}");
+        return true;
+    }
 
+    private static bool ValidateRows(string label, string[] lines, string[] columns, string keyType, Dictionary<string, string> keyLocations)
+    {
         bool valid = true;
-        //Id → 처음 나온 줄. 숫자 Id는 읽은 값으로 비교한다 (010과 10은 같은 Id다)
-        var firstLines = new Dictionary<string, int>();
         for (int i = 2; i < lines.Length; i++)
         {
             //줄 번호는 파일에서 보이는 번호(1부터)로 알린다
@@ -323,30 +441,33 @@ public static class TableUpdater
             string[] cells = lines[i].Split('\t');
             if (cells.Length != columns.Length)
             {
-                valid = LogTableError(tableName, $"line {lineNumber} has {cells.Length} cells, but {columns.Length} columns are defined.");
+                valid = LogTableError(label, $"line {lineNumber} has {cells.Length} cells, but {columns.Length} columns are defined.");
                 continue;
             }
 
             string key = cells[0];
             if (string.IsNullOrEmpty(key))
             {
-                valid = LogTableError(tableName, $"line {lineNumber} has no {columns[0]}.");
+                valid = LogTableError(label, $"line {lineNumber} has no {columns[0]}.");
                 continue;
             }
             if (!TryNormalizeKey(keyType, key, out string normalized))
             {
-                valid = LogTableError(tableName, $"line {lineNumber} {columns[0]} must be {keyType} : {key}");
+                valid = LogTableError(label, $"line {lineNumber} {columns[0]} must be {keyType} : {key}");
                 continue;
             }
-            if (firstLines.TryGetValue(normalized, out int firstLine))
+            if (keyLocations.TryGetValue(normalized, out string firstLocation))
             {
-                valid = LogTableError(tableName, $"line {lineNumber} {columns[0]} {key} is already used at line {firstLine}.");
+                valid = LogTableError(label, $"line {lineNumber} {columns[0]} {key} is already used at {firstLocation}.");
                 continue;
             }
-            firstLines[normalized] = lineNumber;
+            keyLocations[normalized] = $"{label} line {lineNumber}";
         }
         return valid;
     }
+
+    //에러에 표 폴더 기준 경로를 적는다. 챕터 폴더마다 같은 이름의 파일이 있어서 이름만으로는 어느 파일인지 모른다
+    private static string ToLabel(string path) => Path.GetRelativePath(TableDirectoryPath, path).Replace('\\', '/');
 
     //숫자 Id는 생성된 코드처럼 숫자로 읽어서 비교한다. 문자열 Id는 적힌 그대로 비교한다 (대소문자도 다른 Id다)
     private static bool TryNormalizeKey(string keyType, string key, out string normalized)
@@ -367,9 +488,9 @@ public static class TableUpdater
     }
 
     //에러를 남기고 false를 돌려준다. 실패 지점에서 바로 return할 수 있게 bool을 돌려준다
-    private static bool LogTableError(string tableName, string message)
+    private static bool LogTableError(string label, string message)
     {
-        Debug.LogError($"{tableName}.tsv : {message}");
+        Debug.LogError($"{label} : {message}");
         return false;
     }
 

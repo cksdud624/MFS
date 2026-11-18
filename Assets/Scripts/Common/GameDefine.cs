@@ -5,10 +5,12 @@ namespace Common
     public static class GameDefine
     {
         #region Enum
+        //씬 이름과 같다. 게임은 BootStrap → Title → Main 순으로 넘어간다
         public enum SceneType
         {
             BootStrap = 0,
-            Main = 1
+            Title = 1,
+            Main = 2
         }
 
         public enum ObjectType
@@ -50,6 +52,8 @@ namespace Common
             Action,
             Damage,
             Event,
+            //쓰러졌다. 가장 높은 단계라 무엇을 하던 중이든 끊고 들어가고, 다시 나오지 않는다
+            Dead,
         }
 
         //Action 상태에서 무엇을 하는지
@@ -82,6 +86,8 @@ namespace Common
             Fly,
             Attack,
             Damage,
+            //쓰러지는 모션. 반복하지 않는 클립이어야 한다. 끝나야 오브젝트가 사라진다
+            Death,
         }
         #endregion
 
@@ -207,10 +213,40 @@ namespace Common
             //무적이라 받지 않았다 (반격 중, Event 중)
             Ignored,
         }
+        #endregion
 
-        //테이블로 차후 관리해야하는 부분
-        //피격 후 Damage 상태에 묶여 있는 시간. 이 시간이 지나면 Ground나 Air로 돌아간다
-        public const float DamageDuration = 5f;
+        #region Status
+        //상태 효과(버프, 디버프, 타고난 특성)가 하는 일은 두 가지다. 수치를 보정하거나(Stat), 처리 흐름을 바꾼다(Trait).
+        //이름은 StatusModifier 표의 Kind, Target, Operation 칸에 그대로 적는다
+        public enum StatusModifierKind
+        {
+            Stat,
+            Trait,
+        }
+
+        //상태 효과가 보정하는 수치. 계산은 (기본값 + 더하기의 합) × 곱하기의 곱이다
+        public enum StatType
+        {
+            MachineAttack,
+            MachineDefense,
+            MagicAttack,
+            MagicDefense,
+            //받는 경직 시간의 배율. 기본값이 1이라 곱하기 0.5면 절반만 굳는다
+            StaggerTaken,
+        }
+
+        public enum StatOperation
+        {
+            Add,
+            Multiply,
+        }
+
+        //상태 효과가 켜는 특성. 수치로는 표현할 수 없는 규칙을 바꾼다
+        public enum StatusTrait
+        {
+            //맞아도 피격 상태에 들어가지 않는다. Hp는 깎이지만 하던 행동이 끊기지 않는다
+            StaggerImmune,
+        }
         #endregion
 
         #region AI
@@ -230,21 +266,46 @@ namespace Common
         public const float TargetDirectionDeadZone = 0.05f;
         #endregion
 
+        #region Title
+        //타이틀 화면 프리팹. AssetPathUI 아래에 있다. 에디터 메뉴 UI > Build Title View가 만든다
+        public const string UITitleView = "TitleView";
+        #endregion
+
+        #region Loading
+        //씬을 넘어갈 때 화면을 덮는 로딩 화면 프리팹. AssetPathUI 아래에 있다. 에디터 메뉴 UI > Build Loading View가 만든다
+        public const string UILoadingView = "LoadingView";
+        //로딩 화면은 씬이 준비되는 동안 그 씬의 UI를 모두 덮어야 하므로 가장 위에 둔다
+        public const int SortingOrderLoading = 200;
+        //새 씬이 준비를 마친 뒤 로딩 화면이 걷히는 시간(초)
+        public const float LoadingFadeDuration = 0.3f;
+        //로딩 글 끝의 점이 하나씩 늘어나는 간격(초). 멈춘 것이 아니라 불러오는 중임을 알린다
+        public const float LoadingDotInterval = 0.3f;
+        #endregion
+
         #region Dialogue
-        //대화창 프리팹. AssetPathUI 아래에 있다. 에디터 메뉴 UI > Build Dialogue View가 만든다
+        //말풍선 프리팹. AssetPathUI 아래에 있다. 에디터 메뉴 UI > Build Dialogue View가 만든다
         public const string UIDialogueView = "DialogueView";
         //대사가 한 글자씩 나오는 간격(초)
         public const float DialogueCharInterval = 0.03f;
         //이 거리(좌우) 안에서 Interact를 누르면 NPC에게 말을 건다
         public const float InteractDistance = 1.5f;
+        //이 거리(좌우) 안에 들어오면 일반 대화를 할 수 있는 NPC 위에 대화 아이콘을 띄운다.
+        //말을 걸 수 있는 거리보다 조금만 넓게 둔다. 바로 앞까지 다가갔을 때 뜨고, 뜬 뒤 한 걸음이면 말을 걸 수 있다
+        public const float TalkMarkerDistance = 2.5f;
         #endregion
 
         #region Screen
         //화면을 덮는 페이드 프리팹. AssetPathUI 아래에 있다. 에디터 메뉴 UI > Build Screen Fade View가 만든다
         public const string UIScreenFadeView = "ScreenFadeView";
-        //캔버스 순서. 페이드는 게임 화면을 덮되, 검은 화면 위에서도 대사는 읽혀야 하므로 대화창이 그보다 위에 온다
+        //캔버스 순서. 페이드는 게임 화면을 덮되, 검은 화면 위에서도 대사는 읽혀야 하므로 말풍선이 그보다 위에 온다
         public const int SortingOrderScreenFade = 90;
         public const int SortingOrderDialogue = 100;
+        //목표와 대화 아이콘 프리팹. AssetPathUI 아래에 있다. 에디터 메뉴 UI > Build Marker View가 만든다
+        public const string UIMarkerView = "MarkerView";
+        //화면 왼쪽 위의 퀘스트 안내 프리팹. AssetPathUI 아래에 있다. 에디터 메뉴 UI > Build Quest View가 만든다
+        public const string UIQuestView = "QuestView";
+        //아이콘과 퀘스트 안내는 게임 화면의 일부라서 페이드가 덮을 때 같이 가려지게 페이드보다 아래에 둔다
+        public const int SortingOrderHud = 80;
         //시나리오 FadeIn/FadeOut이 늘 쓰는 시간(초). 표에서는 정하지 않는다
         public const float ScreenFadeDuration = 0.5f;
         //시나리오 Zoom에서 시간을 적지 않았을 때, 그리고 대화 확대와 연출 구간 끝의 카메라 복귀에 쓰는 시간(초)
@@ -259,6 +320,9 @@ namespace Common
         //플레이어 캐릭터의 Object 번호. 플레이어는 하나뿐이라 Actor 표에 두지 않고 표에는 Player로만 적는다
         //테이블로 차후 관리해야하는 부분
         public const long PlayerObjectId = 1001;
+        //말풍선에 띄우는 플레이어 이름. 다른 대상의 이름은 Actor 표의 Name 칸에 적는다
+        //테이블로 차후 관리해야하는 부분
+        public const string PlayerDisplayName = "플레이어";
         //시나리오와 퀘스트 명령의 분류. 대상은 Spawn으로 월드에 들어와서 Despawn이나 Clear로 나가고, 그 사이의 줄은 월드에 있는 대상에만 쓸 수 있다
         public enum StoryStepKind
         {
@@ -290,6 +354,18 @@ namespace Common
         //Actor 표의 번호는 챕터 × 이 값 + 순번이다 (1장 1번 → 10001). 한 챕터에 9999명까지 둔다.
         //다섯 자리라서 시나리오/퀘스트 번호(101), Object 번호(1001), 대화 번호(1001)와 눈으로 구분된다
         public const long StoryActorChapterRange = 10000;
+        //화면에 띄우는 아이콘의 종류. 퀘스트와 시나리오는 지금 목표가 가리키는 곳에 뜨고 멀리서도 보인다
+        public enum StoryMarkerKind
+        {
+            //퀘스트 목표 (말을 걸 Npc, 가야 할 곳, 쓰러뜨릴 적)
+            Quest,
+            //퀘스트 목표인데, 채우면 바로 시나리오(연출)가 이어진다
+            Scenario,
+            //일반 대화를 할 수 있는 Npc. 가까이 가야 보인다
+            Talk,
+        }
+        //Reach 목표의 목적지는 발밑 기준이라, 아이콘은 이만큼 위(캐릭터 머리 높이)에 띄운다
+        public const float GoalPointMarkerHeight = 2.5f;
         //Move가 도착했다고 보는 거리. 시간을 정해 빠르게 걸으면 한 물리 스텝에 이보다 멀리 가므로, 목표를 지나친 것도 도착으로 본다
         public const float ScenarioArriveDistance = 0.1f;
         #endregion

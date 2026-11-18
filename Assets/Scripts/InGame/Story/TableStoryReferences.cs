@@ -26,8 +26,6 @@ namespace InGame.Story
         public bool HasObject(long objectId) => _tableManager.ObjectRecord.GetRecord(objectId) != null;
         public bool IsCharacter(long objectId) => _tableManager.ObjectRecord.GetRecord(objectId)?.IsCharacter ?? false;
         public bool HasCharacter(long characterId) => _tableManager.CharacterRecord.GetRecord(characterId) != null;
-        public bool HasDialogue(long dialogueId) => _tableManager.DialogueRecord.GetLines(dialogueId) != null;
-        public bool HasDialogueLine(long lineId) => _tableManager.DialogueRecord.GetRecord(lineId) != null;
         public bool HasZone(long zoneId) => _zoneLayout.HasZone(zoneId);
         public bool? HasEffect(long objectId, string effectName) => null;
         #endregion

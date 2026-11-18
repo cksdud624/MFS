@@ -37,6 +37,9 @@ namespace InGame.Story.Scenario.Steps
             validator.Spawn(Actor);
         }
 
+        //위치를 비웠으면 Actor 표의 자리에 서므로 그 Zone이 무대다
+        public override long GetStageZone(StoryBook book) => _hasPosition ? _zone : book.GetActor(Actor)?.Zone ?? 0;
+
         public override async UniTask Run(StoryContext context, CancellationToken cancellationToken)
         {
             Vector2 position;

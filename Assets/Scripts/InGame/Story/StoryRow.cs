@@ -21,10 +21,12 @@ namespace InGame.Story
         public long Zone { get; }
         public string Param1 { get; }
         public string Param2 { get; }
+        //플레이어에게 보여주는 글. 퀘스트 표에만 있고, 목표 줄이 화면의 퀘스트 안내에 띄울 내용을 적는다. 시나리오 줄은 늘 비어 있다
+        public string Text { get; }
         #endregion
 
         #region Init
-        private StoryRow(string table, long id, string command, string actor, long zone, string param1, string param2)
+        private StoryRow(string table, long id, string command, string actor, long zone, string param1, string param2, string text)
         {
             Table = table;
             Id = id;
@@ -33,15 +35,16 @@ namespace InGame.Story
             Zone = zone;
             Param1 = param1;
             Param2 = param2;
+            Text = text;
         }
         #endregion
 
         #region Public
         public static StoryRow From(ScenarioData data)
-            => new(ScenarioTable, data.Id, data.Command, data.Actor, data.Zone, data.Param1, data.Param2);
+            => new(ScenarioTable, data.Id, data.Command, data.Actor, data.Zone, data.Param1, data.Param2, string.Empty);
 
         public static StoryRow From(QuestData data)
-            => new(QuestTable, data.Id, data.Command, data.Actor, data.Zone, data.Param1, data.Param2);
+            => new(QuestTable, data.Id, data.Command, data.Actor, data.Zone, data.Param1, data.Param2, data.Text);
 
         public override string ToString() => $"{Table} {Id} {Command}";
         #endregion

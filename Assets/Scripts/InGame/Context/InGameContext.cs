@@ -22,6 +22,10 @@ namespace InGame.Context
         public event Action OnInteract;
         //OnInteract보다 먼저 받는 쪽 (일반 대화). 대사 넘기기나 말 걸기 목표가 이 입력을 받기 전의 상태로 판단해야 한다
         public event Action OnInteractFirst;
+
+        //쓰러지는 모션까지 끝난 오브젝트. 생성한 쪽(스포너)이 받아서 목록에서 빼고 없앤다.
+        //오브젝트가 스스로 파괴하면 스포너의 목록에 파괴된 참조가 남는다
+        public event Action<ObjectBase> OnObjectDefeated;
         #endregion
 
         #region Public
@@ -34,6 +38,8 @@ namespace InGame.Context
         public void UnregisterHurtBox(Collider2D collider) => _hurtBoxes.Remove(collider);
         public bool TryGetHurtBoxOwner(Collider2D collider, out ObjectContext owner)
             => _hurtBoxes.TryGetValue(collider, out owner);
+
+        public void NotifyObjectDefeated(ObjectBase target) => OnObjectDefeated?.Invoke(target);
 
         public void NotifyInteract()
         {

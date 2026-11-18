@@ -28,10 +28,19 @@ namespace InGame.Story.Quest.Steps
                 validator.Error($"Param2 (Radius) must be greater than 0 : {_radius}");
         }
 
-        public override UniTask Run(StoryContext context, CancellationToken cancellationToken)
+        public override async UniTask Run(StoryContext context, CancellationToken cancellationToken)
         {
             var destination = context.ToWorld(_zone, _destination);
-            return UniTask.WaitUntil(() => IsReached(context, destination), cancellationToken: cancellationToken);
+            //기다리는 동안 목적지에 목표 아이콘이 뜬다. 취소되어도 남지 않게 지운다
+            context.SetGoal(StoryGoal.ForPoint(destination), Text);
+            try
+            {
+                await UniTask.WaitUntil(() => IsReached(context, destination), cancellationToken: cancellationToken);
+            }
+            finally
+            {
+                context.ClearGoal();
+            }
         }
         #endregion
 

@@ -52,6 +52,7 @@ namespace InGame.Component
             _stateMachine.AddState(FSMState.Action, new ActionState(_stateMachine, inputContext, objectContext));
             _stateMachine.AddState(FSMState.Damage, new DamageState(_stateMachine, inputContext, objectContext));
             _stateMachine.AddState(FSMState.Event, new EventState(_stateMachine, inputContext, objectContext));
+            _stateMachine.AddState(FSMState.Dead, new DeadState(_stateMachine, inputContext, objectContext));
             _stateMachine.ChangeState(objectContext.IsGrounded ? FSMState.Ground : FSMState.Air);
 
             //핸들러가 상태 머신을 바로 보므로 첫 상태에 들어간 뒤에 구독한다
@@ -59,6 +60,7 @@ namespace InGame.Component
             _objectContext.OnAttackEnd += OnAttackEnd;
             _objectContext.OnDamage += OnDamage;
             _objectContext.OnInEventChanged += OnInEventChanged;
+            _objectContext.OnDead += OnDead;
             _inputContext.OnDash += OnDash;
             _inputContext.OnAttack += OnAttack;
             _inputContext.OnCounter += OnCounter;
@@ -84,6 +86,7 @@ namespace InGame.Component
                 _objectContext.OnAttackEnd -= OnAttackEnd;
                 _objectContext.OnDamage -= OnDamage;
                 _objectContext.OnInEventChanged -= OnInEventChanged;
+                _objectContext.OnDead -= OnDead;
             }
             if (_inputContext != null)
             {
@@ -110,6 +113,7 @@ namespace InGame.Component
             {
                 case FSMState.Damage:
                 case FSMState.Event:
+                case FSMState.Dead:
                     return;
                 case FSMState.Action:
                     //공격 중에 대시를 넣으면 대시로 캔슬된다. 콤보도 거기서 끊긴다
@@ -132,6 +136,7 @@ namespace InGame.Component
             {
                 case FSMState.Damage:
                 case FSMState.Event:
+                case FSMState.Dead:
                     return;
                 case FSMState.Action:
                     //대시 중에는 받지 않는다.
@@ -147,14 +152,16 @@ namespace InGame.Component
 
         /// <summary>
         /// 맞았다. Damage는 Ground, Air, Action보다 우선하므로 무엇을 하던 중이든 끊고 들어간다.
+        /// 굳는 시간은 맞은 공격과 상태 효과가 정해서 ObjectContext.StaggerDuration에 들어 있다.
         /// 어떻게 받았는지는 때린 쪽이 히트로 셀지 정할 수 있도록 결과로 남긴다.
         /// 결과를 남기지 않고 빠져나가면 맞지 않은 것(Ignored)이 된다
         /// </summary>
         private void OnDamage(Direction attackerSide, bool counterable)
         {
-            if (_stateMachine.CurrentKey == FSMState.Event) return;
+            //연출 중이거나 쓰러진 뒤에는 맞지 않는다. 마법과 기계가 같이 들어와서 앞의 것에 쓰러졌으면 뒤의 것은 여기서 걸린다
+            if (_stateMachine.CurrentKey is FSMState.Event or FSMState.Dead) return;
 
-            //이미 Damage 상태면 상태가 알아서 시간을 다시 세므로 맞았다는 것만 남긴다
+            //이미 Damage 상태면 굳는 시간은 상태가 알아서 다시 정하므로 맞았다는 것만 남긴다
             if (_stateMachine.CurrentKey == FSMState.Damage)
             {
                 _objectContext.ReportDamageResult(DamageResult.Hit);
@@ -173,6 +180,14 @@ namespace InGame.Component
             //반격 중에는 맞지 않는다. 받아낸 공격과 같이 들어온 판정(마법+기계)이나
             //다른 적의 공격에 반격이 끊기지 않도록 반격이 끝날 때까지 받아내기만 한다
             if (IsCounterAttacking) return;
+
+            //굳히지 않는 피격(경직 면역, 경직이 없는 공격)은 맞기만 하고 하던 행동을 이어간다. 콤보도 끊기지 않는다.
+            //카운터 대기보다 뒤에서 본다. 면역이어도 받아내서 반격하는 것은 그대로 할 수 있어야 한다
+            if (_objectContext.StaggerDuration <= 0f)
+            {
+                _objectContext.ReportDamageResult(DamageResult.Hit);
+                return;
+            }
 
             //맞으면 콤보도 끊긴다. 예약해둔 공격이 피격이 끝난 뒤에 튀어나오지 않도록 같이 비운다
             ResetAttackCommand();
@@ -194,6 +209,7 @@ namespace InGame.Component
             {
                 case FSMState.Damage:
                 case FSMState.Event:
+                case FSMState.Dead:
                     return;
                 case FSMState.Action:
                     //대시나 공격 중이면 상태를 다시 들어가지 않고 카운터 대기로 갈아탄다. 콤보도 거기서 끊긴다
@@ -212,10 +228,12 @@ namespace InGame.Component
 
         /// <summary>
         /// 연출이 시작되면 무엇을 하던 중이든 끊고 Event로 들어가고, 끝나면 Ground나 Air로 돌아간다.
-        /// Event는 가장 높은 단계라 연출 중에는 입력도 피격도 받지 않는다
+        /// Event는 Damage보다 높은 단계라 연출 중에는 입력도 피격도 받지 않는다. 쓰러진 뒤에는 연출로도 일으키지 않는다
         /// </summary>
         private void OnInEventChanged(bool inEvent)
         {
+            if (_stateMachine.CurrentKey == FSMState.Dead) return;
+
             if (inEvent)
             {
                 //연출이 끝난 뒤에 예약해둔 공격이 튀어나오지 않도록 콤보를 비운다
@@ -226,6 +244,16 @@ namespace InGame.Component
 
             if (_stateMachine.CurrentKey != FSMState.Event) return;
             _stateMachine.ChangeState(_objectContext.IsGrounded ? FSMState.Ground : FSMState.Air);
+        }
+
+        /// <summary>
+        /// 쓰러졌다. Dead는 가장 높은 단계라 무엇을 하던 중이든 끊고 들어가고, 거기서 나오지 않는다.
+        /// 하던 공격은 상태를 나가면서 판정까지 거둔다
+        /// </summary>
+        private void OnDead()
+        {
+            ResetAttackCommand();
+            _stateMachine.ChangeState(FSMState.Dead);
         }
 
         /// <summary>공격 한 단계가 끝났다. 예약해둔 입력이 있으면 여기서 다음 단계로 이어붙인다</summary>

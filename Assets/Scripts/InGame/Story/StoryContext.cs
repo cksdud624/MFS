@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using Generated.Table;
 using InGame.Context;
@@ -13,9 +14,10 @@ namespace InGame.Story
     /// <summary>
     /// 시나리오, 퀘스트, 일반 대화가 실행 중에 같이 쓰는 것. 생성과 대화 같은 기능, 그리고 월드에 세운 대상(Actor)을 들고 있다.
     /// 대상은 시나리오나 퀘스트가 아니라 월드가 가지므로, 앞 퀘스트에서 세운 대상을 뒤의 줄이 같은 번호로 찾는다.
-    /// 명령은 서로를 모르고 이 컨텍스트만 거친다
+    /// 명령은 서로를 모르고 이 컨텍스트만 거친다.
+    /// 월드의 대상을 알고 있으므로 대사를 누가 말하는지도 여기서 찾아준다 (IDialogueCast)
     /// </summary>
-    public class StoryContext
+    public class StoryContext : IDialogueCast
     {
         #region Fields
         public InGameContext InGameContext { get; }
@@ -29,13 +31,15 @@ namespace InGame.Story
         public CameraDirector CameraDirector { get; }
         //표의 위치(Zone 로컬 좌표)를 월드 좌표로 바꿀 때 쓰는 Zone 배치
         public ZoneLayout ZoneLayout { get; }
-        //Zone을 불러오고 내리는 쪽. 세운 대상을 맡겨서, 대상이 있는 Zone이 내려가면 꺼두게 한다
+        //Zone을 불러오고 내리는 쪽. 세운 대상을 맡겨서 대상이 있는 Zone이 내려가면 꺼두게 하고, 시나리오의 무대 Zone을 올려두게 한다
         private readonly ZoneStreamer _zoneStreamer;
 
         //검사를 통과한 이야기. 이야기를 시작할 때 정해진다
         public StoryBook Book { get; private set; }
-        //지금 진행 중인 퀘스트. 일반 대화가 진행에 맞는 대사를 고른다
-        public long Progress { get; private set; }
+        //지금 진행 중인 퀘스트. 아직 시작하지 않았으면 null이다. 화면의 퀘스트 안내가 제목을 읽는다
+        public StoryBook.QuestEntry Quest { get; private set; }
+        //지금 진행 중인 퀘스트의 번호. 일반 대화가 진행에 맞는 대사를 고른다
+        public long Progress => Quest?.Number ?? 0;
 
         //월드에 세운 대상. 쓰러진 적은 파괴되어 null로 남다가 Clear가 정리한다
         private readonly Dictionary<StoryActor, ObjectBase> _actors = new();
@@ -46,12 +50,21 @@ namespace InGame.Story
         public bool IsInScenario { get; private set; }
         //시나리오가 멈춰둔 대상. 끝날 때 이것만 다시 켠다. 이동(Move)이 따로 멈춘 것은 멈춘 횟수가 따로 세어지므로 그대로 남는다
         private readonly List<ObjectBase> _scenarioHeld = new();
+        //지금 시나리오가 무대로 쓰는 Zone. 시나리오를 시작할 때마다 다시 모은다
+        private readonly HashSet<long> _stageZones = new();
 
-        //대화창이 열려 있는지 (일반 대화, 퀘스트 대화, 시나리오 대사). 이 동안 누른 Interact는 대사를 넘기는 입력이라
-        //일반 대화와 말 걸기 목표는 받지 않고, 퀘스트의 대화와 시나리오는 창이 닫힐 때까지 시작을 기다린다
+        //말풍선이 열려 있는지 (일반 대화, 퀘스트 대화, 시나리오 대사). 이 동안 누른 Interact는 대사를 넘기는 입력이라
+        //일반 대화와 말 걸기 목표는 받지 않고, 퀘스트의 대화와 시나리오는 말풍선이 닫힐 때까지 시작을 기다린다
         public bool IsInDialogue => DialoguePlayer != null && DialoguePlayer.IsOpen;
         //말 걸기 목표(Interact)가 기다리는 대상. 이 대상에게 건 말은 일반 대화가 아니라 목표로 간다
         public StoryActor InteractTarget { get; private set; }
+
+        //지금 기다리는 퀘스트 목표가 가리키는 곳. 화면의 목표 아이콘이 읽는다. 기다리는 목표가 없으면 None이다
+        public StoryGoal Goal { get; private set; }
+        //지금 기다리는 목표가 플레이어에게 시키는 일 (목표 줄의 Text 칸). 화면의 퀘스트 안내가 읽는다
+        public string GoalText { get; private set; }
+        //지금 줄 바로 다음이 시나리오 재생인지. 목표를 채우면 바로 연출이 이어진다는 뜻이라 목표 아이콘이 시나리오 아이콘으로 바뀐다
+        public bool IsScenarioNext { get; private set; }
         #endregion
 
         #region Init
@@ -78,7 +91,26 @@ namespace InGame.Story
         #region Public - Progress
         public void SetBook(StoryBook book) => Book = book;
 
-        public void SetProgress(long quest) => Progress = quest;
+        public void SetProgress(StoryBook.QuestEntry quest) => Quest = quest;
+
+        public void SetScenarioNext(bool scenarioNext) => IsScenarioNext = scenarioNext;
+        #endregion
+
+        #region Public - Goal
+        /// <summary>
+        /// 목표가 가리키는 곳과 플레이어에게 시키는 일을 걸어둔다. 목표 명령이 기다리기 시작할 때 부르고, 끝나면 ClearGoal로 지운다
+        /// </summary>
+        public void SetGoal(StoryGoal goal, string text)
+        {
+            Goal = goal;
+            GoalText = text;
+        }
+
+        public void ClearGoal()
+        {
+            Goal = StoryGoal.None;
+            GoalText = string.Empty;
+        }
         #endregion
 
         #region Public - Talk
@@ -103,6 +135,23 @@ namespace InGame.Story
                 target = pair.Value;
             }
             return target != null;
+        }
+        #endregion
+
+        #region Public - Dialogue
+        /// <summary>
+        /// 대사를 말하는 캐릭터와 말풍선에 띄울 이름을 찾는다. 화자가 월드에 있는지는 검사에서 확인했지만,
+        /// 생성이 실패했거나(에셋 누락) 일반 대화 도중에 사라졌을 수 있어서 못 찾으면 에러를 남긴다
+        /// </summary>
+        public bool TryGetSpeaker(DialogueData line, out ObjectBase speaker, out string name)
+        {
+            var actor = Book.GetSpeaker(line.Id);
+            name = Book.GetActorName(actor);
+            if (_actors.TryGetValue(actor, out speaker) && speaker != null) return true;
+
+            speaker = null;
+            Debug.LogError($"Dialogue {line.Id} : speaker {actor} is not found. The line is shown without a speaker.");
+            return false;
         }
         #endregion
 
@@ -156,6 +205,21 @@ namespace InGame.Story
             return false;
         }
 
+        /// <summary>대상을 찾는다. 없어도 에러로 보지 않는다. 화면 표시처럼 매 프레임 물어보는 쪽이 쓴다</summary>
+        public bool TryFindActor(StoryActor actor, out ObjectBase target)
+            => _actors.TryGetValue(actor, out target) && target != null;
+
+        /// <summary>월드에 있는 그 종류의 대상을 모은다. 쓰러져서 사라진 대상은 뺀다. Zone이 내려가 꺼진 대상은 들어 있다</summary>
+        public void CollectActors(StoryActorType type, List<KeyValuePair<StoryActor, ObjectBase>> result)
+        {
+            result.Clear();
+            foreach (var pair in _actors)
+            {
+                if (pair.Value != null && Book.GetActorType(pair.Key) == type)
+                    result.Add(pair);
+            }
+        }
+
         /// <summary>대상이 쓰러졌는지(파괴되었는지). 쓰러졌으면 월드 목록에서도 뺀다. 세운 적이 없으면 이미 없는 것으로 본다</summary>
         public bool IsDefeated(StoryActor actor)
         {
@@ -185,17 +249,25 @@ namespace InGame.Story
         #endregion
 
         #region Public - Scenario
-        /// <summary>시나리오를 시작한다. 월드에 있는 대상의 조작과 AI를 모두 멈춘다</summary>
-        public void BeginScenario()
+        /// <summary>
+        /// 시나리오를 시작한다. 월드에 있는 대상의 조작과 AI를 모두 멈추고, 이 시나리오가 무대로 쓰는 Zone을 다 올라올 때까지 기다린다.
+        /// 먼저 멈추고 기다린다. 기다리는 동안 플레이어가 걸어가면 컬링 기준이 바뀌어서 올려둘 Zone이 달라진다
+        /// </summary>
+        public async UniTask BeginScenario(IReadOnlyList<StoryStep> steps, CancellationToken cancellationToken)
         {
             IsInScenario = true;
             foreach (var actor in _actors.Values)
                 HoldForScenario(actor);
+
+            if (_zoneStreamer == null) return;
+            CollectStageZones(steps);
+            await _zoneStreamer.Pin(_stageZones, cancellationToken);
         }
 
-        /// <summary>시나리오를 끝낸다. 시나리오가 멈춘 대상만 다시 켠다</summary>
+        /// <summary>시나리오를 끝낸다. 시나리오가 멈춘 대상만 다시 켜고, 올려둔 무대 Zone을 푼다</summary>
         public void EndScenario()
         {
+            _zoneStreamer?.Unpin();
             //시나리오 안에서 Despawn된 대상은 파괴되어 null로 남아 있다
             foreach (var actor in _scenarioHeld)
             {
@@ -227,6 +299,26 @@ namespace InGame.Story
             if (actor == null) return;
             actor.SuspendControl();
             _scenarioHeld.Add(actor);
+        }
+
+        /// <summary>
+        /// 시나리오가 무대로 쓰는 Zone을 모은다. 줄이 대상을 세우거나 옮기는 Zone, 그리고 출연하는 대상이 지금 서 있는 Zone이다.
+        /// 서 있는 Zone은 실행할 때만 알 수 있다 (적은 돌아다니고, 앞의 시나리오가 대상을 옮겼을 수 있다).
+        /// 이 시나리오 안에서 등장하는 대상은 아직 월드에 없지만, 세우는 줄의 Zone이 들어간다
+        /// </summary>
+        private void CollectStageZones(IReadOnlyList<StoryStep> steps)
+        {
+            _stageZones.Clear();
+            foreach (var step in steps)
+            {
+                long zoneId = step.GetStageZone(Book);
+                if (zoneId != 0)
+                    _stageZones.Add(zoneId);
+
+                if (_actors.TryGetValue(step.Actor, out var target) && target != null
+                    && ZoneLayout.TryFindZone(_zoneStreamer.MapId, target.transform.position, out var zone))
+                    _stageZones.Add(zone.Id);
+            }
         }
         #endregion
     }

@@ -7,7 +7,7 @@ namespace InGame.Story.Scenario.Steps
     /// <summary>
     /// FadeOut / FadeIn : 화면을 검게 덮거나(FadeOut) 걷어낸다(FadeIn). 다 바뀌면 다음 줄로 넘어간다.
     /// 걸리는 시간은 표에서 정하지 않고 늘 ScreenFadeDuration을 쓴다. 바꾸려면 GameDefine의 값을 고친다.
-    /// 대화창은 덮개보다 위에 그려지므로 FadeOut 뒤에 Dialogue를 두면 검은 화면 위에 대사가 나온다.
+    /// 말풍선은 덮개보다 위에 그려지므로 FadeOut 뒤에 Dialogue를 두면 검은 화면 위에 대사가 나온다.
     /// 시나리오가 끝나면 퀘스트 목표가 이어지므로, 덮은 채로 시나리오가 끝나면 정합성 검사에서 막는다.
     /// 쓰는 칸 없음
     /// </summary>

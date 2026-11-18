@@ -47,6 +47,7 @@ namespace Generated.Table
 		public float MoveSpeed {get; private set;}
 		public Vector2 ColliderSize {get; private set;}
 		public Vector2 ColliderOffset {get; private set;}
+		public Vector3 Tint {get; private set;}
 
 		public ObjectData(BinaryReader reader)
 		{
@@ -85,6 +86,23 @@ namespace Generated.Table
 			{
 				ColliderOffset = Vector2.zero;
 				Debug.LogError($"ColliderOffset is not Vector2 : {tableDatas[4]}");
+			}
+			string[] items5 = tableDatas[5].Split(',', ';');
+			if (items5.Length == 3)
+			{
+				float.TryParse(items5[0], out float resultX5);
+				float.TryParse(items5[1], out float resultY5);
+				float.TryParse(items5[2], out float resultZ5);
+				Tint = new Vector3(resultX5, resultY5, resultZ5);
+			}
+			else if (string.IsNullOrEmpty(tableDatas[5]))
+			{
+				Tint = Vector3.zero;
+			}
+			else
+			{
+				Tint = Vector3.zero;
+				Debug.LogError($"Tint is not Vector3 : {tableDatas[5]}");
 			}
 		}
 	}

@@ -27,6 +27,16 @@ namespace InGame.Object
         public void Init(InGameContext inGameContext)
         {
             _inGameContext = inGameContext;
+            //쓰러진 오브젝트는 쓰러지는 모션이 끝난 뒤에 여기서 없앤다
+            _inGameContext.OnObjectDefeated += Despawn;
+        }
+        #endregion
+
+        #region LifeCycle
+        private void OnDestroy()
+        {
+            if (_inGameContext != null)
+                _inGameContext.OnObjectDefeated -= Despawn;
         }
         #endregion
 

@@ -3,6 +3,9 @@
 Unity 6 (6000.6.8f1) 2D 액션 프로젝트. URP 2D, 새 Input System 전용, Addressables, UniTask, R3, FMOD를 쓴다.
 R3는 코어(`R3.dll`)를 NuGetForUnity로(`Assets/packages.config`, `Assets/Packages/`), Unity 확장(`com.cysharp.r3`)을 UPM git URL로 받는다. 올릴 때는 두 버전을 같이 맞춘다.
 코드는 `Assets/Scripts` 아래에 있고, 공개 포트폴리오로 쓰이는 코드라서 읽히는 품질을 기능만큼 중요하게 본다.
+씬은 `BootStrap`(전역 준비) → `Title`(타이틀 메뉴) → `Main`(게임) 순으로 넘어가고, Build Settings에도 이 순서로 둔다(빌드는 첫 씬에서 시작한다).
+씬을 넘어갈 때는 `Global.Instance.SceneLoader.LoadScene`을 쓴다. 로딩 화면이 바로 덮고, 새 씬의 `InitScene`(에셋과 Zone 불러오기)이 끝나면 걷힌다.
+Main은 이야기가 플레이어를 세울 때까지 `InitScene`을 끝내지 않는다(`GameController.StartStory`). 먼저 걷히면 아무도 없는 맵이 보인다.
 
 ## 폴더와 네임스페이스
 
@@ -12,21 +15,26 @@ R3는 코어(`R3.dll`)를 NuGetForUnity로(`Assets/packages.config`, `Assets/Pac
 |---|---|
 | `Common/` | 전역(`Global` 싱글톤), 씬 로더, `AssetManager`, `GameDefine`(상수/enum) |
 | `Common/Template/` | `Singleton`, `StateMachine`/`IState`, `IUpdateable` 계열 인터페이스 |
+| `Common/Scene/` | `SceneLoader`가 씬을 넘기고 넘어가는 동안 로딩 화면으로 덮는다. 씬마다 시작점(`SceneLoadBase`를 상속한 `SceneLoadXxx`)을 하나 두고, 그 씬의 준비를 `InitScene`에서 끝까지 기다린다. `InitScene`이 끝나야 로딩 화면이 걷힌다 |
+| `Common/UI/` | 씬과 상관없이 쓰는 UI (`LoadingView`: 로딩 화면. 게임이 켜질 때 가장 먼저 만들어서 `SceneLoader` 아래에 두고 끝까지 쓴다) |
 | `Common/Test/` | 에디터 전용 테스트 코드 (`EditorTestKeys`) |
+| `Title/` | 타이틀 씬. `SceneLoadTitle`이 씬의 시작점이고, `TitleController`가 타이틀 화면을 띄우고 고른 메뉴(시작, 종료)를 처리한다 |
+| `Title/UI/` | `TitleView`: 게임 이름과 메뉴(시작, 이어하기, 종료). 키보드(방향키/WASD, Enter)와 마우스로 고른다. 이어하기는 저장 기능이 생길 때까지 프리팹에서 꺼둔다. 프리팹은 `InGame/UI/`와 같이 `UIPrefabBuilder`가 만들고(UI > Build Title View), 버튼이 입력을 받는 데 필요한 EventSystem도 프리팹에 들어 있다. Title 씬에는 `SceneLoader`(`SceneLoadTitle`)와 `Main Camera`만 둔다 |
 | `InGame/Object/` | `ObjectBase`/`CharacterBase`, `ObjectSpawner` |
 | `InGame/Context/` | `InGameContext`, `ObjectContext`, `InputContext`: 컴포넌트 사이를 이어주는 상태와 이벤트 |
 | `InGame/Component/` | 오브젝트에 붙는 기능 컴포넌트 (물리, 애니메이션, 이펙트, 판정) |
-| `InGame/Component/State/` | 오브젝트 FSM 상태 (`Ground`, `Air`, `Action`, `Damage`, `Event`) |
+| `InGame/Component/State/` | 오브젝트 FSM 상태 (`Ground`, `Air`, `Action`, `Damage`, `Event`, `Dead`). 뒤로 갈수록 높은 단계라 앞의 상태를 끊고 들어간다 |
 | `InGame/Component/Controller/` | 플레이어/AI 컨트롤러, AI 상태 |
-| `InGame/Story/` | 인게임 흐름. `StoryPlayer`가 퀘스트를 번호 순으로 실행하고, `StoryValidator`가 실행 전에 표 전체를 검사해 `StoryBook`을 만든다. 월드에 세운 대상은 `StoryContext`가 들고, `TalkPlayer`가 일반 대화를, `DialoguePlayer`가 대사를 띄운다 |
+| `InGame/Story/` | 인게임 흐름. `StoryPlayer`가 퀘스트를 번호 순으로 실행하고, `StoryValidator`가 실행 전에 표 전체를 검사해 `StoryBook`을 만든다. 월드에 세운 대상은 `StoryContext`가 들고, `TalkPlayer`가 일반 대화를, `DialoguePlayer`가 대사를 띄운다. `StoryHudPresenter`가 지금 띄울 퀘스트 안내와 목표/대화 아이콘을 정한다 |
 | `InGame/Story/Steps/` | 시나리오와 퀘스트가 같이 쓰는 명령 (`DialogueStep`. 어디서 쓰는지에 따라 카메라를 쓸지 정한다) |
 | `InGame/Story/Scenario/Steps/` | 시나리오(연출) 명령 하나당 클래스 하나. `ScenarioStepFactory`에 이름을 등록한다 |
 | `InGame/Story/Quest/Steps/` | 퀘스트(목표, 시나리오 재생) 명령 하나당 클래스 하나. `QuestStepFactory`에 이름을 등록한다. 새 명령은 시나리오/퀘스트 모두 `StoryStep`을 상속해서 `Parse`(칸 형식), `Validate`(앞뒤 정합성), `Run`을 구현하고, 시작/종료/목표 명령이면 `Kind`를 다시 정한다. Actor와 Param1~2를 어떻게 쓰는지는 각 클래스 summary에 적는다 |
-| `InGame/UI/` | UI 뷰 (`DialogueView`, `ScreenFadeView`). 프리팹은 `Editor/UIPrefabBuilder`의 메뉴(UI > Build All UI)가 코드로 조립해서 `AddressableAssets/UI/`에 저장한다. 레이아웃은 프리팹이 아니라 빌더 코드를 고친다 |
-| `InGame/World/` | 맵과 Zone. `ZoneLayout`이 Map/Zone 표로 격자 배치를 만들고 로컬↔월드 좌표를 바꾼다. `ZoneStreamer`가 플레이어 주변 Zone만 불러두고, `IZoneLoader`(지금은 `PrefabZoneLoader`)가 Zone 내용물을 불러오고 내린다 |
+| `InGame/UI/` | UI 뷰 (`DialogueView`: 말하는 캐릭터의 머리 위를 따라다니는 말풍선, `ScreenFadeView`, `MarkerView`: 대상이나 지점 위의 아이콘, `QuestView`: 왼쪽 위의 퀘스트 안내). 프리팹은 `Editor/UIPrefabBuilder`의 메뉴(UI > Build All UI)가 코드로 조립해서 `AddressableAssets/UI/`에 저장한다. 레이아웃은 프리팹이 아니라 빌더 코드를 고친다 |
+| `InGame/World/` | 맵과 Zone. `ZoneLayout`이 Map/Zone 표로 격자 배치를 만들고 로컬↔월드 좌표를 바꾼다. `ZoneStreamer`가 플레이어 주변 Zone과 시나리오의 무대 Zone만 불러두고, `IZoneLoader`(지금은 `PrefabZoneLoader`)가 Zone 내용물을 불러오고 내린다 |
 | `InGame/CameraDirector.cs` | 게임 카메라를 움직이는 유일한 곳. 평소에는 플레이어를 따라가고, 연출(시나리오 Zoom, 대화 확대) 동안에는 바라볼 곳으로 옮긴다. 화면은 Zone 밖을 보여주지 않는다. 씬 카메라의 처음 화각을 배율 1로 본다 |
 | `Generated/Table/` | **자동 생성 코드. 직접 고치지 않는다** (`Custom/` 폴더의 partial만 손으로 작성) |
-| `Editor/` | 에디터 툴 (`TableUpdater`, `StoryValidatorMenu`, `DefaultSceneSetter`) |
+| `Editor/` | 에디터 툴 (`TableUpdater`, `StoryValidatorMenu`, `DefaultSceneSetter`, `UIPrefabBuilder`, `TableBytes`: 생성된 `.bytes`를 Play 없이 읽는다). 네임스페이스 없이 둔다 |
+| `Editor/StoryTool/` | 시나리오 툴 (메뉴 Story > Story Tool, 네임스페이스 `StoryTool`). 아래 "시나리오 툴" 참고 |
 
 ## 코딩 컨벤션
 
@@ -104,6 +112,11 @@ R3는 코어(`R3.dll`)를 NuGetForUnity로(`Assets/packages.config`, `Assets/Pac
 ## 테이블 (데이터)
 
 - 원본은 `Assets/.Table/*.tsv`. 첫 줄은 컬럼 이름, 둘째 줄은 타입 (`long`, `int`, `float`, `bool`, `string`, `Vector2`, `List<long>` ...).
+- 챕터마다 길어지는 표는 챕터 폴더로 나눈다: `Assets/.Table/Chapter1/Scenario.tsv`, `Chapter2/Scenario.tsv` ...
+  지금 나눠 둔 표는 Scenario, Quest, QuestInfo, Talk다. 그 챕터의 줄만 그 폴더에 둔다.
+  Update Table이 같은 이름의 파일을 챕터 번호 순으로 이어 붙여 표 하나로 만들므로, 생성 코드와 `.bytes`는 나누지 않았을 때와 같다.
+  파일마다 머리 두 줄이 같아야 하고, Id는 다른 챕터 파일과도 겹치면 안 된다. 한 표를 맨 위와 챕터 폴더에 같이 둘 수 없고, 폴더 이름은 `Chapter` + 번호만 받는다.
+  새 챕터는 폴더를 만들고 위 표의 머리 두 줄을 복사해서 시작한다.
 - 수정 후 Unity 메뉴 **Table > Update Table**을 실행하면 다음이 갱신된다:
   - `Assets/Generated/Table/*.bytes` (데이터)
   - `Assets/Scripts/Generated/Table/*Record.cs`, `TableManager.cs` (코드)
@@ -117,6 +130,57 @@ R3는 코어(`R3.dll`)를 NuGetForUnity로(`Assets/packages.config`, `Assets/Pac
   `0,0` 같은 채움값을 적지 않는다. 실제 값과 구분이 안 된다. 형식이 틀린 값(`1,2,3`을 `Vector2`에)은 지금처럼 에러를 낸다.
 - 테이블 변경은 `.tsv`, `.bytes`, `TableManifest.json`, 생성 코드가 한 세트로 같이 커밋되어야 한다.
 
+### 오브젝트와 캐릭터 (Object, Character)
+
+오브젝트 하나는 같은 번호로 여러 곳에 걸쳐 있다. 새 오브젝트를 만들 때는 아래를 모두 같은 번호로 맞춘다.
+
+| 어디 | 무엇 |
+|---|---|
+| `Object.tsv` | `IsCharacter`, `MoveSpeed`, 콜라이더, `Tint`(스프라이트에 곱하는 색 r,g,b 0~1. 빈칸이면 원래 색. 같은 그림을 쓰는 오브젝트를 색으로 구분한다) |
+| `Character.tsv` | 캐릭터의 전투 수치. `Hp`, `MachineAttack`/`MachineDefense`(기계), `MagicAttack`/`MagicDefense`(마법), `StatusEffects`(타고난 상태 효과 번호들). 캐릭터(`IsCharacter`)는 꼭 한 줄 있어야 한다 |
+| `AttackCommand.tsv`, `AttackHitBox.tsv` | 공격 커맨드와 판정. Id가 오브젝트 번호로 시작한다 (1001 → 100101, 10010101). `Damage`는 그 공격의 위력, `Stagger`는 맞은 쪽을 굳히는 시간(초)이다 |
+| `AddressableAssets/Animation/(번호)/`, `Effect/(번호)/` | 애니메이션 클립(`Idle`, `Move`, `Jump`, `Fly`, `Damage`, `Death`, `Attack1`…)과 이펙트 프리팹 |
+
+- 공격은 마법과 기계 두 종류로 나가고(`AttackCommand`의 `Type`) 공격력과 방어력도 종류마다 따로 둔다. 마법 공격은 마법 방어력으로, 기계 공격은 기계 방어력으로 받는다.
+- 수치는 `ObjectContext`의 Status 구역에서 읽는다 (`Hp`, `MaxHp`, `GetAttack(종류)`, `GetDefense(종류)`). 캐릭터는 Hp를 가득 채운 채로 등장한다.
+  공격력과 방어력은 표의 값에 걸려 있는 상태 효과를 반영한 값이다. 표의 값을 직접 읽지 않고 꼭 이 함수로 읽는다.
+- **피해:** 깎이는 Hp = `공격의 Damage + 공격한 쪽의 공격력 − 맞은 쪽의 방어력` (0보다 작으면 0). 한 커맨드에 마법과 기계 판정이 따로 나가므로 각각 한 번씩 계산한다.
+  때린 쪽이 `AttackHit`(종류, 위력, 경직 시간, 카운터로 받아낼 수 있는지)을 만들어 넘기고(`GetAttackHit`), 맞은 쪽이 `RequestDamage` 안에서 방어력을 빼고 깎는다.
+  맞았을 때(`Hit`)만 깎고, 카운터로 받아냈거나 무적이면 깎지 않는다.
+- **경직:** 맞으면 그 공격의 `Stagger`만큼 `Damage` 상태로 굳는다. 굳은 채로 또 맞으면 남은 시간과 새 경직 중 긴 쪽으로 다시 정한다.
+  맞은 쪽이 고친 값(`ObjectContext.StaggerDuration`)이 0이면 **맞기는 하되 굳지 않는다**. Hp는 깎이지만 `Damage` 상태에 들어가지 않고 하던 행동과 콤보가 이어진다.
+  경직이 없는 공격(`Stagger` 빈칸)과 경직 면역이 이 한 곳으로 모인다.
+- **쓰러짐:** Hp가 0이 되면 `Dead` 상태(가장 높은 단계. 입력도 피격도 받지 않는다)로 들어가 `Death` 클립을 틀고, 끝나면 스포너가 없앤다. 퀘스트의 `Clear`는 이렇게 사라지기를 기다린다.
+  `Death` 클립은 반복하지 않게 만든다(Loop Time 끔). 반복하면 끝났다는 신호가 오지 않아서 사라지지 않는다. 클립이 없으면 바로 사라진다.
+  플레이어는 쓰러진 뒤의 처리가 아직 없어서 `[전투] 플레이어 사망` 로그만 남기고 계속 움직인다.
+- 지금 `Attack1~3`, `Damage`, `Death` 클립은 그림이 없어서 점프·낙하 그림을 다시 쓴 임시 클립이다.
+- 1002(Npc, 녹색)와 1003(적, 붉은색)은 1001을 복사한 테스트용 오브젝트다. 이펙트는 1001 프리팹의 변형(Variant)이라 1001을 고치면 같이 바뀐다.
+
+### 상태 효과 (StatusEffect, StatusModifier)
+
+버프, 디버프, 타고난 특성을 모두 상태 효과로 다룬다. 효과가 하는 일은 두 가지이고, 효과 하나가 여러 개를 가질 수 있어서 표를 둘로 나눈다.
+
+| 표 | 칸 |
+|---|---|
+| `StatusEffect.tsv` | `Id`, `Duration`(초. 빈칸이면 무기한), `MaxStack`(겹치는 최대 수. 빈칸이면 1), `Note` |
+| `StatusModifier.tsv` | `Id`(효과 × 100 + 순번), `StatusEffect`(어느 효과의 것인지), `Kind`, `Target`, `Operation`, `Value`, `Note` |
+
+| `Kind` | 하는 일 | `Target` | `Operation` / `Value` |
+|---|---|---|---|
+| `Stat` | 수치를 보정한다 | `GameDefine.StatType`의 이름 (`MachineAttack`, `MagicDefense`, `StaggerTaken` …) | `Add` 또는 `Multiply`, 값 |
+| `Trait` | 처리 흐름을 바꾼다 | `GameDefine.StatusTrait`의 이름 (`StaggerImmune`) | 비운다 |
+
+- 수치는 `(기본값 + 더하기의 합) × 곱하기의 곱`으로 계산한다. 더하기를 먼저 모아서 효과가 걸린 순서에 따라 결과가 달라지지 않게 한다.
+  겹친 효과는 더하기를 겹친 수만큼 더하고, 곱하기를 겹친 수만큼 거듭 곱한다.
+- 수치로 표현할 수 없는 규칙은 `Trait`으로 둔다. 경직 면역(`StaggerImmune`)은 "받는 경직 × 0"이 아니라 특성이다. 공격이 얼마나 굳히든 무시한다는 뜻을 표에 그대로 적는다.
+  받는 경직을 줄이기만 하려면 `Stat`의 `StaggerTaken`(기본값 1인 배율)에 `Multiply`를 건다.
+- 같은 효과를 다시 걸면 새로 추가하지 않고 중첩을 올리고(`MaxStack`까지) 남은 시간을 처음으로 되돌린다.
+- 걸고 푸는 것은 `ObjectContext.StatusEffects`(`Add`, `Remove`, `Has`)로 한다. 타고난 효과는 `Character.tsv`의 `StatusEffects`에 적으면 등장할 때 걸린다.
+  남은 시간은 `StatusEffectController`가 물리 스텝마다 센다.
+- 새 수치나 특성을 만들 때는 `GameDefine`의 `StatType`/`StatusTrait`에 이름을 추가하고, 그 수치를 읽는 곳이 `StatusEffects.Apply`나 `HasTrait`을 거치게 한다.
+  표의 이름이 틀리면 표를 불러올 때 에러를 남기고 그 줄을 뺀다.
+- 지금은 효과를 거는 스킬이나 아이템이 없어서, 타고난 효과와 테스트 키(`3` 경직 면역 켜기/끄기, `4` 플레이어 공격력 증가)로만 걸린다.
+
 ### 이야기 표 (Actor, Scenario, Quest, Talk)
 
 인게임 흐름은 네 표가 나눠 맡는다. 시나리오와 퀘스트 번호는 표마다 따로 `챕터 × 100 + 순번`으로 매긴다 (1장 1번 → 101, 1장 2번 → 102, 2장 1번 → 201).
@@ -125,12 +189,16 @@ R3는 코어(`R3.dll`)를 NuGetForUnity로(`Assets/packages.config`, `Assets/Pac
 
 | 표 | 무엇 | 명령 / 칸 |
 |---|---|---|
-| `Actor.tsv` | 월드의 캐릭터 등록. 시나리오, 퀘스트, 대화는 대상을 이 번호로 가리킨다 | `Id`(10001), `ObjectId`, `Type`(Npc/Enemy), `Resident`, `Zone`, `Position`, `Note`(누구인지) |
-| `Scenario.tsv` | 대형 연출. 플레이어가 조작하지 않는 장면 | `Spawn`, `Despawn`, `Move`, `Effect`, `Dialogue`, `Line`, `CloseDialogue`, `Wait`, `FadeOut`/`FadeIn`, `Zoom` |
-| `Quest.tsv` | 진행. 미션(목표)과 그에 딸린 대화. 퀘스트 번호 순서가 곧 진행 순서이고, 이야기는 첫 퀘스트부터 시작한다 | `Scenario`(시나리오 재생), `Dialogue`, 목표 `Interact`, `Reach`, `Clear` |
-| `Talk.tsv` | 가벼운 일반 대화. 퀘스트 목표가 아닐 때 Npc에게 말을 걸면 나오는 대화 | `Actor`, `Quest`(이 퀘스트가 시작된 뒤부터), `Dialogue` |
+| `Actor.tsv` | 월드의 캐릭터 등록. 시나리오, 퀘스트, 대화는 대상을 이 번호로 가리킨다 | `Id`(10001), `ObjectId`, `Type`(Npc/Enemy), `Name`(말풍선에 띄우는 이름), `Resident`, `Zone`, `Position`, `Note`(누구인지) |
+| `Scenario.tsv` | 대형 연출. 플레이어가 조작하지 않는 장면 | `Spawn`, `Despawn`, `Place`, `Move`, `Effect`, `Dialogue`, `Line`, `CloseDialogue`, `Wait`, `FadeOut`/`FadeIn`, `Zoom` |
+| `Quest.tsv` | 진행. 미션(목표)과 그에 딸린 대화. 퀘스트 번호 순서가 곧 진행 순서이고, 이야기는 첫 퀘스트부터 시작한다 | `Scenario`(시나리오 재생), `Dialogue`, 목표 `Interact`, `Reach`, `Clear`. 목표 줄은 `Text`에 플레이어가 할 일을 적는다 |
+| `QuestInfo.tsv` | 퀘스트 하나에 대한 것. 줄을 묶는 번호만 있는 Quest 표에는 적을 자리가 없어서 따로 둔다 | `Id`(퀘스트 번호, 101), `Title`(화면의 퀘스트 안내에 띄우는 제목) |
+| `Talk.tsv` | 가벼운 일반 대화. 퀘스트 목표가 아닐 때 Npc에게 말을 걸면 나오는 대화 | `Id`(챕터 × 100 + 순번, 101. `Quest`와 같은 챕터), `Actor`, `Quest`(이 퀘스트가 시작된 뒤부터), `Dialogue` |
 
-대사 텍스트는 `Dialogue.tsv`에만 두고 세 표가 가리킨다. 표마다 대화의 무게가 다르다.
+대사 텍스트는 `Dialogue.tsv`에만 두고 세 표가 가리킨다. 칸은 `Id`(대사 한 줄, 100101), `DialogueId`(대화 묶음, 1001), `Speaker`, `Text`다.
+대사는 화면 아래 대화창이 아니라 **말하는 캐릭터의 머리 위 말풍선**으로 뜬다. 그래서 `Speaker`에는 이름이 아니라 그 대사를 말하는 대상을 적는다 (`Player` 또는 Actor 번호).
+말풍선에 띄우는 이름은 Actor 표의 `Name`에서 오고(플레이어는 `GameDefine.PlayerDisplayName`), 대사를 말하는 대상은 `Name`이 있어야 한다.
+일반 대화(Talk)의 대사는 말을 건 Npc나 플레이어만 말할 수 있다. 표마다 대화의 무게가 다르다.
 
 | 무게 | 어디서 | 대화하는 동안 |
 |---|---|---|
@@ -143,25 +211,75 @@ R3는 코어(`R3.dll`)를 NuGetForUnity로(`Assets/packages.config`, `Assets/Pac
 - Actor 표에는 이야기가 개별로 가리키는 캐릭터만 둔다. 이름 없는 적 무리는 나중에 웨이브/스폰 표로 따로 다루고, 퀘스트는 `Clear`(대상 비움)로 기다린다.
 - 대상은 시나리오나 퀘스트가 아니라 **월드가 갖는다**. `Spawn`으로 들어와서 `Despawn`이나 `Clear`로 나가기 전까지 뒤의 퀘스트와 시나리오가 같은 번호로 쓴다.
   `Resident`를 켠 대상은 이야기가 시작될 때 `Zone`의 `Position`에 서 있다. `Spawn`의 Zone과 위치를 둘 다 비우면 Actor 표의 자리에 선다(플레이어는 꼭 적는다).
-- 표의 위치는 모두 **Zone 로컬 좌표**다 (아래 "맵과 Zone"). 위치를 쓰는 명령(`Spawn`, `Move`, `Reach`)은 `Zone` 칸에 기준 Zone을 적고, 다른 명령은 `Zone` 칸을 비운다.
+- 표의 위치는 모두 **Zone 로컬 좌표**다 (아래 "맵과 Zone"). 위치를 쓰는 명령(`Spawn`, `Place`, `Move`, `Reach`)은 `Zone` 칸에 기준 Zone을 적고, 다른 명령은 `Zone` 칸을 비운다.
 - 시나리오 하나가 통째로 연출 구간이다. 재생하는 동안 월드의 조작과 AI가 멈추고(도중에 등장한 대상 포함), 끝나면 카메라를 처음 상태로 되돌린 뒤 다시 켠다.
   시나리오가 끝나면 목표가 이어지므로 화면을 덮은 채(`FadeOut`) 끝날 수 없다.
+- 시나리오는 월드에 이미 있는 대상을 번호로 가리키기만 하면 넘겨받는다(따로 넘겨받는 명령은 없다). 시나리오가 옮겨 놓은 대상은 끝난 뒤에도 그 자리에 남는다.
+  돌아다니던 대상을 연출이 시작될 자리에 세울 때는 `Place`로 바로 옮긴다(걷지 않는다. 보통 `FadeOut` 뒤에 쓴다). 아직 월드에 없는 대상은 `Spawn`으로 세운다.
+- **무대 Zone:** 시나리오는 시작할 때 자기가 무대로 쓰는 Zone을 다 올라올 때까지 기다리고, 끝나면 푼다.
+  무대는 줄이 대상을 세우거나 옮기는 Zone(`Spawn`, `Place`, `Move`의 `Zone` 칸, 비운 `Spawn`은 Actor 표의 Zone)과 출연하는 대상이 그때 서 있는 Zone이다.
+  그래서 컬링되어 꺼져 있던 대상도 연출에 쓸 수 있다. 새 위치 명령을 만들면 `GetStageZone`을 다시 정한다.
 - 퀘스트 목표를 지나는 동안 월드에 있던 적은 플레이어와 싸워 쓰러졌을 수 있다. 그래서 목표를 지난 적은 시나리오가 다룰 수 없고 `Clear`로만 가리킨다.
   `Clear`는 대상을 적으면 그 적, 비우면 월드의 적 전부가 쓰러질 때까지 기다리고, 통과한 적은 월드에서 나간 것으로 본다.
 - 일반 대화는 시나리오 재생 중이나 다른 대화 중에는 나오지 않고, `Interact` 목표가 기다리는 Npc에게 건 말은 목표로 간다.
+- **퀘스트 안내:** 기다리는 목표가 있는 동안 화면 왼쪽 위에 퀘스트 제목(QuestInfo의 `Title`)과 할 일(목표 줄의 `Text`)을 띄운다 (`StoryHudPresenter` → `QuestView`).
+  목표 사이(대화, 연출)에는 숨긴다. 그래서 목표 줄은 `Text`를 꼭 적고, 목표가 아닌 줄은 비운다. 퀘스트는 모두 QuestInfo에 제목이 있어야 한다(검사가 확인한다).
+- **화면 아이콘:** 표를 따로 두지 않고 Quest, Talk 표에서 정해지는 것을 그대로 띄운다 (`StoryHudPresenter` → `MarkerView`).
+  - 퀘스트 아이콘 : 지금 기다리는 목표가 가리키는 곳. `Interact`의 Npc, `Reach`의 목적지, `Clear`의 적(대상을 비웠으면 적 전부).
+  - 시나리오 아이콘 : 같은 자리에 퀘스트 아이콘 대신. 목표 바로 다음 줄이 `Scenario`라서 채우면 바로 연출이 이어질 때다.
+  - 대화 아이콘 : 지금 할 일반 대화가 있는 Npc. 플레이어가 `TalkMarkerDistance`(2.5. 말을 걸 수 있는 거리 1.5보다 조금 넓다) 안에 왔을 때만 뜬다. 목표가 가리키는 Npc에는 뜨지 않는다.
+  - 퀘스트와 시나리오 아이콘은 거리와 상관없이 뜨고, 대상이 화면 밖이면(Zone이 내려가 꺼진 대상 포함) 화면 가장자리에 붙어 방향을 알려준다.
+  - 시나리오 재생 중과 대화 중에는 모두 숨긴다.
+  - 새 목표 명령을 만들면 기다리는 동안 `StoryContext.SetGoal`로 가리키는 곳과 할 일(`Text`)을 걸고, 끝나면(취소 포함) `ClearGoal`로 지운다.
+  - 아이콘은 그림이 없어서 원형 바탕에 글자를 올린 임시 아이콘이다 (`UIPrefabBuilder.CreateMarkerIcon`).
 - 시나리오의 `Dialogue` Param2에 배율을 적으면 대화 상대(없으면 플레이어)를 확대했다가 끝나면 대화 직전 카메라로 되돌린다. 퀘스트의 `Dialogue`는 배율 칸이 없다.
 - 대사 사이에 연출을 끼울 때는 시나리오에서 `Line`으로 한 줄씩 띄운다. Param1은 대사 한 줄의 Id(`100101`)이고, 대화 번호(`DialogueId`, `1001`)가 아니다.
-  `Line` 뒤의 연출 동안 대화창은 마지막 대사를 띄운 채 남는다. `CloseDialogue`, `Dialogue`(대화 하나)가 끝날 때, 또는 시나리오가 끝날 때 닫힌다.
+  `Line` 뒤의 연출 동안 말풍선은 마지막 대사를 띄운 채 남아서 말한 캐릭터를 따라다닌다. `CloseDialogue`, `Dialogue`(대화 하나)가 끝날 때, 또는 시나리오가 끝날 때 닫힌다.
   플레이어는 대사를 읽는 동안만 묶이므로 대사 사이에 `Move Player`를 쓸 수 있다.
 - 시나리오와 퀘스트 줄의 Id는 번호에서 만든다: `번호 × 1000`부터 10 단위 (102 → 102010, 102020, ...).
   줄을 끼울 때는 사이 번호(102015)를 쓰고 뒤를 밀지 않는다. 줄은 표에 적힌 순서가 아니라 Id 순으로 실행한다.
-- `Note` 칸은 설계자 메모다. 장면 구분이나 목표를 적는다. 게임은 읽지 않는다.
+- `Note` 칸은 설계자 메모다. 장면 구분이나 목표를 적는다. 게임은 읽지 않는다. 플레이어에게 보여줄 글은 `Text`(목표가 시키는 일)와 QuestInfo의 `Title`에 적는다.
 - 이야기 표를 고쳤으면 Update Table 뒤에 **Table > Validate Story**를 실행한다. Play 없이 퀘스트를 번호 순으로, 퀘스트가 부르는 시나리오까지 펼쳐서 따라가며 검사한다:
-  칸 형식(타입, 쓰지 않는 칸에 값, 번호 형식, Id 범위와 중복, 표에 없는 명령),
-  앞뒤 관계(세우기 전 사용, 나간 뒤 참조, 이미 있는 대상을 다시 세움, 플레이어 두 번 세움, 목표를 지난 적을 다룸, 덮인 화면으로 끝나는 시나리오, 열린 창 없이 CloseDialogue),
-  표 참조(Actor 번호, 대상이 캐릭터인지 — Object의 IsCharacter와 Character 표, 없는 시나리오/퀘스트 번호, Dialogue 번호와 대사 Id, 이펙트 프리팹, Talk 대상이 Npc인지, 없는 Zone).
+  칸 형식(타입, 쓰지 않는 칸에 값, 번호 형식, Id 범위와 중복, 표에 없는 명령, Talk Id와 Quest의 챕터),
+  앞뒤 관계(세우기 전 사용, 나간 뒤 참조, 이미 있는 대상을 다시 세움, 플레이어 두 번 세움, 목표를 지난 적을 다룸, 덮인 화면으로 끝나는 시나리오, 열린 말풍선 없이 CloseDialogue,
+  대사를 말하는 대상이 그 시점에 월드에 없음),
+  표 참조(Actor 번호, 대상이 캐릭터인지 — Object의 IsCharacter와 Character 표, 없는 시나리오/퀘스트 번호, Dialogue 번호와 대사 Id, 대사의 Speaker와 그 대상의 Name,
+  이펙트 프리팹, Talk 대상이 Npc인지, Talk 대사를 그 Npc나 플레이어가 말하는지, 없는 Zone).
   어느 퀘스트도 부르지 않는 시나리오는 경고로 알린다. Zone 배치(Map, Zone 표)도 같이 검사한다.
   같은 검사(`StoryValidator`)가 이야기 시작 직전에도 돌고, 틀리면 이야기를 시작하지 않는다.
+
+### 시나리오 툴 (Story > Story Tool)
+
+시나리오 작업자가 표를 대본처럼 읽고, Zone을 띄워 놓은 화면에서 대상의 자리를 끌어서 정하는 에디터 창이다. UI Toolkit으로 만들었다.
+**원본은 tsv다.** 툴은 tsv를 읽어 고치고, 저장하면 tsv에 다시 쓴 뒤 Update Table과 Validate Story를 이어서 돌린다.
+
+- **창:** 왼쪽 목차 → 가운데 대본 → 오른쪽 고른 줄. 목차는 챕터마다 대상, 연출(시나리오), 퀘스트, 일반 대화(Talk) 순으로 둔다(챕터 폴더의 표와 같은 순서. 대상은 셋이 모두 가리켜서 맨 앞).
+  대상은 번호에 든 챕터로 나눈다(10001 → 1장). 퀘스트를 열면 그 퀘스트가 부르는 연출의 줄과 대화의 대사까지 펼쳐 보여준다.
+  검사에 걸린 줄은 대본에 붉게 표시하고 이유를 그 아래에 적는다.
+- **배치 화면:** `StoryToolStage`가 프리팹 편집 화면처럼 Scene 뷰를 저장되지 않는 임시 씬으로 바꾼다. 열려 있던 씬은 건드리지 않는다.
+  고른 줄까지 진행한 모습(`StoryReplay`가 표만 읽어서 계산)대로 Zone 프리팹을 깔고 대상을 세운다(`Idle` 클립의 첫 그림 + Object 표의 `Tint`).
+  조명 없이 그림 그대로 본다(전역 조명이 Main 씬에 있어서 조명을 켜면 검게 나온다). 닫으면 Scene 뷰의 조명 설정을 되돌린다.
+- **끌어서 배치:** 위치를 쓰는 줄(`Spawn`, `Place`, `Move`, `Reach`, Actor 표의 자리)을 고르면 핸들이 뜬다. 끌어 놓은 자리가 들어 있는 Zone을 찾아 `Zone` 칸까지 같이 바꾸고,
+  가까이에 바닥이 있으면 발밑을 바닥에 붙인다. 위치를 비운 `Spawn`을 옮기면 Actor 표의 자리가 바뀐다. Undo로 되돌릴 수 있다.
+- **미리보기:** 줄을 고르면 그 줄까지 진행한 모습이 나온다. 툴바의 ◀ ▶로 한 줄씩 넘기고, 재생으로 일정 간격마다 넘긴다(펼친 대사도 한 줄로 친다).
+  대사 줄(`Line`, `Dialogue`)은 말하는 대상의 머리 위에 말풍선을 띄우고, `Line`의 말풍선은 게임처럼 `CloseDialogue`나 시나리오 끝까지 남는다.
+  하늘색 틀은 그 순간 게임 화면에 보이는 범위다(`Zoom`, 확대 대화, Zone 끝에서 멈추는 것까지 반영. `FadeOut`으로 덮인 동안은 어둡게 칠한다).
+  화각은 Main 씬의 카메라에서 읽고(`GameCameraInfo`), 범위 계산은 `CameraDirector`의 static 함수(`GetHalfView`, `ClampToZone`)를 게임과 같이 쓴다. 화면 비율은 16:9로 본다.
+  표만 읽어서 계산하므로 걷는 시간, 물리, 전투는 반영하지 않는다(대상은 표에 적힌 자리에 바로 선다).
+- **고치기:** 고른 줄의 칸을 오른쪽에서 고친다. 무엇을 띄울지는 명령마다 다르고 `StoryCommandCatalog`에 적힌 쓰임새를 따른다.
+  번호를 적는 칸은 목록에서 이름이나 내용으로 고른다(대상, 대화, 대사, 연출). 대화와 대사 목록의 `+ 새로 만들기`는 대사 한 줄짜리 새 대화를 만들어 적는다.
+  명령을 바꾸면 앞 명령의 값(Zone, Param1~2, Text)은 지우고 새 명령의 기본값을 넣는다. 위치를 쓰는 명령이면 그 대상이 서 있던 자리를 넣어서 바로 끌어 옮길 수 있게 한다.
+- **줄:** 대본 위의 `+ 줄`(고른 줄 다음에 끼움), `삭제`, `▲ ▼`. 끼운 줄의 Id는 앞뒤의 사이 번호이고, 사이가 없으면 그 묶음을 10 단위로 다시 매긴다.
+  옮길 때는 이웃 줄과 내용을 맞바꾸고 Id는 제자리에 둬서 파일에서도 Id 순서가 유지된다. 퀘스트의 마지막 줄을 지우면 QuestInfo의 제목도 지운다.
+- **묶음과 대상:** 목차 위의 `+ 퀘스트`, `+ 연출`은 열어 둔 묶음과 같은 챕터에 다음 번호로 만든다(챕터 폴더가 없으면 만들지 못한다. 폴더와 머리 두 줄짜리 파일을 먼저 만든다).
+  대상 묶음에서 `+ 줄`은 새 대상을, 일반 대화 묶음에서는 새 일반 대화를 만든다. 퀘스트 제목은 대본 위에서 고친다.
+- **일반 대화(Talk):** 줄마다 말을 걸 Npc, 어느 퀘스트가 시작된 뒤부터인지, 어떤 대화인지를 고르고, 그 아래에 펼친 대사를 고친다.
+  배치 화면에는 그 대화를 할 수 있게 되는 때(가리키는 퀘스트의 첫 줄을 지난 모습)가 나오고 Npc 머리 위에 대사가 뜬다.
+- **대사:** 대화 아래에 펼친 대사를 고르면 말하는 대상과 글을 고친다. 대사는 대화의 끝에만 붙인다. 대사의 Id를 `Line`이 가리키므로 사이에 끼우거나 순서를 바꾸지 않는다.
+- 표를 고치는 코드는 `StoryEditor` 한 곳에 있다(Undo 기록, 번호 규칙). 화면(`StoryToolWindow`, `StoryToolInspector`)은 고르면 넘기기만 하고, `StoryEditor`의 이벤트를 받아 다시 그린다.
+- **새 명령을 만들면** `StoryCommandCatalog`에 한 줄 추가한다(어느 표에서 쓰는지, Actor와 Param 칸의 쓰임새, 위치 칸의 모양 `PositionKind`, 대본에 띄울 글). 칸의 쓰임새는 명령 클래스의 `Parse`와 같게 적는다. 대상을 세우거나 옮기거나 없애는 명령, 말풍선이나 카메라나 화면 덮기를 바꾸는 명령이면 `StoryReplay.Apply`에도 넣는다.
+  빠뜨려도 게임에는 영향이 없고, 툴에서 그 명령을 고를 수 없거나 표의 칸이 그대로 보이거나 배치 화면에 반영되지 않는다.
+- 툴은 고친 표만, 고친 칸만 다시 쓴다(줄바꿈 방식과 BOM 유지). 그래서 저장한 뒤의 diff에는 고친 줄만 남는다.
 
 ### 맵과 Zone (Map, Zone)
 
@@ -185,7 +303,9 @@ R3는 코어(`R3.dll`)를 NuGetForUnity로(`Assets/packages.config`, `Assets/Pac
   벽은 Zone 프리팹이 아니라 Zone 배치에서 자동으로 만들므로, Zone을 옮기거나 새로 붙여도 손으로 고칠 것이 없다. Zone을 내리면 벽도 같이 지운다.
 - **카메라:** 플레이어를 따라가고(`CameraFollowHeight`, `CameraFollowSmoothTime`), 플레이어가 있는 Zone의 상하좌우에 Zone이 없으면 화면이 그 Zone 끝을 넘지 않는다.
   이웃이 있는 쪽으로는 막지 않는다. 그래서 **Zone은 카메라 화면보다 커야 한다**(화면이 더 크면 그 축은 Zone 가운데에 고정된다). 대각선 칸이 비어 있는 경우는 보지 않는다.
-- 내려간 Zone에 있는 캐릭터는 없애지 않고 꺼둔다(이야기가 계속 추적한다). Zone이 다시 올라오면 켠다. 그래서 `Move`의 도착점은 불러와 있는 Zone 안이어야 한다.
+- 내려간 Zone에 있는 캐릭터는 없애지 않고 꺼둔다(이야기가 계속 추적한다). Zone이 다시 올라오면 켠다.
+  시나리오의 무대 Zone은 컬링 거리 밖이어도 연출 동안 올려둔다(`ZoneStreamer.Pin`). 다만 `Move`로 걸어가는 길 사이의 Zone까지 올려두지는 않으므로,
+  멀리 있는 대상은 `Place`로 옮긴 뒤에 걷게 한다.
 - Main 씬에는 시스템 오브젝트만 둔다: `SceneLoader`, `GameController`, `Main Camera`, `Global Light 2D`, `Global Volume`.
   배경, 지형, 배경 조명, 그 Zone 바닥 전용 반사 카메라는 Zone 프리팹에 넣는다.
   `MainCamera` 태그와 `AudioListener`는 게임 카메라 하나에만 둔다. `Camera.main`이 태그로 카메라를 찾아서, 다른 카메라에 태그가 있으면 카메라 연출과 Zone 스트리밍이 그 카메라를 잡을 수 있다.
@@ -212,6 +332,7 @@ R3는 코어(`R3.dll`)를 NuGetForUnity로(`Assets/packages.config`, `Assets/Pac
 
 ### 3. 플레이 모드 동작 확인
 - `DefaultSceneSetter`가 Play 시작 씬을 `Assets/Scenes/BootStrap.unity`로 고정해두므로 어떤 씬이 열려 있든 부트스트랩부터 시작한다.
+  부트스트랩 다음은 타이틀이라서, 게임에 들어가려면 타이틀에서 시작을 골라야 한다(Enter).
   `manage_editor`로 Play 하고, `read_console`로 로그를 읽은 뒤 Stop 한다.
 - 전투 기능(공격, 피격, 카운터)은 로그로 확인한다: `[Player] ... hit [Enemy] ...`, `카운터 대기 시작`, `카운터 성공` 등.
 - AI 공격이 필요한 테스트는 인스펙터에서 AI 오브젝트의 `_aiAttackTestTarget`을 체크하고 테스트 키(`1`)를 쓴다.

@@ -38,7 +38,8 @@ namespace InGame
         private bool _isMoving;
         //부드럽게 따라갈 때 SmoothDamp가 쓰는 속도
         private Vector2 _followVelocity;
-        //플레이어를 처음 잡았는지. 처음에는 부드럽게 가지 않고 바로 맞춘다. 시작 위치에서 미끄러져 오는 모습이 보이지 않게 한다
+        //플레이어를 따라가고 있는지. 아니면(처음 잡을 때, SnapToFollow 뒤) 부드럽게 가지 않고 바로 맞춘다.
+        //멀리서 미끄러져 오는 모습이 보이지 않게 한다
         private bool _hasFollowed;
         #endregion
 
@@ -118,7 +119,38 @@ namespace InGame
             }
         }
 
+        /// <summary>
+        /// 다음에 따라갈 때 부드럽게 가지 않고 플레이어 자리로 바로 맞춘다. 플레이어를 순간이동시킨 뒤에 부른다.
+        /// 연출로 다른 곳을 보고 있으면 지금 화면은 그대로 두고, 따라가기로 돌아올 때 적용된다
+        /// </summary>
+        public void SnapToFollow()
+        {
+            _hasFollowed = false;
+            _followVelocity = Vector2.zero;
+        }
+
         public void Dispose() => Global.Instance?.UnBindLateUpdate(this);
+
+        /// <summary>
+        /// 배율 zoom일 때 카메라가 게임 평면(z = 0)에서 보는 영역의 절반 크기. distance는 카메라에서 게임 평면까지의 거리다.
+        /// 카메라 없이 처음 상태의 값만으로 계산한다. 시나리오 툴이 Play 없이 같은 식으로 화면 범위를 그린다
+        /// </summary>
+        public static Vector2 GetHalfView(bool orthographic, float orthographicSize, float distance, float fieldOfView, float aspect, float zoom)
+        {
+            float halfHeight = orthographic ? orthographicSize : distance * Mathf.Tan(fieldOfView * 0.5f * Mathf.Deg2Rad);
+            halfHeight /= zoom;
+            return new Vector2(halfHeight * aspect, halfHeight);
+        }
+
+        /// <summary>
+        /// 화면이 zone 밖을 보여주지 않게 카메라 가운데를 맞춘다. zone의 옆에 Zone이 있으면 그쪽으로는 막지 않는다.
+        /// 화면(halfView의 두 배)이 Zone보다 크면 그 축은 Zone 가운데에 둔다
+        /// </summary>
+        public static Vector2 ClampToZone(ZoneLayout zoneLayout, ZoneLayout.ZoneEntry zone, Vector2 center, Vector2 halfView)
+        {
+            var (min, max) = zoneLayout.GetBoundary(zone);
+            return new Vector2(ClampAxis(center.x, min.x, max.x, halfView.x), ClampAxis(center.y, min.y, max.y, halfView.y));
+        }
         #endregion
 
         #region Private
@@ -140,16 +172,12 @@ namespace InGame
 
         /// <summary>
         /// 화면이 Zone 밖을 보여주지 않게 카메라 가운데를 맞춘다. 기준은 anchor(플레이어 발밑이나 바라볼 곳)가 있는 Zone이다.
-        /// 그 Zone의 옆에 Zone이 있으면 그쪽으로는 막지 않는다. 화면이 Zone보다 크면 그 축은 Zone 가운데에 둔다.
         /// 격자 밖이면 막지 않는다
         /// </summary>
         private Vector2 Clamp(Vector2 center, float zoom, Vector2 anchor)
         {
             if (!_zoneLayout.TryFindZone(_zoneStreamer.MapId, anchor, out var zone)) return center;
-
-            var (min, max) = _zoneLayout.GetBoundary(zone);
-            var halfView = GetHalfView(zoom);
-            return new Vector2(ClampAxis(center.x, min.x, max.x, halfView.x), ClampAxis(center.y, min.y, max.y, halfView.y));
+            return ClampToZone(_zoneLayout, zone, center, GetHalfView(zoom));
         }
 
         //막힌 쪽이 없으면 limit이 무한대라 그대로 통과한다
@@ -161,15 +189,8 @@ namespace InGame
             return Mathf.Clamp(center, low, high);
         }
 
-        //배율 zoom일 때 카메라가 게임 평면(z = 0)에서 보는 영역의 절반 크기
         private Vector2 GetHalfView(float zoom)
-        {
-            float halfHeight = _camera.orthographic
-                ? _baseOrthographicSize
-                : Mathf.Abs(_basePosition.z) * Mathf.Tan(_baseFieldOfView * 0.5f * Mathf.Deg2Rad);
-            halfHeight /= zoom;
-            return new Vector2(halfHeight * _camera.aspect, halfHeight);
-        }
+            => GetHalfView(_camera.orthographic, _baseOrthographicSize, Mathf.Abs(_basePosition.z), _baseFieldOfView, _camera.aspect, zoom);
 
         private void SetPosition(Vector2 position) => _camera.transform.position = new Vector3(position.x, position.y, _basePosition.z);
 
