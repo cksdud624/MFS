@@ -24,6 +24,7 @@ namespace InGame.Story.Quest
             { "Interact", () => new InteractStep() },
             { "Reach", () => new ReachStep() },
             { "Clear", () => new ClearStep() },
+            { "Boss", () => new BossStep() },
         };
         #endregion
 

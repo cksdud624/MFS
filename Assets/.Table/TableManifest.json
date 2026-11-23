@@ -2,19 +2,19 @@
     "tables": [
         {
             "fileName": "Actor",
-            "hash": "a563d3443174b4ebbf64bf6835744f05"
+            "hash": "f0b2aedda2a78c859afa125f2780b5ea"
         },
         {
             "fileName": "AttackCommand",
-            "hash": "0f5a1ff1ce660be1be20f2762724279d"
+            "hash": "9deb5adc3a0fea62245772f35547080b"
         },
         {
             "fileName": "AttackHitBox",
-            "hash": "bdfb55f74cffc47bc8a5832bceca0788"
+            "hash": "4fbbde651e9fc46a6f1b1ef2c6d96ecb"
         },
         {
             "fileName": "Character",
-            "hash": "8332a017d639e456acdcb2290c634639"
+            "hash": "205f7c932ef34e70daac906a3d8d908d"
         },
         {
             "fileName": "Dialogue",
@@ -26,27 +26,27 @@
         },
         {
             "fileName": "Object",
-            "hash": "ebe842103efd9d3cff54a2e556638849"
+            "hash": "2bce700b38395582704571b9f00985e8"
         },
         {
             "fileName": "Quest",
-            "hash": "fb056f50471b05f75bfc6c7471e1b320"
+            "hash": "344e98a7863b245f072ca7f0804bb9bf"
         },
         {
             "fileName": "QuestInfo",
-            "hash": "cfa85f51c8bedf3878d4678618cbb518"
+            "hash": "12803c276961ef535fb4646b475b0b35"
         },
         {
             "fileName": "Scenario",
-            "hash": "b294520fda0a19298324caec397aed75"
+            "hash": "335a9d7958ed8d4b013b19d282445db8"
         },
         {
             "fileName": "StatusEffect",
-            "hash": "cb45436d48b5508b494cf96924b7e643"
+            "hash": "39c057aefd461a7852a2785f64467a79"
         },
         {
             "fileName": "StatusModifier",
-            "hash": "71875fdbd05a53d4f385a5719299e44c"
+            "hash": "780910e3700a669c6dac8b6c9c2f7384"
         },
         {
             "fileName": "Talk",

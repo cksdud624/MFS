@@ -71,6 +71,14 @@ namespace Common
 #if UNITY_EDITOR
             //에디터 전용 테스트 키
             BindUpdate(new Test.EditorTestKeys());
+            //보스전부터 시작하는 테스트 설정이 켜져 있으면 타이틀을 거치지 않고 바로 게임으로 들어간다.
+            //어느 퀘스트부터 시작할지는 이야기 쪽(StoryPlayer)이 같은 설정을 보고 정한다
+            if (Test.EditorTestSettings.StartAtBossBattle)
+            {
+                Debug.Log("[테스트 설정] 보스전부터 시작 : 타이틀을 건너뛴다 (메뉴 Test > Start At Boss Battle)");
+                SceneLoader.LoadScene(GameDefine.SceneType.Main, new Scene.Parameter.SceneParameterMain());
+                return;
+            }
 #endif
 
             //준비가 끝나면 타이틀로 간다. 게임(Main)은 타이틀에서 시작을 골랐을 때 들어간다

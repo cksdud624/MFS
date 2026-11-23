@@ -43,6 +43,7 @@ namespace StoryTool
         public const string CommandMove = "Move";
         public const string CommandDespawn = "Despawn";
         public const string CommandClear = "Clear";
+        public const string CommandBoss = "Boss";
         public const string CommandReach = "Reach";
         public const string CommandLine = "Line";
         public const string CommandCloseDialogue = "CloseDialogue";
@@ -154,6 +155,12 @@ namespace StoryTool
                 Command = CommandClear,
                 InQuest = true, IsGoal = true, Actor = ActorUse.Optional, ActorLabel = "쓰러뜨릴 적 (비우면 전부)",
                 Describe = DescribeClear,
+            },
+            new Entry
+            {
+                Command = CommandBoss,
+                InQuest = true, IsGoal = true, Actor = ActorUse.Required, ActorLabel = "보스 (서 있는 Zone이 잠긴다)",
+                Describe = (line, document) => $"목표 : {line.Text} · {Name(line, document)} 보스전",
             },
         };
         private static readonly Dictionary<string, Entry> Entries = CreateIndex();

@@ -50,6 +50,9 @@ namespace InGame
             var questView = await CreateView<QuestView>(UIQuestView);
             if (questView != null)
                 questView.Init();
+            var bossView = await CreateView<BossView>(UIBossView);
+            if (bossView != null)
+                bossView.Init();
 
             var tableManager = Global.Instance.TableManager;
             var cancellationToken = this.GetCancellationTokenOnDestroy();
@@ -73,7 +76,7 @@ namespace InGame
                 _zoneStreamer);
             _talkPlayer = new TalkPlayer(storyContext, cancellationToken);
             //프리팹이 없는 뷰는 null로 넘어가고, 있는 것만 띄운다
-            _hudPresenter = new StoryHudPresenter(storyContext, markerView, questView);
+            _hudPresenter = new StoryHudPresenter(storyContext, markerView, questView, bossView);
             await StartStory(storyContext, cancellationToken);
         }
         #endregion

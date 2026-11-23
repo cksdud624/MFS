@@ -1,4 +1,5 @@
 using Generated.Table;
+using InGame.Component.Controller.Boss;
 using InGame.World;
 
 namespace InGame.Story
@@ -26,6 +27,7 @@ namespace InGame.Story
         public bool HasObject(long objectId) => _tableManager.ObjectRecord.GetRecord(objectId) != null;
         public bool IsCharacter(long objectId) => _tableManager.ObjectRecord.GetRecord(objectId)?.IsCharacter ?? false;
         public bool HasCharacter(long characterId) => _tableManager.CharacterRecord.GetRecord(characterId) != null;
+        public bool IsBoss(long characterId) => BossFactory.IsRegistered(_tableManager.CharacterRecord.GetRecord(characterId)?.Boss);
         public bool HasZone(long zoneId) => _zoneLayout.HasZone(zoneId);
         public bool? HasEffect(long objectId, string effectName) => null;
         #endregion

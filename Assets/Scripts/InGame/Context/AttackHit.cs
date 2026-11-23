@@ -14,15 +14,17 @@ namespace InGame.Context
         public int Power { get; }
         //맞은 쪽을 굳히는 시간(초). 공격마다 다르다 (AttackCommand 표의 Stagger)
         public float Stagger { get; }
+        //카운터 대기에서 공격을 받아낸 뒤 나간 반격인지. 반격은 카운터로 받아낼 수 없고, 경직 면역인 대상도 굳힌다
+        public bool IsCounterAttack { get; }
         //카운터 대기로 받아낼 수 있는지. 반격은 받아낼 수 없다
-        public bool Counterable { get; }
+        public bool Counterable => !IsCounterAttack;
 
-        public AttackHit(AttackType type, int power, float stagger, bool counterable)
+        public AttackHit(AttackType type, int power, float stagger, bool isCounterAttack)
         {
             Type = type;
             Power = power;
             Stagger = stagger;
-            Counterable = counterable;
+            IsCounterAttack = isCounterAttack;
         }
     }
 }

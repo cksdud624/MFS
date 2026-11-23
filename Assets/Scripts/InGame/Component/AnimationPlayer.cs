@@ -27,6 +27,8 @@ namespace InGame.Component
         private CancellationTokenSource _animationEndCts;
         private ObjectContext _objectContext;
         private ObjectData _objectData;
+        //공격 예고가 없을 때의 스프라이트 색 (Object 표의 Tint, 없으면 흰색). 예고가 끝나면 이 색으로 돌아간다
+        private Color _baseColor = Color.white;
         #endregion
 
         #region Init
@@ -44,7 +46,8 @@ namespace InGame.Component
             _spriteRenderer.flipX = _objectContext.Direction == Direction.Left;
             //같은 그림을 쓰는 오브젝트를 색으로 구분한다 (Object 표의 Tint, r,g,b 0~1). 빈칸(0,0,0)이면 원래 색 그대로 둔다
             if (objectData.Tint != Vector3.zero)
-                _spriteRenderer.color = new Color(objectData.Tint.x, objectData.Tint.y, objectData.Tint.z);
+                _baseColor = new Color(objectData.Tint.x, objectData.Tint.y, objectData.Tint.z);
+            _spriteRenderer.color = _baseColor;
 
             _graph = PlayableGraph.Create($"AnimGraph_{objectData.Id}");
             _graph.SetTimeUpdateMode(DirectorUpdateMode.GameTime);
@@ -58,6 +61,7 @@ namespace InGame.Component
             //그래프와 클립이 준비된 뒤에 구독한다. 먼저 구독하면 로드를 기다리는 동안 들어온 요청이 빈 그래프로 들어간다
             _objectContext.OnDirectionChanged += OnDirectionChanged;
             _objectContext.OnAnimationChanged += Play;
+            _objectContext.OnTelegraphChanged += OnTelegraphChanged;
         }
         #endregion
 
@@ -68,6 +72,7 @@ namespace InGame.Component
             {
                 _objectContext.OnDirectionChanged -= OnDirectionChanged;
                 _objectContext.OnAnimationChanged -= Play;
+                _objectContext.OnTelegraphChanged -= OnTelegraphChanged;
             }
 
             _animationEndCts?.Cancel();
@@ -87,6 +92,17 @@ namespace InGame.Component
         private void OnDirectionChanged(Direction direction)
         {
             _spriteRenderer.flipX = direction == Direction.Left;
+        }
+
+        /// <summary>
+        /// 공격 예고를 색으로 알린다. 예고 모션이 따로 없어서, 예고하는 동안 스프라이트에 공격 종류의 색을 섞어 둔다.
+        /// 원래 색을 조금 남겨서 같은 그림을 쓰는 오브젝트끼리의 구분(Tint)이 예고 중에도 보이게 한다
+        /// </summary>
+        private void OnTelegraphChanged(AttackTelegraph telegraph)
+        {
+            _spriteRenderer.color = telegraph == AttackTelegraph.None
+                ? _baseColor
+                : Color.Lerp(_baseColor, GetTelegraphColor(telegraph), TelegraphTintStrength);
         }
 
         public void Play(AnimationType animType, int variant = 0, Action notifyAnimationEnd = null)

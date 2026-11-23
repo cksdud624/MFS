@@ -17,23 +17,26 @@ Main은 이야기가 플레이어를 세울 때까지 `InitScene`을 끝내지 �
 | `Common/Template/` | `Singleton`, `StateMachine`/`IState`, `IUpdateable` 계열 인터페이스 |
 | `Common/Scene/` | `SceneLoader`가 씬을 넘기고 넘어가는 동안 로딩 화면으로 덮는다. 씬마다 시작점(`SceneLoadBase`를 상속한 `SceneLoadXxx`)을 하나 두고, 그 씬의 준비를 `InitScene`에서 끝까지 기다린다. `InitScene`이 끝나야 로딩 화면이 걷힌다 |
 | `Common/UI/` | 씬과 상관없이 쓰는 UI (`LoadingView`: 로딩 화면. 게임이 켜질 때 가장 먼저 만들어서 `SceneLoader` 아래에 두고 끝까지 쓴다) |
-| `Common/Test/` | 에디터 전용 테스트 코드 (`EditorTestKeys`) |
+| `Common/Test/` | 에디터 전용 테스트 코드 (`EditorTestKeys`: 누르면 바로 반응하는 테스트 키, `EditorTestSettings`: Play를 시작할 때의 조건을 바꾸는 설정) |
 | `Title/` | 타이틀 씬. `SceneLoadTitle`이 씬의 시작점이고, `TitleController`가 타이틀 화면을 띄우고 고른 메뉴(시작, 종료)를 처리한다 |
 | `Title/UI/` | `TitleView`: 게임 이름과 메뉴(시작, 이어하기, 종료). 키보드(방향키/WASD, Enter)와 마우스로 고른다. 이어하기는 저장 기능이 생길 때까지 프리팹에서 꺼둔다. 프리팹은 `InGame/UI/`와 같이 `UIPrefabBuilder`가 만들고(UI > Build Title View), 버튼이 입력을 받는 데 필요한 EventSystem도 프리팹에 들어 있다. Title 씬에는 `SceneLoader`(`SceneLoadTitle`)와 `Main Camera`만 둔다 |
 | `InGame/Object/` | `ObjectBase`/`CharacterBase`, `ObjectSpawner` |
 | `InGame/Context/` | `InGameContext`, `ObjectContext`, `InputContext`: 컴포넌트 사이를 이어주는 상태와 이벤트 |
 | `InGame/Component/` | 오브젝트에 붙는 기능 컴포넌트 (물리, 애니메이션, 이펙트, 판정) |
 | `InGame/Component/State/` | 오브젝트 FSM 상태 (`Ground`, `Air`, `Action`, `Damage`, `Event`, `Dead`). 뒤로 갈수록 높은 단계라 앞의 상태를 끊고 들어간다 |
-| `InGame/Component/Controller/` | 플레이어/AI 컨트롤러, AI 상태 |
+| `InGame/Component/Controller/` | 플레이어/AI 컨트롤러, AI 상태. `ControllerBossAI`는 `ControllerAI`를 상속해서 행동 상태 머신만 보스의 것으로 바꾼다 |
+| `InGame/Component/Controller/Boss/` | 보스 AI. 상태(`Standby`, `Spacing`, `Pattern`, `Evade`, `PhaseBreak`), 보스의 설계(`BossProfile`)와 그것을 이름으로 만드는 `BossFactory`. 아래 "보스전" 참고 |
+| `InGame/Component/Controller/Boss/Patterns/` | 보스 패턴. 종류 하나당 클래스 하나 (`BossAttackPattern`, `BossCounterPattern`). `BossPattern`을 상속한다 |
+| `InGame/Component/Controller/Boss/Profiles/` | 보스 하나당 클래스 하나 (`DuelistProfile`). `BossFactory`에 이름을 등록한다 |
 | `InGame/Story/` | 인게임 흐름. `StoryPlayer`가 퀘스트를 번호 순으로 실행하고, `StoryValidator`가 실행 전에 표 전체를 검사해 `StoryBook`을 만든다. 월드에 세운 대상은 `StoryContext`가 들고, `TalkPlayer`가 일반 대화를, `DialoguePlayer`가 대사를 띄운다. `StoryHudPresenter`가 지금 띄울 퀘스트 안내와 목표/대화 아이콘을 정한다 |
 | `InGame/Story/Steps/` | 시나리오와 퀘스트가 같이 쓰는 명령 (`DialogueStep`. 어디서 쓰는지에 따라 카메라를 쓸지 정한다) |
 | `InGame/Story/Scenario/Steps/` | 시나리오(연출) 명령 하나당 클래스 하나. `ScenarioStepFactory`에 이름을 등록한다 |
-| `InGame/Story/Quest/Steps/` | 퀘스트(목표, 시나리오 재생) 명령 하나당 클래스 하나. `QuestStepFactory`에 이름을 등록한다. 새 명령은 시나리오/퀘스트 모두 `StoryStep`을 상속해서 `Parse`(칸 형식), `Validate`(앞뒤 정합성), `Run`을 구현하고, 시작/종료/목표 명령이면 `Kind`를 다시 정한다. Actor와 Param1~2를 어떻게 쓰는지는 각 클래스 summary에 적는다 |
-| `InGame/UI/` | UI 뷰 (`DialogueView`: 말하는 캐릭터의 머리 위를 따라다니는 말풍선, `ScreenFadeView`, `MarkerView`: 대상이나 지점 위의 아이콘, `QuestView`: 왼쪽 위의 퀘스트 안내). 프리팹은 `Editor/UIPrefabBuilder`의 메뉴(UI > Build All UI)가 코드로 조립해서 `AddressableAssets/UI/`에 저장한다. 레이아웃은 프리팹이 아니라 빌더 코드를 고친다 |
-| `InGame/World/` | 맵과 Zone. `ZoneLayout`이 Map/Zone 표로 격자 배치를 만들고 로컬↔월드 좌표를 바꾼다. `ZoneStreamer`가 플레이어 주변 Zone과 시나리오의 무대 Zone만 불러두고, `IZoneLoader`(지금은 `PrefabZoneLoader`)가 Zone 내용물을 불러오고 내린다 |
+| `InGame/Story/Quest/Steps/` | 퀘스트(목표, 시나리오 재생, 보스전) 명령 하나당 클래스 하나. `QuestStepFactory`에 이름을 등록한다. 새 명령은 시나리오/퀘스트 모두 `StoryStep`을 상속해서 `Parse`(칸 형식), `Validate`(앞뒤 정합성), `Run`을 구현하고, 시작/종료/목표 명령이면 `Kind`를 다시 정한다. Actor와 Param1~2를 어떻게 쓰는지는 각 클래스 summary에 적는다 |
+| `InGame/UI/` | UI 뷰 (`DialogueView`: 말하는 캐릭터의 머리 위를 따라다니는 말풍선, `ScreenFadeView`, `MarkerView`: 대상이나 지점 위의 아이콘, `QuestView`: 왼쪽 위의 퀘스트 안내, `BossView`: 위쪽 가운데의 보스 체력바). 프리팹은 `Editor/UIPrefabBuilder`의 메뉴(UI > Build All UI)가 코드로 조립해서 `AddressableAssets/UI/`에 저장한다. 레이아웃은 프리팹이 아니라 빌더 코드를 고친다 |
+| `InGame/World/` | 맵과 Zone. `ZoneLayout`이 Map/Zone 표로 격자 배치를 만들고 로컬↔월드 좌표를 바꾼다. `ZoneStreamer`가 플레이어 주변 Zone과 시나리오의 무대 Zone만 불러두고(보스전이 벌어지는 Zone은 잠근다), `IZoneLoader`(지금은 `PrefabZoneLoader`)가 Zone 내용물을 불러오고 내린다 |
 | `InGame/CameraDirector.cs` | 게임 카메라를 움직이는 유일한 곳. 평소에는 플레이어를 따라가고, 연출(시나리오 Zoom, 대화 확대) 동안에는 바라볼 곳으로 옮긴다. 화면은 Zone 밖을 보여주지 않는다. 씬 카메라의 처음 화각을 배율 1로 본다 |
 | `Generated/Table/` | **자동 생성 코드. 직접 고치지 않는다** (`Custom/` 폴더의 partial만 손으로 작성) |
-| `Editor/` | 에디터 툴 (`TableUpdater`, `StoryValidatorMenu`, `DefaultSceneSetter`, `UIPrefabBuilder`, `TableBytes`: 생성된 `.bytes`를 Play 없이 읽는다). 네임스페이스 없이 둔다 |
+| `Editor/` | 에디터 툴 (`TableUpdater`, `StoryValidatorMenu`, `DefaultSceneSetter`, `UIPrefabBuilder`, `TableBytes`: 생성된 `.bytes`를 Play 없이 읽는다, `TestMenu`: 테스트 설정을 켜고 끄는 상단 메뉴 Test). 네임스페이스 없이 둔다 |
 | `Editor/StoryTool/` | 시나리오 툴 (메뉴 Story > Story Tool, 네임스페이스 `StoryTool`). 아래 "시나리오 툴" 참고 |
 
 ## 코딩 컨벤션
@@ -104,8 +107,12 @@ Main은 이야기가 플레이어를 세울 때까지 `InitScene`을 끝내지 �
 
 ### 에디터 전용 코드
 - 테스트/디버그 코드는 `#if UNITY_EDITOR`로 감싸서 빌드에 들어가지 않게 한다. `using`도 같이 감싼다.
-- 테스트 단축키는 `Common/Test/EditorTestKeys.cs` 한 곳에 모은다. 키를 추가할 때는 static 이벤트를 하나 만들고 `TestKeys` 배열에 한 줄 추가한다.
+- 테스트 단축키는 `Common/Test/EditorTestKeys.cs` 한 곳에 모은다. 게임 조작 키(이동 WASD/방향키, 점프 Alt, 대시 Space와 Shift, 공격 Ctrl, 카운터 Z, 상호작용 F)와 겹치지 않게 고른다. 키를 추가할 때는 static 이벤트를 하나 만들고 `TestKeys` 배열에 한 줄 추가한다.
   반응하는 쪽은 그 이벤트를 구독/해제한다.
+- Play를 시작할 때의 조건을 바꾸는 테스트 설정은 `Common/Test/EditorTestSettings.cs`에 모으고, 상단 메뉴 **Test**(`Editor/TestMenu.cs`)에서 체크로 켜고 끈다.
+  값은 EditorPrefs에 남는다(이 PC에만 저장되고 레포에 올라가지 않는다). 설정을 추가할 때는 `EditorTestSettings`에 값을 만들고 `TestMenu`에 메뉴 항목과 체크 표시 함수를 한 쌍 추가한다.
+  - **Test > Start At Boss Battle** : 켜고 Play하면 타이틀을 건너뛰고(`Global.Load`), 이야기를 보스전(`Boss` 명령)이 있는 첫 퀘스트부터 시작한다(`StoryPlayer.FindTestStart`).
+    플레이어는 보스가 설 자리에서 `BossBattleStartDistance`만큼 떨어진 Zone 안쪽에 선다. 앞 퀘스트가 세웠을 다른 대상은 월드에 없다.
 - 판정 범위 같은 시각 디버그는 `OnDrawGizmos`를 `#if UNITY_EDITOR`로 감싸서 쓴다.
 - 입력은 새 Input System만 쓴다. `UnityEngine.Input`(구 입력)은 쓰지 않는다.
 
@@ -137,8 +144,8 @@ Main은 이야기가 플레이어를 세울 때까지 `InitScene`을 끝내지 �
 | 어디 | 무엇 |
 |---|---|
 | `Object.tsv` | `IsCharacter`, `MoveSpeed`, 콜라이더, `Tint`(스프라이트에 곱하는 색 r,g,b 0~1. 빈칸이면 원래 색. 같은 그림을 쓰는 오브젝트를 색으로 구분한다) |
-| `Character.tsv` | 캐릭터의 전투 수치. `Hp`, `MachineAttack`/`MachineDefense`(기계), `MagicAttack`/`MagicDefense`(마법), `StatusEffects`(타고난 상태 효과 번호들). 캐릭터(`IsCharacter`)는 꼭 한 줄 있어야 한다 |
-| `AttackCommand.tsv`, `AttackHitBox.tsv` | 공격 커맨드와 판정. Id가 오브젝트 번호로 시작한다 (1001 → 100101, 10010101). `Damage`는 그 공격의 위력, `Stagger`는 맞은 쪽을 굳히는 시간(초)이다 |
+| `Character.tsv` | 캐릭터의 전투 수치. `Hp`, `MachineAttack`/`MachineDefense`(기계), `MagicAttack`/`MagicDefense`(마법), `StatusEffects`(타고난 상태 효과 번호들), `Boss`(보스 이름. 빈칸이면 보스가 아니다. 아래 "보스전"). 캐릭터(`IsCharacter`)는 꼭 한 줄 있어야 한다 |
+| `AttackCommand.tsv`, `AttackHitBox.tsv` | 공격 커맨드와 판정. Id가 오브젝트 번호로 시작한다 (1001 → 100101, 10010101). `Damage`는 그 공격의 위력, `Stagger`는 맞은 쪽을 굳히는 시간(초), `AttackTime`은 그 단계 동안 제자리에 묶이는 시간(초)이다. `AdvanceDistance`/`AdvanceTime`은 그 단계가 시작될 때 앞으로 나아가는 거리와 걸리는 시간(초. 빈칸이면 물리 스텝 한 번에 간다)이다. AttackHitBox의 `Shape`는 판정을 화면에 보여줄 임시 도형이다 (`Square`, `Triangle`, `Circle`. 빈칸이면 보여주지 않는다) |
 | `AddressableAssets/Animation/(번호)/`, `Effect/(번호)/` | 애니메이션 클립(`Idle`, `Move`, `Jump`, `Fly`, `Damage`, `Death`, `Attack1`…)과 이펙트 프리팹 |
 
 - 공격은 마법과 기계 두 종류로 나가고(`AttackCommand`의 `Type`) 공격력과 방어력도 종류마다 따로 둔다. 마법 공격은 마법 방어력으로, 기계 공격은 기계 방어력으로 받는다.
@@ -147,14 +154,79 @@ Main은 이야기가 플레이어를 세울 때까지 `InitScene`을 끝내지 �
 - **피해:** 깎이는 Hp = `공격의 Damage + 공격한 쪽의 공격력 − 맞은 쪽의 방어력` (0보다 작으면 0). 한 커맨드에 마법과 기계 판정이 따로 나가므로 각각 한 번씩 계산한다.
   때린 쪽이 `AttackHit`(종류, 위력, 경직 시간, 카운터로 받아낼 수 있는지)을 만들어 넘기고(`GetAttackHit`), 맞은 쪽이 `RequestDamage` 안에서 방어력을 빼고 깎는다.
   맞았을 때(`Hit`)만 깎고, 카운터로 받아냈거나 무적이면 깎지 않는다.
+  무적은 연출 중(`Event`), 대시하는 동안, `ObjectContext.IsInvincible`(보스의 전투 시작 전과 페이즈 전환 중)이다.
 - **경직:** 맞으면 그 공격의 `Stagger`만큼 `Damage` 상태로 굳는다. 굳은 채로 또 맞으면 남은 시간과 새 경직 중 긴 쪽으로 다시 정한다.
   맞은 쪽이 고친 값(`ObjectContext.StaggerDuration`)이 0이면 **맞기는 하되 굳지 않는다**. Hp는 깎이지만 `Damage` 상태에 들어가지 않고 하던 행동과 콤보가 이어진다.
   경직이 없는 공격(`Stagger` 빈칸)과 경직 면역이 이 한 곳으로 모인다.
+  **반격(`AttackHit.IsCounterAttack`)은 경직 면역을 뚫는다.** 늘 면역인 보스를 굳힐 수 있는 것은 보스의 공격을 받아낸 반격뿐이다.
+- **전진:** 공격은 그 단계가 끝날 때까지 제자리에 묶지만, `AdvanceDistance`를 적은 단계는 시작할 때 보는 쪽으로 그만큼 나아간다.
+  한 걸음 내딛는 베기(시간 빈칸)부터 몸으로 밀고 가는 돌진(시간을 `AttackTime`과 같게, 판정도 그 시간 동안)까지 같은 칸으로 적는다.
+  마법과 기계 줄 중 거리를 적어둔 첫 줄의 것을 쓴다(`Animation`과 같다). 지상에서는 낭떠러지 끝에서 멈춘다.
 - **쓰러짐:** Hp가 0이 되면 `Dead` 상태(가장 높은 단계. 입력도 피격도 받지 않는다)로 들어가 `Death` 클립을 틀고, 끝나면 스포너가 없앤다. 퀘스트의 `Clear`는 이렇게 사라지기를 기다린다.
   `Death` 클립은 반복하지 않게 만든다(Loop Time 끔). 반복하면 끝났다는 신호가 오지 않아서 사라지지 않는다. 클립이 없으면 바로 사라진다.
   플레이어는 쓰러진 뒤의 처리가 아직 없어서 `[전투] 플레이어 사망` 로그만 남기고 계속 움직인다.
 - 지금 `Attack1~3`, `Damage`, `Death` 클립은 그림이 없어서 점프·낙하 그림을 다시 쓴 임시 클립이다.
 - 1002(Npc, 녹색)와 1003(적, 붉은색)은 1001을 복사한 테스트용 오브젝트다. 이펙트는 1001 프리팹의 변형(Variant)이라 1001을 고치면 같이 바뀐다.
+- 1004(보스 결투자, 보라색)도 1001의 클립을 복사해서 쓴다. 공격에 이펙트를 쓰지 않아서(판정을 몸이 직접 든다) 이펙트 프리팹은 없고, 판정을 도형으로 보여준다 (AttackHitBox의 `Shape`).
+
+### 이동, 점프, 대시
+
+수치는 mori-kit의 전투 명세를 옮긴 것이다(`GameDefine`의 `Move`, `Dash`. 그쪽의 원래 길이 단위가 이 프로젝트와 같아서 값을 그대로 쓴다).
+몸을 움직이는 것은 `PhysicsController` 한 곳이고, 플레이어와 AI(보스 포함)가 같은 규칙으로 움직인다.
+
+- **걷기:** 걸음 속도는 Object 표의 `MoveSpeed`다. 바로 붙지 않고 가속(`MoveAccelerationTime`)과 감속(`MoveDecelerationTime`)을 거친다.
+  가던 방향과 반대로 누르면 `MoveTurnHoldTime` 동안은 보는 방향만 바뀌고, 그보다 길게 누르면 방향을 바꾼다. 공중과 피격 중에는 덜 감속한다.
+  가속과 감속을 걸음 속도에 붙는 **시간**으로 둔 것은 걸음 속도가 오브젝트, 연출, 테스트 키로 달라져도 같은 박자로 붙고 멈추게 하려는 것이다.
+  걸음 속도를 넘어선 속도(대시, 공중 점프가 남긴 것)는 서서히 풀고, 걸음 속도 자체가 느려지면(`OnMoveSpeedLowered`) 그만큼 바로 줄인다.
+- **점프:** 중력은 프로젝트 설정이 아니라 `Gravity`를 쓴다(gravityScale로 맞춘다). 올라갈 때는 그대로, 정점 근처와 떨어질 때는 가볍게 받아서
+  빠르게 뛰어올라 천천히 내려온다. 공중 점프는 누른 쪽으로 밀어주면서 뛴다(`RequestAirJump`).
+- **대시:** `DashDistance`를 `DashDuration`에 간다. 물리 스텝 단위로만 움직이므로 시간을 스텝 수로 바꾸고 그 스텝 수에 거리를 맞춘다.
+  **대시하는 동안에는 맞지 않는다.** 끝나면 속도를 조금만 남기고, 공중이면 잠깐 떠 있는다. 스택은 `DashMaxStack`개이고 하나가 차는 데 `DashChargeInterval`초다.
+- 연출의 `Move`는 도착하면 가던 속도를 바로 지운다(`PhysicsController.StopHorizontal`). 감속하는 동안 정한 자리를 지나치지 않게 한다.
+
+### 보스전 (Boss)
+
+mori-kit의 결투(Duel)를 옮겼다. **행동 트리가 아니라 지금의 `StateMachine`과 패턴 클래스로 만든다.**
+보스는 "거리를 잰다 → 마디 첫 박에 패턴을 고른다 → 박에 맞춰 진행한다"를 되풀이하는 구조라서 상태가 적고 전이가 뻔하다.
+조건을 매 틱 다시 훑는 트리의 장점이 쓰이지 않고, AI 방식이 둘(일반 AI는 FSM)이 되는 부담만 남는다. 보스마다 다른 것은 패턴과 그 수치다.
+
+| 무엇 | 어디 |
+|---|---|
+| 보스인지 | `Character.tsv`의 `Boss` 칸에 보스 이름(`Duelist`). `BossFactory`가 이 이름으로 `BossProfile`을 만든다. 이름이 있으면 `ControllerAI` 대신 `ControllerBossAI`가 붙는다 |
+| 보스의 설계 | `Boss/Profiles/`의 `BossProfile` 하나. 체력바 수(`PhaseCount`), 고르는 패턴과 그 거리/비중/단계, 반응으로 내는 패턴, 단계와 페이즈마다의 배율 |
+| 패턴의 종류 | `Boss/Patterns/`의 `BossPattern` 하나. 준비(다가가기, 예고) → 타격 → 끝을 박에 맞춰 진행한다 |
+| 공격의 위력, 판정, 전진 | `AttackCommand`, `AttackHitBox` 표. 패턴이 누르는 공격 버튼 번호가 `Command`다 (`"2"` → `"22"`로 콤보가 이어진다) |
+| 언제 싸우는지 | Quest 표의 `Boss` 명령 (아래 "이야기 표") |
+
+- **입력만 낸다:** 패턴은 플레이어와 같은 입력(이동, 공격 버튼, 카운터, 대시)만 낸다. 판정, 피해, 받아내기, 경직은 플레이어의 공격과 같은 경로로 처리된다.
+- **박:** 보스는 자기 시계(`ControllerBossAI.Beat`)를 따른다. 한 박은 `BossBeatDuration`(0.5초)이고 한 마디는 4박이다. 곡이 붙으면 이 시계를 곡의 박으로 바꾼다.
+  패턴은 마디 첫 박에만 시작한다. 패턴이 일찍 끝나거나 쉬는 마디면 다음 마디까지가 플레이어의 공격 기회다.
+- **고르기:** 대상과의 가로 거리와 단계가 맞고 지금 쓸 수 있는(카운터 스택) 패턴 중에서 비중대로 뽑는다 (`BossPatternPick`).
+- **예고:** 타격 `BossTelegraphBeats`박 전부터 스프라이트에 공격 종류의 색을 섞는다 (`ObjectContext.SetTelegraph` → `AnimationPlayer`).
+  근접(빨강)은 거리를 벌리고, 하단(노랑)은 뛰어넘고, 돌진(분홍)은 대시로 빠지고, 카운터 자세(하늘색)는 때리지 않는다. 그림이 없어서 색으로 대신한 것이다.
+- **판정 도형 (임시 이펙트):** 공격 이펙트의 그림이 없어서, 판정이 있는 자리를 기본 도형으로 보여준다 (`AttackShapeView`. 캐릭터마다 붙는다).
+  AttackHitBox 표의 `Shape` 칸에 도형을 적은 판정만 보인다. 판정이 켜져 있는 동안 그 크기로 흰 도형이 뜨고, 꺼지면 `AttackShapeFadeDuration` 동안 사라진다.
+  패턴은 타격 전에 그 공격의 범위를 예고 색으로 옅게 미리 보여준다 (`ControllerBossAI.PreviewAttack` → `ObjectContext.SetAttackPreview`).
+  전진하는 공격은 나아간 뒤의 자리에, 돌진처럼 전진하는 내내 판정이 켜져 있는 공격은 지나가는 길 전체에 그린다.
+  도형의 스프라이트는 파일이 아니라 코드가 그린다 (`AttackShapeSprite`). 이펙트 그림이 생기면 `Shape` 칸을 비우고 `Effect` 칸을 쓴다.
+  이펙트를 쓰는 공격(`Effect` 칸)은 판정을 이펙트가 들고 다니므로 도형을 띄우지 않는다.
+- **패턴 이름 표시 (확인용):** 보스가 지금 내는 패턴의 이름(회피, 페이즈 전환 포함)을 보스 체력바 아래에 띄운다
+  (`ObjectContext.SetPatternName` → `BossView`). 패턴이 제대로 나오는지 보려는 것이라 예고 연출이 자리 잡으면 지울지 판단한다.
+- **경직 면역과 반격:** 보스는 타고난 경직 면역(`StatusEffects`에 1)이라 맞아도 패턴이 끊기지 않는다. **보스의 공격을 카운터로 받아낸 반격만 보스를 굳힌다.**
+  굳은 동안이 공격 기회이고, 풀리면 보스는 대시로 빠지거나 카운터 자세를 잡는다.
+- **반응:** 짧은 시간에 여러 번 맞으면(연타) 하던 패턴을 끊고 카운터 자세로 받아친다. 카운터가 없으면 밀쳐낸다. 패턴 사이에 맞으면 가끔 대시로 빠진다.
+  보스의 카운터는 스택이 따로 있고 느리게 찬다(`BossCounterMaxStack`).
+- **단계와 페이즈:** 체력바 하나가 페이즈 하나다 (`ObjectContext.Phase`, `PhaseCount`). 체력바가 다 깎이면 쓰러지지 않고 다음 체력바가 가득 찬다.
+  전환하는 동안(`PhaseBreak`)은 맞지 않고 전투 구역 가운데로 간다. 단계(0~2)는 체력바 하나 안에서 Hp가 66%, 33% 아래로 내려갈 때 오른다.
+  단계와 페이즈가 오르면 빨라지고 덜 쉬고, 단계가 되어야 쓰는 패턴이 풀린다. 페이즈에 들어갈 때 상태 효과를 건다(공격력).
+- **전투 시작 전:** 보스는 `Standby`로 서 있고 맞지 않는다. 밖에서 미리 깎아둘 수 없다.
+- **새 보스:** Object, Character(`Boss` 칸), AttackCommand, AttackHitBox에 줄을 만들고, `BossProfile`을 상속한 클래스를 `Profiles`에 만들어 `BossFactory`에 이름을 등록한다.
+  새 종류의 패턴이 필요하면 `BossPattern`을 상속해서 `Patterns`에 만든다. 패턴이 새 입력이나 규칙을 필요로 하면 `ObjectContext`를 거치게 한다.
+- 패턴의 수치(박, 거리, 비중)는 지금 보스 클래스에 있다. 테이블로 차후 관리해야 하는 부분이다.
+- 테스트 키 `5` : 전투 중인 보스의 지금 체력바를 비운다 (페이즈 전환과 쓰러짐 확인).
+- 메뉴 **Test > Start At Boss Battle** : 체크하고 Play하면 타이틀과 앞 퀘스트를 건너뛰고 바로 보스전으로 들어간다.
+- **아직 옮기지 않은 것 (예정):** 에너지탄, 내려찍기, 맵 패턴(미사일, 낙뢰, 레이저, 장벽), 넉백과 월 바운스, 카운터 크래시, 빈틈 찌르기와 습관 읽기,
+  박 스텝과 구석 탈출, 리듬 판정과 그루브, 페이즈 전환 때의 플레이어 회복.
 
 ### 상태 효과 (StatusEffect, StatusModifier)
 
@@ -191,7 +263,7 @@ Main은 이야기가 플레이어를 세울 때까지 `InitScene`을 끝내지 �
 |---|---|---|
 | `Actor.tsv` | 월드의 캐릭터 등록. 시나리오, 퀘스트, 대화는 대상을 이 번호로 가리킨다 | `Id`(10001), `ObjectId`, `Type`(Npc/Enemy), `Name`(말풍선에 띄우는 이름), `Resident`, `Zone`, `Position`, `Note`(누구인지) |
 | `Scenario.tsv` | 대형 연출. 플레이어가 조작하지 않는 장면 | `Spawn`, `Despawn`, `Place`, `Move`, `Effect`, `Dialogue`, `Line`, `CloseDialogue`, `Wait`, `FadeOut`/`FadeIn`, `Zoom` |
-| `Quest.tsv` | 진행. 미션(목표)과 그에 딸린 대화. 퀘스트 번호 순서가 곧 진행 순서이고, 이야기는 첫 퀘스트부터 시작한다 | `Scenario`(시나리오 재생), `Dialogue`, 목표 `Interact`, `Reach`, `Clear`. 목표 줄은 `Text`에 플레이어가 할 일을 적는다 |
+| `Quest.tsv` | 진행. 미션(목표)과 그에 딸린 대화. 퀘스트 번호 순서가 곧 진행 순서이고, 이야기는 첫 퀘스트부터 시작한다 | `Scenario`(시나리오 재생), `Dialogue`, 목표 `Interact`, `Reach`, `Clear`, `Boss`(보스전). 목표 줄은 `Text`에 플레이어가 할 일을 적는다 |
 | `QuestInfo.tsv` | 퀘스트 하나에 대한 것. 줄을 묶는 번호만 있는 Quest 표에는 적을 자리가 없어서 따로 둔다 | `Id`(퀘스트 번호, 101), `Title`(화면의 퀘스트 안내에 띄우는 제목) |
 | `Talk.tsv` | 가벼운 일반 대화. 퀘스트 목표가 아닐 때 Npc에게 말을 걸면 나오는 대화 | `Id`(챕터 × 100 + 순번, 101. `Quest`와 같은 챕터), `Actor`, `Quest`(이 퀘스트가 시작된 뒤부터), `Dialogue` |
 
@@ -221,11 +293,16 @@ Main은 이야기가 플레이어를 세울 때까지 `InitScene`을 끝내지 �
   그래서 컬링되어 꺼져 있던 대상도 연출에 쓸 수 있다. 새 위치 명령을 만들면 `GetStageZone`을 다시 정한다.
 - 퀘스트 목표를 지나는 동안 월드에 있던 적은 플레이어와 싸워 쓰러졌을 수 있다. 그래서 목표를 지난 적은 시나리오가 다룰 수 없고 `Clear`로만 가리킨다.
   `Clear`는 대상을 적으면 그 적, 비우면 월드의 적 전부가 쓰러질 때까지 기다리고, 통과한 적은 월드에서 나간 것으로 본다.
+- **보스전(`Boss`):** 대상(보스)이 서 있는 Zone이 보스 전투 Zone이다. 플레이어가 그 Zone에 들어오면(경계에서 `BossArenaEnterMargin` 안쪽)
+  Zone을 잠그고 보스를 깨우고, 보스가 쓰러지면 잠금을 풀고 넘어간다. 잠긴 동안에는 다른 Zone으로 나갈 수 없고 카메라도 그 Zone 밖을 보여주지 않는다.
+  전투 중에는 화면 위쪽에 보스의 이름(Actor 표의 `Name`)과 체력바, 페이즈를 띄운다 (`StoryHudPresenter` → `BossView`).
+  대상은 적이고 Character 표의 `Boss` 칸이 적혀 있어야 한다(검사가 확인한다). `Clear`처럼 통과한 보스는 월드에서 나간 것으로 본다.
+  등장 연출은 앞 줄에 `Scenario`로 둔다. Zone이나 위치 칸은 쓰지 않는다 (보스의 자리는 Actor 표와 `Spawn`이 정한다).
 - 일반 대화는 시나리오 재생 중이나 다른 대화 중에는 나오지 않고, `Interact` 목표가 기다리는 Npc에게 건 말은 목표로 간다.
 - **퀘스트 안내:** 기다리는 목표가 있는 동안 화면 왼쪽 위에 퀘스트 제목(QuestInfo의 `Title`)과 할 일(목표 줄의 `Text`)을 띄운다 (`StoryHudPresenter` → `QuestView`).
   목표 사이(대화, 연출)에는 숨긴다. 그래서 목표 줄은 `Text`를 꼭 적고, 목표가 아닌 줄은 비운다. 퀘스트는 모두 QuestInfo에 제목이 있어야 한다(검사가 확인한다).
 - **화면 아이콘:** 표를 따로 두지 않고 Quest, Talk 표에서 정해지는 것을 그대로 띄운다 (`StoryHudPresenter` → `MarkerView`).
-  - 퀘스트 아이콘 : 지금 기다리는 목표가 가리키는 곳. `Interact`의 Npc, `Reach`의 목적지, `Clear`의 적(대상을 비웠으면 적 전부).
+  - 퀘스트 아이콘 : 지금 기다리는 목표가 가리키는 곳. `Interact`의 Npc, `Reach`의 목적지, `Clear`의 적(대상을 비웠으면 적 전부), `Boss`의 보스.
   - 시나리오 아이콘 : 같은 자리에 퀘스트 아이콘 대신. 목표 바로 다음 줄이 `Scenario`라서 채우면 바로 연출이 이어질 때다.
   - 대화 아이콘 : 지금 할 일반 대화가 있는 Npc. 플레이어가 `TalkMarkerDistance`(2.5. 말을 걸 수 있는 거리 1.5보다 조금 넓다) 안에 왔을 때만 뜬다. 목표가 가리키는 Npc에는 뜨지 않는다.
   - 퀘스트와 시나리오 아이콘은 거리와 상관없이 뜨고, 대상이 화면 밖이면(Zone이 내려가 꺼진 대상 포함) 화면 가장자리에 붙어 방향을 알려준다.
@@ -244,7 +321,7 @@ Main은 이야기가 플레이어를 세울 때까지 `InitScene`을 끝내지 �
   앞뒤 관계(세우기 전 사용, 나간 뒤 참조, 이미 있는 대상을 다시 세움, 플레이어 두 번 세움, 목표를 지난 적을 다룸, 덮인 화면으로 끝나는 시나리오, 열린 말풍선 없이 CloseDialogue,
   대사를 말하는 대상이 그 시점에 월드에 없음),
   표 참조(Actor 번호, 대상이 캐릭터인지 — Object의 IsCharacter와 Character 표, 없는 시나리오/퀘스트 번호, Dialogue 번호와 대사 Id, 대사의 Speaker와 그 대상의 Name,
-  이펙트 프리팹, Talk 대상이 Npc인지, Talk 대사를 그 Npc나 플레이어가 말하는지, 없는 Zone).
+  이펙트 프리팹, Talk 대상이 Npc인지, Talk 대사를 그 Npc나 플레이어가 말하는지, 없는 Zone, `Boss`의 대상이 보스인지 — Character 표의 Boss 칸과 `BossFactory`).
   어느 퀘스트도 부르지 않는 시나리오는 경고로 알린다. Zone 배치(Map, Zone 표)도 같이 검사한다.
   같은 검사(`StoryValidator`)가 이야기 시작 직전에도 돌고, 틀리면 이야기를 시작하지 않는다.
 
@@ -301,6 +378,9 @@ Main은 이야기가 플레이어를 세울 때까지 `InitScene`을 끝내지 �
   플레이어가 없으면 카메라가 보는 곳을 기준으로 한다. 시작 Zone을 다 불러온 뒤 이야기를 시작한다.
 - **맵 끝:** 불러온 Zone의 상하좌우 중 이웃 Zone이 없는 쪽에는 보이지 않는 벽(`Map` 태그, 두께 `ZoneWallThickness`)을 세운다. 그래서 이어서 갈 Zone이 없으면 나갈 수 없다.
   벽은 Zone 프리팹이 아니라 Zone 배치에서 자동으로 만들므로, Zone을 옮기거나 새로 붙여도 손으로 고칠 것이 없다. Zone을 내리면 벽도 같이 지운다.
+- **Zone 잠금(보스전):** `ZoneStreamer.Lock`으로 잠근 Zone은 옆에 Zone이 있어도 사방에 벽을 세우고, 카메라도 그 Zone 안만 보여준다 (`ZoneStreamer.GetBoundary`).
+  `Unlock`하면 옆에 Zone이 있는 쪽의 벽을 걷는다. 따로 "보스 Zone"을 표에 표시하지 않고, 퀘스트의 `Boss` 명령이 보스가 서 있는 Zone을 잠근다.
+  보스 전투 Zone도 카메라 화면보다 커야 한다.
 - **카메라:** 플레이어를 따라가고(`CameraFollowHeight`, `CameraFollowSmoothTime`), 플레이어가 있는 Zone의 상하좌우에 Zone이 없으면 화면이 그 Zone 끝을 넘지 않는다.
   이웃이 있는 쪽으로는 막지 않는다. 그래서 **Zone은 카메라 화면보다 커야 한다**(화면이 더 크면 그 축은 Zone 가운데에 고정된다). 대각선 칸이 비어 있는 경우는 보지 않는다.
 - 내려간 Zone에 있는 캐릭터는 없애지 않고 꺼둔다(이야기가 계속 추적한다). Zone이 다시 올라오면 켠다.

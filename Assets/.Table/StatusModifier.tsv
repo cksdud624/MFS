@@ -3,3 +3,7 @@ long	long	string	string	string	float	string
 101	1	Trait	StaggerImmune			
 201	2	Stat	MachineAttack	Add	10	
 202	2	Stat	MagicAttack	Add	10	
+301	3	Stat	MachineAttack	Multiply	1.2	
+302	3	Stat	MagicAttack	Multiply	1.2	
+401	4	Stat	MachineAttack	Multiply	1.2	
+402	4	Stat	MagicAttack	Multiply	1.2	

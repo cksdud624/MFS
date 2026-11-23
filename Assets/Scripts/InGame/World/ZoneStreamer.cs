@@ -19,7 +19,8 @@ namespace InGame.World
     /// 불러온 Zone의 상하좌우 중 이웃 Zone이 없는 쪽에는 보이지 않는 벽을 세워서, 이어서 갈 곳이 없는 맵 끝을 넘어가지 못하게 한다.
     /// 내려간 Zone에 있는 캐릭터는 꺼두고, 그 Zone이 다시 올라오면 켠다. 바닥이 사라진 자리에서 떨어지지 않게 하려는 것이다.
     /// 캐릭터를 없애지 않는 이유는 이야기가 대상을 계속 추적하기 때문이다 (뒤의 퀘스트가 같은 번호로 다시 쓴다).
-    /// 시나리오가 무대로 쓰는 Zone은 고정(Pin)해서 컬링 거리 밖이어도 올려둔다. 연출에 나오는 대상이 꺼지지 않게 하려는 것이다
+    /// 시나리오가 무대로 쓰는 Zone은 고정(Pin)해서 컬링 거리 밖이어도 올려둔다. 연출에 나오는 대상이 꺼지지 않게 하려는 것이다.
+    /// 보스전이 벌어지는 Zone은 잠가서(Lock) 옆에 Zone이 있어도 사방을 벽으로 막는다. 전투가 끝날 때까지 다른 Zone으로 나가지 못한다
     /// </summary>
     public class ZoneStreamer : IUpdateable, IDisposable
     {
@@ -49,6 +50,9 @@ namespace InGame.World
         private readonly HashSet<long> _wanted = new();
         //고정한 Zone (시나리오의 무대). 컬링 거리 밖이어도 올려둔다
         private readonly HashSet<long> _pinned = new();
+        //잠근 Zone (보스전이 벌어지는 Zone). 옆에 Zone이 있어도 사방을 막는다. 잠근 Zone이 없으면 null이다.
+        //카메라도 이 Zone 밖을 보여주지 않는다
+        public ZoneLayout.ZoneEntry LockedZone { get; private set; }
         //프리팹이 없다고 이미 알린 Zone. 같은 경고가 Zone을 오갈 때마다 쌓이지 않게 한다
         private readonly HashSet<long> _reportedMissing = new();
         //Zone이 화면보다 작다고 이미 알린 맵
@@ -149,6 +153,44 @@ namespace InGame.World
             UpdateCulling(null);
             UpdateTrackedActive();
         }
+
+        /// <summary>
+        /// Zone을 잠근다. 옆에 Zone이 있는 쪽까지 사방에 벽을 세워서, 풀 때까지 그 Zone에서 나가지도 들어오지도 못한다.
+        /// 잠그는 Zone은 플레이어가 들어와 있는 Zone이라 이미 올라와 있다. 잠근 Zone은 하나만 둔다
+        /// </summary>
+        public void Lock(long zoneId)
+        {
+            if (!_layout.TryGetZone(zoneId, out var zone))
+            {
+                Debug.LogError($"[Zone] Zone {zoneId} is not defined. It cannot be locked.");
+                return;
+            }
+
+            var unlocked = LockedZone;
+            LockedZone = zone;
+            Debug.Log($"[Zone] Zone {zoneId} 잠금");
+            if (unlocked != null && unlocked != zone)
+                RebuildWalls(unlocked);
+            RebuildWalls(zone);
+        }
+
+        /// <summary>잠근 Zone을 푼다. 옆에 Zone이 있는 쪽의 벽을 걷어서 다시 이어서 갈 수 있게 한다</summary>
+        public void Unlock()
+        {
+            if (LockedZone == null) return;
+
+            var zone = LockedZone;
+            LockedZone = null;
+            Debug.Log($"[Zone] Zone {zone.Id} 잠금 해제");
+            RebuildWalls(zone);
+        }
+
+        /// <summary>
+        /// 그 Zone에서 더 갈 수 없는 끝. 잠근 Zone은 사방이 끝이고, 아니면 옆에 Zone이 없는 쪽만 끝이다 (ZoneLayout.GetBoundary).
+        /// 벽을 세우는 곳과 카메라가 같은 끝을 쓴다
+        /// </summary>
+        public (Vector2 min, Vector2 max) GetBoundary(ZoneLayout.ZoneEntry zone)
+            => zone == LockedZone ? (zone.Rect.min, zone.Rect.max) : _layout.GetBoundary(zone);
 
         public void Dispose() => Global.Instance?.UnBindUpdate(this);
         #endregion
@@ -278,13 +320,13 @@ namespace InGame.World
 
         #region Private - Wall
         /// <summary>
-        /// Zone의 상하좌우 중 이웃 Zone이 없는 쪽에 벽을 세운다. 벽은 Zone 바깥에 붙여서 Zone 안의 공간은 줄이지 않는다.
-        /// 모서리가 비지 않게 위아래 벽은 옆벽 두께만큼 양쪽으로 더 길게 둔다.
+        /// Zone의 상하좌우 중 더 갈 수 없는 쪽에 벽을 세운다. 이웃 Zone이 없는 쪽이고, 잠근 Zone이면 사방이다.
+        /// 벽은 Zone 바깥에 붙여서 Zone 안의 공간은 줄이지 않는다. 모서리가 비지 않게 위아래 벽은 옆벽 두께만큼 양쪽으로 더 길게 둔다.
         /// 태그를 Map으로 둬서 AI의 벽 판정에도 걸린다. 지면 판정은 위를 향한 접촉만 보므로 옆벽이 바닥으로 잡히지 않는다
         /// </summary>
         private void CreateWalls(ZoneLayout.ZoneEntry zone)
         {
-            var (min, max) = _layout.GetBoundary(zone);
+            var (min, max) = GetBoundary(zone);
             var rect = zone.Rect;
             float thickness = ZoneWallThickness;
             var root = new GameObject($"Zone {zone.Id} Walls");
@@ -300,6 +342,17 @@ namespace InGame.World
                 AddWall(root.transform, "Top", new Vector2(rect.center.x, rect.yMax + thickness * 0.5f), new Vector2(rect.width + thickness * 2f, thickness));
 
             _walls[zone.Id] = root;
+        }
+
+        //잠그거나 풀어서 막을 쪽이 달라졌으면 벽을 다시 세운다. 아직 올라오지 않은 Zone은 올라올 때 지금 상태대로 세워진다
+        private void RebuildWalls(ZoneLayout.ZoneEntry zone)
+        {
+            if (!IsLoaded(zone.Id)) return;
+
+            //씬이 내려가며 이미 파괴되었을 수 있다
+            if (_walls.Remove(zone.Id, out var walls) && walls != null)
+                UnityEngine.Object.Destroy(walls);
+            CreateWalls(zone);
         }
 
         //Rigidbody 없는 콜라이더는 움직이지 않는 벽으로 다뤄져서 따로 고정할 것이 없다

@@ -177,6 +177,24 @@ namespace InGame.Story
             _actors.End(actor);
         }
 
+        /// <summary>
+        /// 보스가 쓰러졌다고 본다 (Boss를 통과한 뒤). 대상은 적이고 Character 표의 Boss 칸에 보스 이름이 적혀 있어야 한다.
+        /// 보스가 아니면 보스전을 시작할 수 없어서 목표가 그 자리에서 넘어간다. 쓰러진 보스는 Clear와 같이 월드에서 나간 것으로 친다
+        /// </summary>
+        public void Boss(StoryActor actor)
+        {
+            if (GetActorType(actor) != StoryActorType.Enemy)
+            {
+                Error($"{actor} is not Enemy. Boss waits for a boss enemy to be defeated.");
+                return;
+            }
+
+            long objectId = _actorTable[actor].ObjectId;
+            if (!_references.IsBoss(objectId))
+                Error($"{actor} (Object {objectId}) is not a boss. Write a registered boss name in the Boss column of Character table.");
+            _actors.End(actor);
+        }
+
         /// <summary>대상의 종류가 맞아야 하는 줄 (말 걸기는 Npc에게만)</summary>
         public void RequireType(StoryActor actor, StoryActorType type)
         {

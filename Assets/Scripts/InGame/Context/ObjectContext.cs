@@ -13,6 +13,7 @@ using Team = Common.GameDefine.Team;
 using DamageResult = Common.GameDefine.DamageResult;
 using StatType = Common.GameDefine.StatType;
 using StatusTrait = Common.GameDefine.StatusTrait;
+using AttackTelegraph = Common.GameDefine.AttackTelegraph;
 
 
 namespace InGame.Context
@@ -59,6 +60,10 @@ namespace InGame.Context
 
         public ObjectData ObjectData {get; private set;}
         public CharacterData CharacterData {get; private set;}
+
+        //보스 이름 (Character 표의 Boss 칸). 보스가 아니면 비어 있다. 이 이름으로 보스 AI가 정해진다
+        public string BossName => CharacterData?.Boss ?? string.Empty;
+        public bool IsBoss => !string.IsNullOrEmpty(BossName);
         #endregion
 
         #region Status
@@ -74,11 +79,30 @@ namespace InGame.Context
         {
             hp = Mathf.Clamp(hp, 0, MaxHp);
             if (Hp == hp) return;
+
+            //체력바가 남아 있으면 쓰러지지 않고 다음 체력바를 가득 채워서 이어간다. 넘친 피해는 다음 체력바로 넘기지 않는다
+            if (hp == 0 && Phase < PhaseCount - 1)
+            {
+                Phase++;
+                Hp = MaxHp;
+                OnHpChanged?.Invoke(Hp, MaxHp);
+                OnPhaseChanged?.Invoke(Phase);
+                return;
+            }
+
             Hp = hp;
             OnHpChanged?.Invoke(Hp, MaxHp);
             if (Hp == 0)
                 OnHpDepleted?.Invoke();
         }
+
+        //체력바의 수. 보스는 체력바 하나가 페이즈 하나라서, 마지막 체력바까지 다 깎여야 쓰러진다. 보스가 아니면 하나다
+        public int PhaseCount { get; private set; } = 1;
+        //지금 체력바가 몇 번째인지 (0부터)
+        public int Phase { get; private set; }
+        //체력바 하나가 다 깎여서 다음 체력바로 넘어갔다 (새 페이즈 번호). Hp는 이미 가득 찬 뒤에 알린다
+        public event Action<int> OnPhaseChanged;
+        public void SetPhaseCount(int phaseCount) => PhaseCount = Mathf.Max(1, phaseCount);
 
         /// <summary>
         /// 공격 종류에 맞는 공격력. 공격이 마법과 기계로 나뉘어 나가므로(AttackCommand 표의 Type) 수치도 종류마다 따로 둔다.
@@ -151,8 +175,27 @@ namespace InGame.Context
         //테이블 걸음 속도에 곱하는 배율 (이동 속도 테스트 키 등). 시나리오가 시간을 정한 이동(Override)에는 곱하지 않는다. 그 시간에 도착해야 하기 때문이다
         public float MoveSpeedMultiplier { get; private set; } = 1f;
         public float MoveSpeed => MoveSpeedOverride > 0f ? MoveSpeedOverride : ObjectData.MoveSpeed * MoveSpeedMultiplier;
-        public void SetMoveSpeedOverride(float speed) => MoveSpeedOverride = Mathf.Max(0f, speed);
-        public void SetMoveSpeedMultiplier(float multiplier) => MoveSpeedMultiplier = Mathf.Max(0f, multiplier);
+        //걸음 속도가 느려졌다 (새 걸음 속도). 빠르게 걷던 속도가 남아 있으면 걸음 속도를 넘어선 채로 한참 미끄러지므로, 몸을 움직이는 쪽이 받아서 맞춘다
+        public event Action<float> OnMoveSpeedLowered;
+        public void SetMoveSpeedOverride(float speed)
+        {
+            float previous = MoveSpeed;
+            MoveSpeedOverride = Mathf.Max(0f, speed);
+            NotifyIfMoveSpeedLowered(previous);
+        }
+
+        public void SetMoveSpeedMultiplier(float multiplier)
+        {
+            float previous = MoveSpeed;
+            MoveSpeedMultiplier = Mathf.Max(0f, multiplier);
+            NotifyIfMoveSpeedLowered(previous);
+        }
+
+        private void NotifyIfMoveSpeedLowered(float previous)
+        {
+            if (MoveSpeed < previous)
+                OnMoveSpeedLowered?.Invoke(MoveSpeed);
+        }
 
         //이동
         public event Action<float> OnMoveVelocityChanged;
@@ -161,6 +204,10 @@ namespace InGame.Context
         //점프
         public event Action<float> OnJumpVelocityChanged;
         public void SetJumpVelocity(float velocityY) => OnJumpVelocityChanged?.Invoke(velocityY);
+
+        //공중 점프. 지상 점프와 달리 directionX 쪽(-1 / 1)으로 밀어주면서 뛰고, 잠깐 중력을 덜 받는다
+        public event Action<float> OnAirJump;
+        public void RequestAirJump(float directionX) => OnAirJump?.Invoke(directionX);
 
         //땅에 있는지
         public bool IsGrounded { get; private set; } = true;
@@ -248,8 +295,14 @@ namespace InGame.Context
                     break;
                 }
             }
-            return new AttackHit(attackType, damage + GetAttack(attackType), stagger, ActionType is not ActionType.CounterAttack);
+            return new AttackHit(attackType, damage + GetAttack(attackType), stagger, ActionType is ActionType.CounterAttack);
         }
+
+        //공격의 전진. 공격은 제자리에 묶어두지만, 전진이 적힌 공격(AttackCommand 표의 AdvanceDistance)은 그 단계가 시작될 때
+        //offset만큼을 duration(초)에 걸쳐 나아간다. 한 걸음 내딛는 베기부터 몸으로 밀고 가는 돌진까지 같은 방식이다.
+        //offset은 보는 방향에 맞춰 뒤집은 값으로 넘긴다. 전진이 없는 단계는 0을 넘겨서 앞 단계의 전진이 남지 않게 한다
+        public event Action<Vector2, float> OnAttackAdvance;
+        public void StartAttackAdvance(Vector2 offset, float duration) => OnAttackAdvance?.Invoke(offset, duration);
 
         //공격 한 단계의 시작. 여기서 중복 히트 기록을 비운다
         public event Action OnAttackStart;
@@ -311,7 +364,7 @@ namespace InGame.Context
         /// </summary>
         public DamageResult RequestDamage(Direction attackerSide, AttackHit hit)
         {
-            StaggerDuration = ResolveStagger(hit.Stagger);
+            StaggerDuration = ResolveStagger(hit);
             _damageResult = DamageResult.Ignored;
             OnDamage?.Invoke(attackerSide, hit.Counterable);
             if (_damageResult == DamageResult.Hit)
@@ -321,12 +374,13 @@ namespace InGame.Context
 
         /// <summary>
         /// 공격의 경직 시간을 맞은 쪽의 상태 효과로 고친다. 경직 면역이면 공격이 얼마나 굳히든 0이고,
-        /// 아니면 받는 경직 배율(StaggerTaken)을 곱한다
+        /// 아니면 받는 경직 배율(StaggerTaken)을 곱한다.
+        /// 반격은 경직 면역을 뚫는다. 늘 면역인 보스를 굳힐 수 있는 것은 보스의 공격을 받아낸 반격뿐이고, 그렇게 굳은 동안이 공격 기회다
         /// </summary>
-        private float ResolveStagger(float stagger)
+        private float ResolveStagger(AttackHit hit)
         {
-            if (StatusEffects.HasTrait(StatusTrait.StaggerImmune)) return 0f;
-            return Mathf.Max(0f, stagger * StatusEffects.Apply(StatType.StaggerTaken, 1f));
+            if (!hit.IsCounterAttack && StatusEffects.HasTrait(StatusTrait.StaggerImmune)) return 0f;
+            return Mathf.Max(0f, hit.Stagger * StatusEffects.Apply(StatType.StaggerTaken, 1f));
         }
 
         /// <summary>
@@ -337,6 +391,11 @@ namespace InGame.Context
             => Mathf.Max(0, attackPower - GetDefense(attackType));
 
         public void ReportDamageResult(DamageResult damageResult) => _damageResult = damageResult;
+
+        //무적인지. 무적인 동안에는 공격이 닿아도 맞지 않는다 (보스의 전투 시작 전과 페이즈 전환 중).
+        //연출 중(Event)과 대시 중에도 맞지 않지만, 그쪽은 각자의 상태로 따로 본다
+        public bool IsInvincible { get; private set; }
+        public void SetInvincible(bool invincible) => IsInvincible = invincible;
 
         /// <summary>
         /// 이 오브젝트가 때린 대상에서 봤을 때 이 오브젝트가 있는 쪽. 맞은 쪽이 반격할 때 돌아설 방향이다.
@@ -397,6 +456,28 @@ namespace InGame.Context
             IsInEvent = inEvent;
             OnInEventChanged?.Invoke(inEvent);
         }
+        #endregion
+
+        #region Telegraph
+        //공격 예고. 보스가 휘두르기 전에 어떤 공격이 오는지 알린다. 예고가 없으면 None이다
+        public AttackTelegraph Telegraph { get; private set; }
+        public event Action<AttackTelegraph> OnTelegraphChanged;
+        public void SetTelegraph(AttackTelegraph telegraph)
+        {
+            if (Telegraph == telegraph) return;
+            Telegraph = telegraph;
+            OnTelegraphChanged?.Invoke(telegraph);
+        }
+
+        //곧 나갈 공격의 범위 예고. 그 공격의 판정이 어디에 생길지 미리 보여줄 수 있게 공격 줄(AttackCommand 표)을 넘긴다.
+        //예고를 거둘 때는 null을 넘긴다
+        public event Action<IReadOnlyList<AttackCommandData>> OnAttackPreviewChanged;
+        public void SetAttackPreview(IReadOnlyList<AttackCommandData> attackCommands) => OnAttackPreviewChanged?.Invoke(attackCommands);
+
+        //보스가 지금 하고 있는 것의 이름 (패턴 이름, 회피, 페이즈 전환). 패턴이 제대로 나오는지 보려고 화면의 보스 체력바 아래에 띄운다.
+        //패턴 사이에는 비어 있다. 확인용이라 예고 연출이 자리 잡으면 지울지 판단한다
+        public string PatternName { get; private set; } = string.Empty;
+        public void SetPatternName(string patternName) => PatternName = patternName ?? string.Empty;
         #endregion
 
         #region Effect

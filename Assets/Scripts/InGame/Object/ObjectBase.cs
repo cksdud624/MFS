@@ -11,6 +11,7 @@ using Direction = Common.GameDefine.Direction;
 using EffectType = Common.GameDefine.EffectType;
 using InGame.Component;
 using InGame.Component.Controller;
+using InGame.Component.Controller.Boss;
 #if UNITY_EDITOR
 using Common.Test;
 #endif
@@ -52,6 +53,13 @@ namespace InGame.Object
         //머리 위(콜라이더 윗변의 가운데). 말풍선이 이 위에 뜬다
         public Vector2 Top => Center + new Vector2(0f, ObjectContext.ObjectData.ColliderSize.y * 0.5f);
         public ObjectType ObjectType => ObjectContext?.ObjectType ?? ObjectType.Object;
+        //지금 Hp와 체력바. 화면의 보스 체력바가 읽는다. 체력바(Phase)는 보스만 여러 개다
+        public int Hp => ObjectContext.Hp;
+        public int MaxHp => ObjectContext.MaxHp;
+        public int Phase => ObjectContext.Phase;
+        public int PhaseCount => ObjectContext.PhaseCount;
+        //보스가 지금 하고 있는 것의 이름 (패턴 이름 등). 보스 체력바 아래에 띄운다. 하는 것이 없으면 비어 있다
+        public string PatternName => ObjectContext.PatternName;
         #endregion
 
         #region Init
@@ -183,6 +191,8 @@ namespace InGame.Object
                 if (this != null)
                 {
                     InputContext.NotifyMove(Vector2.zero);
+                    //입력을 비우기만 하면 감속하는 동안 더 걸어가서 정한 자리를 지나친다. 연출의 자리는 정확해야 하므로 바로 세운다
+                    PhysicsController.StopHorizontal();
                     ObjectContext.SetMoveSpeedOverride(0f);
                     ResumeControl();
                 }
@@ -220,9 +230,12 @@ namespace InGame.Object
                 return;
             }
 
-            Controller = IsPlayer
-                ? (ControllerBase)gameObject.AddComponent<ControllerPlayer>()
-                : gameObject.AddComponent<ControllerAI>();
+            if (IsPlayer)
+                Controller = gameObject.AddComponent<ControllerPlayer>();
+            else if (IsRegisteredBoss())
+                Controller = gameObject.AddComponent<ControllerBossAI>();
+            else
+                Controller = gameObject.AddComponent<ControllerAI>();
             Controller.Init(InGameContext, InputContext, ObjectContext);
 #if UNITY_EDITOR
             if (Controller is ControllerAI)
@@ -239,6 +252,18 @@ namespace InGame.Object
             Controller.Dispose();
             Destroy(Controller);
             Controller = null;
+        }
+
+        /// <summary>
+        /// 보스전을 시작한다. arena는 전투가 벌어지는 구역이다. 보스는 이때부터 패턴을 내고 맞기 시작한다.
+        /// 보스가 아니면(보스 컨트롤러가 붙지 않았으면) 아무것도 하지 않고 false를 돌려준다
+        /// </summary>
+        public bool BeginBossBattle(Rect arena)
+        {
+            if (Controller is not ControllerBossAI boss) return false;
+
+            boss.Engage(arena);
+            return true;
         }
         #endregion
 
@@ -263,6 +288,21 @@ namespace InGame.Object
 
         //쓰러지는 모션이 끝났다. 생성한 쪽(스포너)이 목록에서 빼고 없애도록 알린다
         private void HandleDeathEnd() => InGameContext.NotifyObjectDefeated(this);
+        #endregion
+
+        #region Private
+        /// <summary>
+        /// 보스 컨트롤러를 붙일 오브젝트인지. Character 표의 Boss 칸에 등록된 보스 이름이 적혀 있어야 한다.
+        /// 이름이 틀렸으면 에러를 남기고 일반 AI로 둔다. 보스의 패턴 없이 서 있기만 하는 것보다 원인이 바로 보인다
+        /// </summary>
+        private bool IsRegisteredBoss()
+        {
+            if (!ObjectContext.IsBoss) return false;
+            if (BossFactory.IsRegistered(ObjectContext.BossName)) return true;
+
+            Debug.LogError($"Character {ObjectId} : Boss '{ObjectContext.BossName}' is not registered in BossFactory.");
+            return false;
+        }
         #endregion
 
         #region Editor

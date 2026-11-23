@@ -225,6 +225,8 @@ namespace StoryTool
                     world.Remove(actor);
                     break;
                 case StoryCommandCatalog.CommandClear:
+                //보스전도 통과하면 보스가 쓰러져서 나간다
+                case StoryCommandCatalog.CommandBoss:
                     Clear(world, actor);
                     break;
                 case StoryCommandCatalog.CommandFadeOut:

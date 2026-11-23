@@ -7,3 +7,5 @@ long	long	string	string	long	string	string	string	string
 102010	102	Reach		1001	67.6,5.95	1.5	동쪽 길로 가 보자	동쪽 길의 몬스터. 목표 : 동쪽 길로 이동
 102020	102	Scenario			103			적 등장
 102030	102	Clear	10002				몬스터를 쓰러뜨리자	목표 : 적 처치
+103010	103	Scenario			104			들판의 결투자. 보스 등장
+103020	103	Boss	10004				결투자를 쓰러뜨리자	목표 : 보스전. 보스가 서 있는 Zone(1002)에 들어가면 Zone이 잠기고 전투가 시작된다

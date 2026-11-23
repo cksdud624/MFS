@@ -15,3 +15,4 @@ long	long	string	string	long	string	string	string
 103040	103	Effect	10002		Attack1		대사를 띄운 채 적이 위협한다
 103050	103	Wait			0.5		
 103060	103	CloseDialogue					
+104010	104	Spawn	10004				보스 등장. 위치는 Actor 표 (Zone 1002의 가운데)

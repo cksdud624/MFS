@@ -49,6 +49,7 @@ namespace Generated.Table
 		public int MagicAttack {get; private set;}
 		public int MagicDefense {get; private set;}
 		public List<long> StatusEffects {get; private set;}
+		public string Boss {get; private set;}
 
 		public CharacterData(BinaryReader reader)
 		{
@@ -65,6 +66,7 @@ namespace Generated.Table
 			{
 				StatusEffects.Add(long.TryParse(item, out long vLong6) ? vLong6 : 0L);
 			}
+			Boss = tableDatas[7];
 		}
 	}
 }

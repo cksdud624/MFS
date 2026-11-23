@@ -65,6 +65,9 @@ namespace InGame.Story
         public string GoalText { get; private set; }
         //지금 줄 바로 다음이 시나리오 재생인지. 목표를 채우면 바로 연출이 이어진다는 뜻이라 목표 아이콘이 시나리오 아이콘으로 바뀐다
         public bool IsScenarioNext { get; private set; }
+
+        //지금 보스전을 벌이고 있는 보스. 전투 중이 아니면 None이다. 화면의 보스 체력바가 읽는다
+        public StoryActor BattleBoss { get; private set; }
         #endregion
 
         #region Init
@@ -248,6 +251,58 @@ namespace InGame.Story
         }
         #endregion
 
+        #region Public - Boss
+        /// <summary>
+        /// 플레이어가 보스전이 벌어질 Zone(보스가 서 있는 Zone) 안으로 들어왔는지. 경계에서 BossArenaEnterMargin만큼 안쪽이어야 한다.
+        /// 보스가 Zone 밖에 서 있으면 들어올 Zone이 없으므로, 가까이 다가온 것으로 대신한다 (말 걸기 거리)
+        /// </summary>
+        public bool IsPlayerInBossZone(ObjectBase boss)
+        {
+            var player = InGameContext.Player;
+            if (player == null || boss == null) return false;
+
+            Vector2 position = player.transform.position;
+            if (!TryFindBossZone(boss, out var zone))
+                return Mathf.Abs(position.x - boss.transform.position.x) <= InteractDistance;
+
+            var rect = zone.Rect;
+            return position.x >= rect.xMin + BossArenaEnterMargin && position.x <= rect.xMax - BossArenaEnterMargin
+                   && position.y >= rect.yMin && position.y <= rect.yMax;
+        }
+
+        /// <summary>
+        /// 보스전을 시작한다. 보스가 서 있는 Zone을 잠가서 전투가 끝날 때까지 다른 Zone으로 나가지 못하게 하고(카메라도 그 Zone 안만 보여준다),
+        /// 보스를 깨워서 싸우게 한다. 보스가 아닌 대상이면 에러를 남기고 false를 돌려준다
+        /// </summary>
+        public bool BeginBossBattle(StoryStep step, ObjectBase boss)
+        {
+            //Zone 밖에 서 있으면 잠글 Zone이 없다. 구역 없이 그 자리를 중심으로 싸우게 한다
+            bool inZone = TryFindBossZone(boss, out var zone);
+            var arena = inZone ? zone.Rect : new Rect(boss.transform.position, Vector2.zero);
+            if (!boss.BeginBossBattle(arena))
+            {
+                Debug.LogError($"{step} : {step.Actor} is not a boss. Write a boss name in the Boss column of Character table.");
+                return false;
+            }
+
+            if (inZone)
+                _zoneStreamer.Lock(zone.Id);
+            else
+                Debug.LogWarning($"{step} : {step.Actor} stands outside of any zone. The boss battle starts without locking a zone.");
+            BattleBoss = step.Actor;
+            return true;
+        }
+
+        /// <summary>보스전을 끝낸다. 잠근 Zone을 풀어서 다시 옆 Zone으로 갈 수 있게 한다. 시작하지 않았어도 불러도 된다</summary>
+        public void EndBossBattle()
+        {
+            if (BattleBoss.IsNone) return;
+
+            BattleBoss = StoryActor.None;
+            _zoneStreamer?.Unlock();
+        }
+        #endregion
+
         #region Public - Scenario
         /// <summary>
         /// 시나리오를 시작한다. 월드에 있는 대상의 조작과 AI를 모두 멈추고, 이 시나리오가 무대로 쓰는 Zone을 다 올라올 때까지 기다린다.
@@ -293,6 +348,13 @@ namespace InGame.Story
         #endregion
 
         #region Private
+        //보스가 지금 서 있는 Zone. 보스전은 이 Zone에서 벌어진다
+        private bool TryFindBossZone(ObjectBase boss, out ZoneLayout.ZoneEntry zone)
+        {
+            zone = null;
+            return _zoneStreamer != null && ZoneLayout.TryFindZone(_zoneStreamer.MapId, boss.transform.position, out zone);
+        }
+
         //컨트롤러가 없는 대상(Npc)은 SuspendControl이 아무것도 하지 않으므로 종류를 가리지 않고 부른다
         private void HoldForScenario(ObjectBase actor)
         {
@@ -320,6 +382,27 @@ namespace InGame.Story
                     _stageZones.Add(zone.Id);
             }
         }
+        #endregion
+
+        #region Editor
+#if UNITY_EDITOR
+        /// <summary>
+        /// 테스트 시작용. 앞의 퀘스트를 건너뛰고 시작할 때, 거기서 세웠을 플레이어를 zoneId의 local 자리에 직접 세운다.
+        /// 그 Zone이 다 올라온 뒤에 세운다. 바닥이 없는 자리에 세우면 Zone이 올라오기 전에 떨어진다.
+        /// 올려둔 Zone은 여기서 풀지 않는다. 풀면 플레이어를 기준으로 한 컬링이 돌기 전에 그 Zone이 내려갈 수 있다.
+        /// 뒤에 오는 시나리오가 자기 무대로 바꿔 올리고 끝날 때 풀어준다
+        /// </summary>
+        public async UniTask SpawnPlayerForTest(long zoneId, Vector2 local, CancellationToken cancellationToken)
+        {
+            if (_zoneStreamer != null)
+            {
+                _stageZones.Clear();
+                _stageZones.Add(zoneId);
+                await _zoneStreamer.Pin(_stageZones, cancellationToken);
+            }
+            await Spawn(StoryActor.Player, ToWorld(zoneId, local));
+        }
+#endif
         #endregion
     }
 }

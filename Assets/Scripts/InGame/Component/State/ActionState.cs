@@ -26,6 +26,10 @@ namespace InGame.Component.State
         private readonly List<bool> _effectPlayed = new();
         //이번 프레임에 다음 커맨드로 이어졌는지. 이어졌으면 Action 상태를 빠져나가지 않는다
         private bool _attackRestarted;
+        //대시가 움직이는 물리 스텝 수와 지나간 스텝 수. 몸은 물리 스텝 단위로만 움직여서, 대시 시간이 스텝의 배수가 아니면
+        //시간으로 끊을 때 한 스텝만큼 거리가 달라진다. 그래서 스텝 수로 세고 그 스텝 수에 정해진 거리를 가게 속도를 맞춘다
+        private int _dashSteps;
+        private int _dashStepCount;
         #endregion
 
         #region Init
@@ -92,7 +96,7 @@ namespace InGame.Component.State
                     if (_elapsed < CounterWaitDuration) return;
                     break;
                 default:
-                    if (_elapsed < DashDuration) return;
+                    if (++_dashStepCount <= _dashSteps) return;
                     break;
             }
 
@@ -173,12 +177,16 @@ namespace InGame.Component.State
             if (ObjectContext.IsGrounded && ObjectContext.Animation is not AnimationType.Move)
                 ObjectContext.SetAnimation(AnimationType.Move);
 
-            ObjectContext.SetDashVelocity(dashDirection * DashSpeed);
+            _dashSteps = Mathf.Max(1, Mathf.RoundToInt(DashDuration / Time.fixedDeltaTime));
+            _dashStepCount = 0;
+            float dashTime = _dashSteps * Time.fixedDeltaTime;
+
+            ObjectContext.SetDashVelocity(dashDirection * (DashDistance / dashTime));
             ObjectContext.SetDashing(true);
             //대시가 유지되는 동안만 파티클을 뿜는다.
             //꼬리가 뒤로 끌리는 모양은 프리팹이 들고 있으므로 대시 방향을 그대로 넘긴다.
             //오프셋은 대각선 대시도 있으므로 좌우로 뒤집지 않고 대시 방향을 그대로 따라간다
-            ObjectContext.PlayEffect(EffectType.Dash, 0, dashDirection * DashEffectDistance, dashDirection, DashDuration);
+            ObjectContext.PlayEffect(EffectType.Dash, 0, dashDirection * DashEffectDistance, dashDirection, dashTime);
         }
 
         /// <summary>
@@ -200,8 +208,27 @@ namespace InGame.Component.State
             //애니메이션은 타입별로 나뉘지 않으므로 번호를 적어둔 첫 줄의 것을 쓴다
             ObjectContext.SetAnimation(AnimationType.Attack, ResolveAnimation(attackCommands));
             ObjectContext.StartAttack();
+            StartAdvance(attackCommands);
 
             LoadHitBoxes(attackCommands);
+        }
+
+        /// <summary>
+        /// 이 단계의 전진을 시작한다. 전진도 타입별로 나뉘지 않으므로 거리를 적어둔 첫 줄의 것을 쓴다.
+        /// 거리는 오른쪽을 보는 기준이라 보는 방향에 맞춰 뒤집는다. 공격 중에는 방향이 잠기므로 시작할 때 한 번만 정하면 된다.
+        /// 전진이 없는 단계도 0으로 알려서 앞 단계의 전진이 이어지지 않게 한다
+        /// </summary>
+        private void StartAdvance(IReadOnlyList<AttackCommandData> attackCommands)
+        {
+            for (int i = 0; attackCommands != null && i < attackCommands.Count; i++)
+            {
+                if (attackCommands[i].AdvanceDistance == 0f) continue;
+
+                var offset = ObjectContext.GetDirectionalOffset(new Vector2(attackCommands[i].AdvanceDistance, 0f));
+                ObjectContext.StartAttackAdvance(offset, attackCommands[i].AdvanceTime);
+                return;
+            }
+            ObjectContext.StartAttackAdvance(Vector2.zero, 0f);
         }
 
         private static int ResolveAnimation(IReadOnlyList<AttackCommandData> attackCommands)

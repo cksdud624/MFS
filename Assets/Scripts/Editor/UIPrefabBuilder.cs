@@ -13,7 +13,7 @@ using UnityEngine.UI;
 using static Common.GameDefine;
 
 /// <summary>
-/// UI 프리팹을 코드로 조립해서 저장한다 (로딩 화면, 타이틀 화면, 말풍선, 화면 페이드, 목표와 대화 아이콘, 퀘스트 안내).
+/// UI 프리팹을 코드로 조립해서 저장한다 (로딩 화면, 타이틀 화면, 말풍선, 화면 페이드, 목표와 대화 아이콘, 퀘스트 안내, 보스 체력바).
 /// 레이아웃을 바꿀 때는 프리팹을 손으로 고치지 않고 여기를 고친 뒤 메뉴를 다시 실행한다.
 /// 저장 위치(AssetPathUI)가 Addressables에 폴더째 등록된 곳이라 따로 등록하지 않아도 주소로 로드된다
 /// </summary>
@@ -95,6 +95,23 @@ public static class UIPrefabBuilder
     private static readonly Color QuestTitleColor = new(1f, 0.85f, 0.4f);
     private const float QuestGoalFontSize = 26f;
 
+    //보스 체력바는 화면 위쪽 가운데에 둔다. 이름과 페이즈 글이 한 줄에 있고 그 아래에 막대가 있다.
+    //막대는 어두운 바탕(테두리) 안에 남은 Hp만큼 채워지는 색 막대를 조금 작게 넣는다
+    private static readonly Vector2 BossViewSize = new(760f, 70f);
+    private const float BossViewMargin = 36f;
+    private const float BossNameFontSize = 30f;
+    private const float BossPhaseFontSize = 22f;
+    private static readonly Color BossPhaseColor = new(1f, 0.85f, 0.4f);
+    private const float BossBarHeight = 24f;
+    private const float BossBarRimWidth = 3f;
+    private static readonly Color BossBarBackColor = new(0f, 0f, 0f, 0.75f);
+    private static readonly Color BossBarFillColor = new(0.85f, 0.2f, 0.2f);
+    //막대 아래에 보스가 지금 내는 패턴의 이름을 띄운다 (확인용). 막대에서 조금 띄우고 눈에 잘 띄게 크게 둔다
+    private const float BossPatternGap = 10f;
+    private const float BossPatternHeight = 48f;
+    private const float BossPatternFontSize = 36f;
+    private static readonly Color BossPatternColor = new(1f, 0.95f, 0.6f);
+
     //타이틀 화면. 화면 전체를 덮는 바탕 위에 게임 이름을 두고 그 아래에 메뉴를 세로로 쌓는다.
     //타이틀 씬에는 캔버스가 이것 하나라서 순서를 따질 것이 없다
     private const int TitleSortingOrder = 0;
@@ -154,6 +171,14 @@ public static class UIPrefabBuilder
         BuildScreenFadeView();
         BuildMarkerView();
         BuildQuestView();
+        BuildBossView();
+    }
+
+    [MenuItem("UI/Build Boss View")]
+    public static void BuildBossView()
+    {
+        if (TryGetFontAsset(out var fontAsset))
+            Build(UIBossView, () => CreateBossView(fontAsset));
     }
 
     [MenuItem("UI/Build Loading View")]
@@ -441,6 +466,78 @@ public static class UIPrefabBuilder
         serializedView.ApplyModifiedPropertiesWithoutUndo();
 
         return root;
+    }
+
+    /// <summary>
+    /// 캔버스 → 패널 → 이름, 페이즈 글, 막대(바탕 → 채움), 패턴 이름 순으로 조립하고 BossView에 이어준다.
+    /// 패널은 화면 위쪽 가운데에 붙인다. 채움은 바탕 안에 꽉 차게 두고, BossView가 오른쪽 끝(anchorMax.x)을 남은 비율로 옮긴다
+    /// </summary>
+    private static GameObject CreateBossView(TMP_FontAsset fontAsset)
+    {
+        var root = CreateCanvas(UIBossView, SortingOrderHud);
+
+        var panel = CreateChild("Panel", root.transform);
+        SetRect(panel, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f));
+        panel.anchoredPosition = new Vector2(0f, -BossViewMargin);
+        panel.sizeDelta = BossViewSize;
+
+        //이름과 페이즈 글은 막대 위의 같은 줄에 겹쳐 두고 정렬만 다르게 한다 (이름은 가운데, 페이즈는 오른쪽)
+        var name = CreateText("Name", panel, fontAsset, BossNameFontSize, Color.white, TextAlignmentOptions.Bottom);
+        name.fontStyle = FontStyles.Bold;
+        name.textWrappingMode = TextWrappingModes.NoWrap;
+        StretchAboveBar(name.rectTransform);
+
+        var phase = CreateText("Phase", panel, fontAsset, BossPhaseFontSize, BossPhaseColor, TextAlignmentOptions.BottomRight);
+        phase.textWrappingMode = TextWrappingModes.NoWrap;
+        StretchAboveBar(phase.rectTransform);
+
+        var bar = CreateChild("Bar", panel);
+        SetRect(bar, Vector2.zero, new Vector2(1f, 0f), new Vector2(0.5f, 0f));
+        bar.offsetMin = Vector2.zero;
+        bar.offsetMax = new Vector2(0f, BossBarHeight);
+        var barImage = bar.gameObject.AddComponent<Image>();
+        barImage.color = BossBarBackColor;
+        barImage.raycastTarget = false;
+
+        //채움이 들어갈 칸. 테두리만큼 안쪽으로 들여서, 채움의 오른쪽 끝을 비율로 옮겨도 테두리 폭이 그대로 남게 한다
+        var fillArea = CreateChild("Fill Area", bar);
+        SetRect(fillArea, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f));
+        fillArea.offsetMin = new Vector2(BossBarRimWidth, BossBarRimWidth);
+        fillArea.offsetMax = new Vector2(-BossBarRimWidth, -BossBarRimWidth);
+
+        var fill = CreateChild("Fill", fillArea);
+        SetRect(fill, Vector2.zero, Vector2.one, new Vector2(0f, 0.5f));
+        fill.offsetMin = Vector2.zero;
+        fill.offsetMax = Vector2.zero;
+        var fillImage = fill.gameObject.AddComponent<Image>();
+        fillImage.color = BossBarFillColor;
+        fillImage.raycastTarget = false;
+
+        //패턴 이름은 패널 아랫변(막대 아래)에 매단다. 패널 크기 밖이지만 패널의 자식이라 같이 켜지고 꺼진다
+        var pattern = CreateText("Pattern", panel, fontAsset, BossPatternFontSize, BossPatternColor, TextAlignmentOptions.Top);
+        pattern.fontStyle = FontStyles.Bold;
+        pattern.textWrappingMode = TextWrappingModes.NoWrap;
+        SetRect(pattern.rectTransform, Vector2.zero, new Vector2(1f, 0f), new Vector2(0.5f, 1f));
+        pattern.rectTransform.anchoredPosition = new Vector2(0f, -BossPatternGap);
+        pattern.rectTransform.sizeDelta = new Vector2(0f, BossPatternHeight);
+
+        var serializedView = new SerializedObject(root.AddComponent<BossView>());
+        serializedView.FindProperty("_panel").objectReferenceValue = panel.gameObject;
+        serializedView.FindProperty("_nameText").objectReferenceValue = name;
+        serializedView.FindProperty("_hpFill").objectReferenceValue = fill;
+        serializedView.FindProperty("_phaseText").objectReferenceValue = phase;
+        serializedView.FindProperty("_patternText").objectReferenceValue = pattern;
+        serializedView.ApplyModifiedPropertiesWithoutUndo();
+
+        return root;
+    }
+
+    //보스 체력바의 막대 위에 남는 칸을 가로로 꽉 채운다
+    private static void StretchAboveBar(RectTransform rect)
+    {
+        SetRect(rect, Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f));
+        rect.offsetMin = new Vector2(0f, BossBarHeight);
+        rect.offsetMax = Vector2.zero;
     }
 
     /// <summary>

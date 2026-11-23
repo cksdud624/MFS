@@ -18,6 +18,7 @@ namespace InGame.Object
     {
         #region Fields
         protected HitBoxController HitBoxController;
+        protected AttackShapeView AttackShapeView;
         protected StatusEffectController StatusEffectController;
         #endregion
 
@@ -33,6 +34,9 @@ namespace InGame.Object
             //공격 판정은 캐릭터만 사용한다
             HitBoxController = gameObject.AddComponent<HitBoxController>();
             HitBoxController.Init(InGameContext, ObjectContext);
+            //판정을 도형으로 보여준다. 표에 도형을 적어둔 판정(이펙트 그림이 없는 공격)만 보인다
+            AttackShapeView = gameObject.AddComponent<AttackShapeView>();
+            AttackShapeView.Init(ObjectContext);
             //상태 효과는 전투 수치를 가진 캐릭터에만 걸린다
             StatusEffectController = gameObject.AddComponent<StatusEffectController>();
             StatusEffectController.Init(ObjectContext);

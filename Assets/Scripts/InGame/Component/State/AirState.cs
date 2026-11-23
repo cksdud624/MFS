@@ -1,5 +1,6 @@
 using Common.Template.FSM;
 using InGame.Context;
+using UnityEngine;
 using static Common.GameDefine;
 
 namespace InGame.Component.State
@@ -41,11 +42,14 @@ namespace InGame.Component.State
         #region Event Handlers
         private void OnJump()
         {
-            if (ObjectContext.SetJumpCount(ObjectContext.JumpCount - 1))
-            {
-                ObjectContext.SetJumpVelocity(JumpPower);
-                ObjectContext.SetAnimation(AnimationType.Jump, OnJumpAnimationEnd);
-            }
+            if (!ObjectContext.SetJumpCount(ObjectContext.JumpCount - 1)) return;
+
+            //공중 점프는 누르고 있는 쪽으로 밀어주면서 뛴다. 누른 쪽이 없으면 보는 쪽으로 간다
+            float inputX = InputContext.MoveDirection.x;
+            float directionX = inputX != 0f ? Mathf.Sign(inputX)
+                : ObjectContext.Direction == Direction.Right ? 1f : -1f;
+            ObjectContext.RequestAirJump(directionX);
+            ObjectContext.SetAnimation(AnimationType.Jump, OnJumpAnimationEnd);
         }
         #endregion
     }

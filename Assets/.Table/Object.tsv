@@ -1,5 +1,6 @@
 Id	IsCharacter	MoveSpeed	ColliderSize	ColliderOffset	Tint
 long	bool	float	Vector2	Vector2	Vector3
-1001	true	6	0.7,2.3	0,1.15	
-1002	true	6	0.7,2.3	0,1.15	0.5,1,0.5
-1003	true	6	0.7,2.3	0,1.15	1,0.45,0.45
+1001	true	4.475	0.7,2.3	0,1.15	
+1002	true	4.475	0.7,2.3	0,1.15	0.5,1,0.5
+1003	true	4.475	0.7,2.3	0,1.15	1,0.45,0.45
+1004	true	3.4	0.7,2.3	0,1.15	0.62,0.55,0.8

@@ -75,6 +75,21 @@ namespace Common
             Chase,
             Attack,
         }
+
+        //보스 AI 행동 상태
+        public enum BossAIState
+        {
+            //전투가 시작되기 전. 제자리에 서 있고 맞지 않는다
+            Standby,
+            //패턴 사이. 거리를 재면서 마디 첫 박마다 다음 패턴을 고른다
+            Spacing,
+            //패턴 진행 중
+            Pattern,
+            //뒤로 물러나는 중 (회피, 경직이 풀린 뒤)
+            Evade,
+            //페이즈 전환 중. 맞지 않고 전투 구역 가운데로 간다
+            PhaseBreak,
+        }
         #endregion
 
         #region Animation
@@ -136,6 +151,9 @@ namespace Common
         public const int SortingOrderObject = 0;       //0 ~ 999
         public const int SortingOrderCharacter = 1000; //1000 ~ 1999
         public const int SortingOrderPlayer = 2000;
+        //공격 판정을 보여주는 임시 도형. 캐릭터에 가려지면 범위를 읽을 수 없어서 캐릭터보다 앞에 그린다.
+        //타격은 예고보다 하나 앞에 그려서 같은 자리의 예고 위에 보인다
+        public const int SortingOrderAttackShape = 3000;
         //한 구간에 들어갈 수 있는 개수. 넘어가면 다음 구간을 침범하므로 처음으로 돌린다
         public const int SortingOrderRange = 1000;
         #endregion
@@ -152,23 +170,62 @@ namespace Common
 
         #region Move
         //테이블로 차후 관리해야하는 부분
-        //공중 관성: MoveSpeed까지 붙는 시간 / 입력을 뗐을 때 멈추는 시간 / 최고 속도 초과분을 깎는 시간
-        public const float AirAccelerationTime = 0.25f;
-        public const float AirDecelerationTime = 1.2f;
-        public const float AirOverSpeedDecelerationTime = 0.3f;
+        //이동, 점프, 대시의 수치는 mori-kit의 전투 명세(FightTune)를 옮긴 것이다.
+        //그쪽의 원래 길이 단위(캐릭터 폭 0.7)가 이 프로젝트와 같아서 값을 그대로 쓴다
 
-        public const float JumpPower = 2.5f;
+        //걸음 속도(Object 표의 MoveSpeed)까지 붙는 시간 / 입력을 뗐을 때 멈추는 시간 / 반대로 돌아설 때 걸음 속도만큼 바꾸는 시간.
+        //명세는 가속도(50, 35, 90 U/s²)인데, 걸음 속도 4.475 기준의 시간으로 바꿔서 둔다.
+        //걸음 속도가 오브젝트마다, 또 연출과 테스트 키로 달라져도 같은 박자로 붙고 멈추게 하려는 것이다
+        public const float MoveAccelerationTime = 0.09f;
+        public const float MoveDecelerationTime = 0.128f;
+        public const float MoveTurnTime = 0.05f;
+        //반대 방향을 이 시간(초)보다 길게 눌러야 방향 전환으로 본다. 그보다 짧으면 보는 방향만 바뀌고 가던 속도는 그대로다
+        public const float MoveTurnHoldTime = 0.1f;
+        //이보다 느리게 움직이고 있으면 반대 입력을 방향 전환이 아니라 출발로 본다
+        public const float MoveTurnSpeedThreshold = 0.5f;
+        //공중에서(피격 중에는 땅에서도) 입력을 뗐을 때는 감속을 이만큼만 받는다
+        public const float AirDecelerationMultiplier = 0.5f;
+        //대시나 공중 점프로 걸음 속도를 넘어선 만큼은 감속에 이 배율을 곱해서 서서히 푼다
+        public const float OverSpeedDecelerationMultiplier = 0.6f;
+
+        //중력 가속도(U/s²)와 최대 낙하 속도(U/s). 프로젝트 물리 설정의 중력과 상관없이 이 값이 되도록 Rigidbody의 gravityScale을 맞춘다
+        public const float Gravity = 120f;
+        public const float MaxFallSpeed = 18f;
+        //올라가는 동안은 중력을 그대로 받고, 정점 근처(세로 속도가 이 값 안쪽)에서는 조금 가볍게, 떨어질 때는 훨씬 가볍게 받는다.
+        //빠르게 뛰어올라서 천천히 내려오는 점프가 된다
+        public const float ApexSpeedBand = 3f;
+        public const float ApexGravityMultiplier = 0.9f;
+        public const float FallGravityMultiplier = 0.34f;
+
+        //지상 점프의 초속(U/s)
+        public const float JumpPower = 24.5f;
         //지상에서 얻는 점프 횟수 / 지상에서 떨어졌을 때 남는 점프 횟수
         public const int GroundJumpCount = 2;
         public const int FallJumpCount = 1;
+        //공중 점프. 누른 쪽으로 가로 속도를 더하고 위로 뛴다. 이 시간(초) 동안은 중력을 덜 받고 가로 속도 초과분도 깎지 않는다
+        public const float AirJumpHorizontalSpeed = 10f;
+        public const float AirJumpVerticalSpeed = 12f;
+        public const float AirJumpDuration = 0.18f;
+        public const float AirJumpGravityMultiplier = 0.5f;
         #endregion
 
         #region Dash
         //테이블로 차후 관리해야하는 부분
-        public const float DashSpeed = 5f;
-        public const float DashDuration = 0.2f;
-        public const int DashMaxStack = 1;
-        public const float DashChargeInterval = 0.5f;
+        //대시 한 번에 가는 거리(U)와 걸리는 시간(초). 속도는 이 둘에서 나온다. 대시하는 동안에는 맞지 않는다
+        public const float DashDistance = 4.1f;
+        public const float DashDuration = 0.07f;
+        public const int DashMaxStack = 2;
+        //스택 하나가 차는 시간(초). mori-kit의 값(10)은 이 게임의 전투에는 길어서 절반으로 둔다
+        public const float DashChargeInterval = 5f;
+        //대시하는 동안 받는 중력의 배율
+        public const float DashGravityMultiplier = 0.3f;
+        //대시가 끝났을 때 남기는 속도. 가로는 걸음 속도의 이 배율까지, 위로는 점프 초속의 이 배율까지, 아래로는 DashEndFallSpeed까지만 남긴다
+        public const float DashCarryMultiplier = 1.35f;
+        public const float DashEndUpMultiplier = 0.5f;
+        public const float DashEndFallSpeed = 2f;
+        //공중 대시가 끝난 뒤 잠깐 떠 있는 시간(초)과 그동안 받는 중력의 배율
+        public const float DashHangDuration = 0.2f;
+        public const float DashHangGravityMultiplier = 0.3f;
         #endregion
 
         #region Attack
@@ -187,7 +244,7 @@ namespace Common
         }
 
         //한 단계가 끝난 뒤 다음 입력을 기다려주는 시간. 이 시간을 넘기면 커맨드가 처음으로 돌아간다
-        public const float AttackCommandResetTime = 0.4f;
+        public const float AttackCommandResetTime = 0.3f;
         #endregion
 
         #region Counter
@@ -266,6 +323,127 @@ namespace Common
         public const float TargetDirectionDeadZone = 0.05f;
         #endregion
 
+        #region Boss
+        //테이블로 차후 관리해야하는 부분
+        //보스전의 규칙은 mori-kit의 결투(Duel)를 옮긴 것이다. 보스마다 다른 것(패턴, 페이즈)은 보스 클래스(BossProfile)에 있고,
+        //여기는 보스가 같이 쓰는 값이다
+
+        //보스가 공격하기 전에 어떤 공격이 오는지 색으로 알리는 예고. 피하는 법이 종류마다 다르다
+        public enum AttackTelegraph
+        {
+            None,
+            //근접 베기. 거리를 벌리거나 카운터로 받아낸다
+            Melee,
+            //바닥 쓸기. 점프로 넘거나 카운터로 받아낸다
+            Low,
+            //돌진. 대시로 빠지거나 뛰어넘거나 카운터로 받아낸다
+            Charge,
+            //카운터 자세. 이때 때리면 반격당한다
+            Counter,
+        }
+        //예고 색. 그림이 없어서 보스의 스프라이트에 이 색을 TelegraphTintStrength만큼 섞는다
+        public static readonly Color TelegraphColorMelee = new(1f, 0.3f, 0.2f);
+        public static readonly Color TelegraphColorLow = new(1f, 0.9f, 0.2f);
+        public static readonly Color TelegraphColorCharge = new(1f, 0.3f, 0.95f);
+        public static readonly Color TelegraphColorCounter = new(0.25f, 0.9f, 1f);
+        public const float TelegraphTintStrength = 0.75f;
+
+        /// <summary>예고의 색. 예고가 없으면 흰색이다</summary>
+        public static Color GetTelegraphColor(AttackTelegraph telegraph) => telegraph switch
+        {
+            AttackTelegraph.Melee => TelegraphColorMelee,
+            AttackTelegraph.Low => TelegraphColorLow,
+            AttackTelegraph.Charge => TelegraphColorCharge,
+            AttackTelegraph.Counter => TelegraphColorCounter,
+            _ => Color.white,
+        };
+
+        //공격 판정을 화면에 보여주는 임시 도형. 공격 이펙트의 그림이 없는 동안 판정이 있는 자리에 그 크기로 띄운다.
+        //이름은 AttackHitBox 표의 Shape 칸에 그대로 적는다. 빈칸이면 띄우지 않는다 (이펙트 그림이 있는 공격)
+        public enum AttackShape
+        {
+            None,
+            Square,
+            //오른쪽을 보는 기준으로 뾰족한 끝이 앞을 향한다
+            Triangle,
+            Circle,
+        }
+        //판정이 켜져 있는 동안의 색. 판정이 꺼지면 AttackShapeFadeDuration(초)에 걸쳐 사라진다.
+        //판정이 아주 짧게 켜지는 공격도 어디를 쳤는지 눈에 남게 한다
+        public static readonly Color AttackShapeColor = new(1f, 1f, 1f, 0.9f);
+        public const float AttackShapeFadeDuration = 0.25f;
+        //곧 나갈 공격의 범위를 미리 보여줄 때의 투명도. 색은 예고 색을 쓴다
+        public const float AttackShapePreviewAlpha = 0.3f;
+
+        //보스 패턴의 시간 단위(박)의 길이(초). mori-kit은 곡의 박에 맞추지만 아직 곡이 없어서 120BPM의 한 박을 고정으로 쓴다.
+        //곡이 붙으면 보스의 시계(ControllerBossAI.Beat)를 곡의 박으로 바꾼다
+        public const float BossBeatDuration = 0.5f;
+        //한 마디의 박 수. 보스는 마디 첫 박에만 패턴을 시작한다. 패턴이 일찍 끝나면 다음 마디까지가 공격 기회다
+        public const int BossBeatsPerBar = 4;
+        //마디 첫 박에서 이 박 수 안일 때만 패턴을 시작한다. 경직이 마디 중간에 풀리면 다음 마디를 기다린다
+        public const float BossPatternStartWindow = 0.25f;
+        //전투가 시작되고 첫 패턴 전에 쉬는 마디 수
+        public const int BossFirstRestBars = 1;
+        //첫 타격 이 박 수 전부터 다가가기를 멈추고 자세를 잡는다
+        public const float BossApproachStopBeats = 0.5f;
+        //패턴을 준비하며 다가갈 때의 속도 배율과, 원하는 거리에서 이 안쪽이면 멈추는 오차
+        public const float BossApproachSpeedScale = 1.15f;
+        public const float BossApproachDeadZone = 0.2f;
+        //마지막 타격 뒤 패턴이 끝나기까지의 여유(박)
+        public const float BossPatternEndBeats = 0.6f;
+        //타격 이 박 수 전부터 예고 색을 입힌다
+        public const float BossTelegraphBeats = 2f;
+
+        //패턴 사이의 거리 재기. 플레이어가 멀면(BossFarDistance 밖) BossFarKeepDistance까지만 다가가고, 아니면 BossKeepDistance를 유지한다
+        public const float BossFarDistance = 9f;
+        public const float BossFarKeepDistance = 6f;
+        public const float BossKeepDistance = 6.6f;
+        //유지 거리에서 이 안쪽이면 걷지 않는다
+        public const float BossSpacingDeadZone = 0.3f;
+
+        //단계. 체력바 하나 안에서 Hp가 이 비율 아래로 내려갈 때마다 한 단계 오른다 (0 기본, 1 격해짐, 2 격노)
+        public const float BossStage1HpRatio = 0.66f;
+        public const float BossStage2HpRatio = 0.33f;
+        public const int BossMaxStage = 2;
+        //단계가 오를 때마다 걸음 속도에 더해지는 값(U/s)
+        public const float BossStageSpeedBonus = 1.6f;
+
+        //보스의 카운터. 쓸 때마다 스택을 하나 쓰고 쿨타임(초)이 돈다. 오브젝트 공통의 카운터 스택보다 훨씬 느리게 차서 아껴 쓰게 된다
+        public const int BossCounterMaxStack = 3;
+        public const float BossCounterChargeInterval = 18.5f;
+        public const float BossCounterCooldown = 2.5f;
+        //가장 높은 단계(격노)에서는 카운터 자세 패턴을 고르는 비중에 이 값을 곱한다. 몰아붙일수록 받아치려 든다
+        public const float BossRageCounterWeightScale = 1.6f;
+
+        //연타 대응. 이 시간(초) 안에 이 횟수만큼 맞으면 카운터 자세(카운터가 없으면 밀쳐내기)로 받아친다
+        public const int BossSpamHitCount = 5;
+        public const float BossSpamWindow = 1.6f;
+        //반응으로 나가는 패턴은 지금부터 이 박 수 뒤, 반 박 단위 자리에서 시작한다. 플레이어가 보고 멈출 틈이다
+        public const float BossReactionLeadBeats = 1f;
+        public const float BossReactionQuantBeats = 0.5f;
+        //회피. 패턴 사이에 맞으면 이 확률로 대상의 반대쪽으로 대시해서 빠진다. 한 번 빠지면 쿨타임(초) 동안은 회피하지 않는다.
+        //대시 스택(오브젝트 공통)이 없으면 빠지지 못한다
+        public const float BossDodgeChance = 0.2f;
+        public const float BossDodgeCooldown = 1.2f;
+        //경직이 풀렸을 때 플레이어가 이 거리 안이면 이 확률로 대시해서 빠지고, 아니면 카운터 자세를 잡는다
+        public const float BossRecoverDistance = 4f;
+        public const float BossRecoverEvadeChance = 0.6f;
+
+        //페이즈 전환(체력바가 바뀌는 동안)의 길이(박). 이 동안 보스는 맞지 않고 전투 구역 가운데로 간다
+        public const float BossPhaseBreakBeats = 4f;
+        //전환 시간 중 가운데로 가는 데 쓰는 비율. 나머지는 도착해서 자세를 잡는 시간이다
+        public const float BossPhaseBreakMoveRatio = 0.6f;
+        //플레이어가 가운데에서 이 거리 안에 있으면 가운데 대신 옆(BossPhaseBreakSideOffset)으로 간다. 플레이어와 겹쳐 서지 않게 한다
+        public const float BossPhaseBreakClearDistance = 4f;
+        public const float BossPhaseBreakSideOffset = 7f;
+        //가운데로 갈 때의 속도 배율. 정해진 시간 안에 닿지 못할 만큼 멀면 가다가 멈춘다
+        public const float BossPhaseBreakSpeedScale = 3f;
+
+        //패턴이 아닌 행동을 화면에 띄울 때의 이름 (확인용). 패턴은 자기 이름을 띄운다
+        public const string BossLabelEvade = "회피";
+        public const string BossLabelPhaseBreak = "페이즈 전환";
+        #endregion
+
         #region Title
         //타이틀 화면 프리팹. AssetPathUI 아래에 있다. 에디터 메뉴 UI > Build Title View가 만든다
         public const string UITitleView = "TitleView";
@@ -304,7 +482,9 @@ namespace Common
         public const string UIMarkerView = "MarkerView";
         //화면 왼쪽 위의 퀘스트 안내 프리팹. AssetPathUI 아래에 있다. 에디터 메뉴 UI > Build Quest View가 만든다
         public const string UIQuestView = "QuestView";
-        //아이콘과 퀘스트 안내는 게임 화면의 일부라서 페이드가 덮을 때 같이 가려지게 페이드보다 아래에 둔다
+        //화면 위쪽 가운데의 보스 체력바 프리팹. AssetPathUI 아래에 있다. 에디터 메뉴 UI > Build Boss View가 만든다
+        public const string UIBossView = "BossView";
+        //아이콘과 퀘스트 안내, 보스 체력바는 게임 화면의 일부라서 페이드가 덮을 때 같이 가려지게 페이드보다 아래에 둔다
         public const int SortingOrderHud = 80;
         //시나리오 FadeIn/FadeOut이 늘 쓰는 시간(초). 표에서는 정하지 않는다
         public const float ScreenFadeDuration = 0.5f;
@@ -381,6 +561,9 @@ namespace Common
         public const int ZoneCullDistance = 2;
         //옆에 Zone이 없는 쪽에 세우는 보이지 않는 벽의 두께. 빠르게 움직이는 대시가 한 물리 스텝에 뚫고 지나가지 않을 만큼 두껍게 둔다
         public const float ZoneWallThickness = 4f;
+        //보스가 서 있는 Zone에 플레이어가 경계에서 이만큼 안쪽으로 들어와야 보스전이 시작된다.
+        //경계에 걸친 채 Zone을 잠그면 막는 벽이 몸 위에 선다
+        public const float BossArenaEnterMargin = 3f;
         #endregion
     }
 }

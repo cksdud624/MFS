@@ -1,5 +1,6 @@
-Id	Hp	MachineAttack	MachineDefense	MagicAttack	MagicDefense	StatusEffects
-long	int	int	int	int	int	List<long>
-1001	100	10	5	10	5	
-1002	100	10	5	10	5	
-1003	100	10	5	10	5	
+Id	Hp	MachineAttack	MachineDefense	MagicAttack	MagicDefense	StatusEffects	Boss
+long	int	int	int	int	int	List<long>	string
+1001	100	10	5	10	5		
+1002	100	10	5	10	5		
+1003	100	10	5	10	5		
+1004	300	10	5	10	5	1	Duelist

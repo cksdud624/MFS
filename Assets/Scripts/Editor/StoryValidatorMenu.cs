@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Generated.Table;
+using InGame.Component.Controller.Boss;
 using InGame.Story;
 using InGame.World;
 using UnityEditor;
@@ -21,19 +22,21 @@ public static class StoryValidatorMenu
     private class BytesReferences : IStoryReferences
     {
         private readonly Dictionary<long, ObjectData> _objects;
-        private readonly HashSet<long> _characterIds;
+        private readonly Dictionary<long, CharacterData> _characters;
         private readonly ZoneLayout _zoneLayout;
 
         public BytesReferences(List<ObjectData> objects, List<CharacterData> characters, ZoneLayout zoneLayout)
         {
             _objects = objects.ToDictionary(data => data.Id);
-            _characterIds = new HashSet<long>(characters.Select(data => data.Id));
+            _characters = characters.ToDictionary(data => data.Id);
             _zoneLayout = zoneLayout;
         }
 
         public bool HasObject(long objectId) => _objects.ContainsKey(objectId);
         public bool IsCharacter(long objectId) => _objects.TryGetValue(objectId, out var data) && data.IsCharacter;
-        public bool HasCharacter(long characterId) => _characterIds.Contains(characterId);
+        public bool HasCharacter(long characterId) => _characters.ContainsKey(characterId);
+        public bool IsBoss(long characterId)
+            => _characters.TryGetValue(characterId, out var data) && BossFactory.IsRegistered(data.Boss);
         public bool HasZone(long zoneId) => _zoneLayout.HasZone(zoneId);
 
         //이펙트 프리팹은 오브젝트마다 Effect/(ObjectId)/ 아래에 있다

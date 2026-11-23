@@ -54,6 +54,8 @@ namespace Generated.Table
 		public float EffectDuration {get; private set;}
 		public bool IsHitRequired {get; private set;}
 		public float AttackTime {get; private set;}
+		public float AdvanceDistance {get; private set;}
+		public float AdvanceTime {get; private set;}
 		public List<long> AttackHitBox {get; private set;}
 
 		public AttackCommandData(BinaryReader reader)
@@ -86,11 +88,13 @@ namespace Generated.Table
 			EffectDuration = float.TryParse(tableDatas[9], out float vFloat9) ? vFloat9 : 0f;
 			IsHitRequired = bool.TryParse(tableDatas[10], out bool vBool10) ? vBool10 : false;
 			AttackTime = float.TryParse(tableDatas[11], out float vFloat11) ? vFloat11 : 0f;
+			AdvanceDistance = float.TryParse(tableDatas[12], out float vFloat12) ? vFloat12 : 0f;
+			AdvanceTime = float.TryParse(tableDatas[13], out float vFloat13) ? vFloat13 : 0f;
 			AttackHitBox = new ();
-			string[] items12 = tableDatas[12].Split(',');
-			foreach (var item in items12)
+			string[] items14 = tableDatas[14].Split(',');
+			foreach (var item in items14)
 			{
-				AttackHitBox.Add(long.TryParse(item, out long vLong12) ? vLong12 : 0L);
+				AttackHitBox.Add(long.TryParse(item, out long vLong14) ? vLong14 : 0L);
 			}
 		}
 	}

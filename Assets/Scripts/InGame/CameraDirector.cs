@@ -149,7 +149,7 @@ namespace InGame
         public static Vector2 ClampToZone(ZoneLayout zoneLayout, ZoneLayout.ZoneEntry zone, Vector2 center, Vector2 halfView)
         {
             var (min, max) = zoneLayout.GetBoundary(zone);
-            return new Vector2(ClampAxis(center.x, min.x, max.x, halfView.x), ClampAxis(center.y, min.y, max.y, halfView.y));
+            return ClampToBoundary(min, max, center, halfView);
         }
         #endregion
 
@@ -172,13 +172,22 @@ namespace InGame
 
         /// <summary>
         /// 화면이 Zone 밖을 보여주지 않게 카메라 가운데를 맞춘다. 기준은 anchor(플레이어 발밑이나 바라볼 곳)가 있는 Zone이다.
-        /// 격자 밖이면 막지 않는다
+        /// 격자 밖이면 막지 않는다.
+        /// 잠근 Zone이 있으면(보스전) 어디를 보든 그 Zone 안만 보여준다. 옆에 Zone이 이어져 있어도 전투 구역 밖은 화면에 들이지 않는다
         /// </summary>
         private Vector2 Clamp(Vector2 center, float zoom, Vector2 anchor)
         {
-            if (!_zoneLayout.TryFindZone(_zoneStreamer.MapId, anchor, out var zone)) return center;
-            return ClampToZone(_zoneLayout, zone, center, GetHalfView(zoom));
+            var zone = _zoneStreamer.LockedZone;
+            if (zone == null && !_zoneLayout.TryFindZone(_zoneStreamer.MapId, anchor, out zone)) return center;
+
+            //잠근 Zone은 사방이 끝이라서 Zone 배치가 아니라 스트리머가 아는 끝을 쓴다
+            var (min, max) = _zoneStreamer.GetBoundary(zone);
+            return ClampToBoundary(min, max, center, GetHalfView(zoom));
         }
+
+        //화면(halfView의 두 배)이 min ~ max 밖을 보여주지 않게 가운데를 맞춘다. 막지 않는 쪽은 무한대다
+        private static Vector2 ClampToBoundary(Vector2 min, Vector2 max, Vector2 center, Vector2 halfView)
+            => new(ClampAxis(center.x, min.x, max.x, halfView.x), ClampAxis(center.y, min.y, max.y, halfView.y));
 
         //막힌 쪽이 없으면 limit이 무한대라 그대로 통과한다
         private static float ClampAxis(float center, float min, float max, float half)

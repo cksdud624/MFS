@@ -160,6 +160,8 @@ namespace InGame.Component
         {
             //연출 중이거나 쓰러진 뒤에는 맞지 않는다. 마법과 기계가 같이 들어와서 앞의 것에 쓰러졌으면 뒤의 것은 여기서 걸린다
             if (_stateMachine.CurrentKey is FSMState.Event or FSMState.Dead) return;
+            //무적일 때와 대시하는 동안에도 맞지 않는다. 대시는 공격을 뚫고 지나가는 회피 수단이다
+            if (_objectContext.IsInvincible || _objectContext.IsDashing) return;
 
             //이미 Damage 상태면 굳는 시간은 상태가 알아서 다시 정하므로 맞았다는 것만 남긴다
             if (_stateMachine.CurrentKey == FSMState.Damage)

@@ -12,6 +12,8 @@ namespace InGame.Story
         bool IsCharacter(long objectId);
         //Character 표에 같은 Id가 있는지. 캐릭터는 생성할 때 이 줄을 찾는다
         bool HasCharacter(long characterId);
+        //보스인지. Character 표의 Boss 칸에 등록된 보스 이름(BossFactory)이 적혀 있어야 한다
+        bool IsBoss(long characterId);
         //Zone 표에 있는 Zone인지. 위치는 Zone 기준 로컬 좌표라서 Zone이 없으면 어디인지 정할 수 없다
         bool HasZone(long zoneId);
         //오브젝트에 그 이름의 이펙트 프리팹이 있는지. 확인할 수 없는 곳(런타임)에서는 null을 돌려주고 검사를 건너뛴다

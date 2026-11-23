@@ -15,7 +15,8 @@ namespace InGame.Story
     /// - 퀘스트 / 시나리오 아이콘 (MarkerView) : 그 목표가 가리키는 곳 (말을 걸 Npc, 가야 할 곳, 쓰러뜨릴 적). 거리와 상관없이 띄운다.
     ///   목표를 채우면 바로 시나리오가 이어지면 시나리오 아이콘, 아니면 퀘스트 아이콘이다.
     /// - 대화 아이콘 (MarkerView) : 지금 할 일반 대화가 있는 Npc. 플레이어가 가까이 왔을 때만 띄운다.
-    /// 시나리오 재생 중과 대화 중에는 모두 숨긴다. 무엇을 띄울지는 Quest, QuestInfo, Talk 표에서 정해지는 것을 그대로 쓴다
+    /// - 보스 체력바 (BossView) : 보스전을 벌이는 동안 보스의 이름과 남은 Hp, 페이즈.
+    /// 시나리오 재생 중과 대화 중에는 모두 숨긴다. 무엇을 띄울지는 Quest, QuestInfo, Talk, Actor 표에서 정해지는 것을 그대로 쓴다
     /// </summary>
     public class StoryHudPresenter : ILateUpdateable, IDisposable
     {
@@ -24,6 +25,7 @@ namespace InGame.Story
         //프리팹이 없으면 null. 있는 것만 띄운다
         private readonly MarkerView _markerView;
         private readonly QuestView _questView;
+        private readonly BossView _bossView;
 
         //이번 프레임에 띄울 아이콘. 매 프레임 비우고 다시 채운다
         private readonly List<MarkerView.Marker> _markers = new();
@@ -32,11 +34,12 @@ namespace InGame.Story
         #endregion
 
         #region Init
-        public StoryHudPresenter(StoryContext context, MarkerView markerView, QuestView questView)
+        public StoryHudPresenter(StoryContext context, MarkerView markerView, QuestView questView, BossView bossView)
         {
             _context = context;
             _markerView = markerView;
             _questView = questView;
+            _bossView = bossView;
 
             Global.Instance.BindLateUpdate(this);
         }
@@ -49,6 +52,7 @@ namespace InGame.Story
             bool canShow = CanShow();
             UpdateQuestGuide(canShow);
             UpdateMarkers(canShow);
+            UpdateBoss(canShow);
         }
         #endregion
 
@@ -87,6 +91,21 @@ namespace InGame.Story
                 AddTalkMarkers();
             }
             _markerView.Show(_markers);
+        }
+
+        /// <summary>
+        /// 보스 체력바는 보스전을 벌이는 동안만 띄운다. 보스가 쓰러지는 모션을 하는 동안에는 빈 체력바가 남아 있다가,
+        /// 보스가 사라져서 전투가 끝나면 같이 사라진다
+        /// </summary>
+        private void UpdateBoss(bool canShow)
+        {
+            if (_bossView == null) return;
+
+            var actor = _context.BattleBoss;
+            if (canShow && !actor.IsNone && _context.TryFindActor(actor, out var boss))
+                _bossView.Show(_context.Book.GetActorName(actor), boss.Hp, boss.MaxHp, boss.Phase, boss.PhaseCount, boss.PatternName);
+            else
+                _bossView.Hide();
         }
 
         private void AddGoalMarkers()

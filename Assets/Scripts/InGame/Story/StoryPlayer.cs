@@ -1,6 +1,11 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+#if UNITY_EDITOR
+using Common.Test;
+using InGame.Story.Quest.Steps;
+using static Common.GameDefine;
+#endif
 
 namespace InGame.Story
 {
@@ -34,8 +39,16 @@ namespace InGame.Story
                     await _context.Spawn(entry.Actor, _context.ToWorld(entry.Zone, entry.Position));
             }
 
-            foreach (var quest in book.Quests)
+            //이야기는 첫 퀘스트부터 시작한다. 에디터의 테스트 설정으로만 중간부터 시작할 수 있다
+            int startIndex = 0;
+#if UNITY_EDITOR
+            startIndex = await FindTestStart(book, cancellationToken);
+#endif
+
+            var quests = book.Quests;
+            for (int questIndex = startIndex; questIndex < quests.Count; questIndex++)
             {
+                var quest = quests[questIndex];
                 _context.SetProgress(quest);
                 Debug.Log($"[퀘스트] {quest.Number} 시작");
                 var steps = quest.Steps;
@@ -69,6 +82,49 @@ namespace InGame.Story
             Debug.LogError("Story does not start. Fix the errors above (Table > Validate Story shows them without Play).");
             return false;
         }
+        #endregion
+
+        #region Editor
+#if UNITY_EDITOR
+        /// <summary>
+        /// 테스트 설정(메뉴 Test > Start At Boss Battle)이 켜져 있으면 보스전이 있는 첫 퀘스트부터 시작한다. 시작할 퀘스트의 순번을 돌려준다.
+        /// 앞의 퀘스트를 건너뛰므로 거기서 세웠을 플레이어를 보스가 설 자리 근처에 직접 세운다.
+        /// 보스가 서는 Zone 안쪽에 세워서, 보스전 줄에 닿자마자 Zone이 잠기고 전투가 시작되게 한다.
+        /// 앞 퀘스트가 세웠을 다른 대상은 월드에 없다. 보스전 퀘스트가 그런 대상을 쓰면 그 줄에서 에러가 난다
+        /// </summary>
+        private async UniTask<int> FindTestStart(StoryBook book, CancellationToken cancellationToken)
+        {
+            if (!EditorTestSettings.StartAtBossBattle) return 0;
+
+            for (int questIndex = 0; questIndex < book.Quests.Count; questIndex++)
+            {
+                foreach (var step in book.Quests[questIndex].Steps)
+                {
+                    if (step is not BossStep) continue;
+
+                    var boss = book.GetActor(step.Actor);
+                    Debug.Log($"[테스트 설정] 보스전부터 시작 : 퀘스트 {book.Quests[questIndex].Number} ({step.Actor})");
+                    await _context.SpawnPlayerForTest(boss.Zone, GetStartPosition(boss), cancellationToken);
+                    return questIndex;
+                }
+            }
+
+            Debug.LogWarning("[테스트 설정] 보스전(Boss 명령)이 있는 퀘스트가 없어서 첫 퀘스트부터 시작한다");
+            return 0;
+        }
+
+        //보스가 서는 자리에서 왼쪽으로 조금 떨어진 곳 (Zone 로컬 좌표). 보스전이 시작되는 범위(경계에서 BossArenaEnterMargin 안쪽)를 벗어나지 않게 한다
+        private Vector2 GetStartPosition(StoryBook.ActorEntry boss)
+        {
+            float x = boss.Position.x - EditorTestSettings.BossBattleStartDistance;
+            if (_context.ZoneLayout.TryGetZone(boss.Zone, out var zone))
+            {
+                float margin = BossArenaEnterMargin + 1f;
+                x = Mathf.Clamp(x, margin, zone.Rect.width - margin);
+            }
+            return new Vector2(x, boss.Position.y);
+        }
+#endif
         #endregion
     }
 }
