@@ -1,0 +1,16 @@
+# 작업실 연결 표 — 이전 > 다음 = 연결 그림 @ 최소 이전 시간(초) (* = 아무 상태)
+# v2
+hero-fall > hero-idle = hero-land @ 0
+hero-fall > hero-run = hero-land @ 0
+hero-jump > hero-idle = hero-land @ 0
+hero-jump > hero-run = hero-land @ 0
+hero-run > hero-idle = hero-stop @ 0.9
+hero-idle > hero-run = hero-start @ 0
+foe-air > foe-idle = foe-land @ 0
+foe-air > foe-walk = foe-land @ 0
+foe-walk > foe-idle = foe-stop @ 0.2
+foe-idle > foe-walk = foe-start @ 0
+hero-air > hero-idle = hero-land @ 0
+hero-air > hero-run = hero-land @ 0
+hero-doublejump > hero-idle = hero-land @ 0
+hero-doublejump > hero-run = hero-land @ 0

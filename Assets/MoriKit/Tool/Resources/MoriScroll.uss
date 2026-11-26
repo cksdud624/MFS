@@ -1,0 +1,22 @@
+/* 스크롤 막대 — 게임 전체(거래·은행·살롱·드롭다운 목록) 공통. 테마(MoriTheme.tss)에 들어 있어서 모든 창에 똑같이 적용된다.
+ * 모양: 화살표 없음 · 투명한 홈 · 가늘고 둥근 손잡이(6px) — 올리면 8px 로 굵어지고 진해진다.
+ * 색: 중간 회색 반투명이라 어두운 창(거래·살롱)과 밝은 창(은행) 어디서나 보인다.
+ * 개별 창 USS 에서 스크롤 막대를 다시 꾸미지 말 것(통일이 깨짐). */
+.unity-scroller { background-color: rgba(0,0,0,0); border-width: 0; }
+.unity-scroller.unity-scroller--vertical { width: 12px; min-width: 12px; }
+.unity-scroller.unity-scroller--horizontal { height: 12px; min-height: 12px; }
+.unity-scroller .unity-scroller__low-button, .unity-scroller .unity-scroller__high-button { display: none; }
+.unity-scroller.unity-scroller--vertical > .unity-scroller__slider { margin: 4px 0; padding: 0; flex-grow: 1; width: 12px; min-width: 12px; }
+.unity-scroller.unity-scroller--horizontal > .unity-scroller__slider { margin: 0 4px; padding: 0; flex-grow: 1; height: 12px; min-height: 12px; }
+.unity-scroller .unity-scroller__slider .unity-base-slider__tracker { background-color: rgba(0,0,0,0); border-width: 0; }
+.unity-scroller .unity-scroller__slider .unity-base-slider__dragger-border { display: none; }
+.unity-scroller .unity-scroller__slider .unity-base-slider__dragger {
+    background-color: rgba(140,148,160,0.42); border-width: 0; border-radius: 4px;
+    transition: background-color 0.18s, width 0.15s, height 0.15s, left 0.15s, top 0.15s;
+}
+.unity-scroller--vertical .unity-scroller__slider .unity-base-slider__dragger { width: 6px; left: 3px; margin: 0; }
+.unity-scroller--horizontal .unity-scroller__slider .unity-base-slider__dragger { height: 6px; top: 3px; margin: 0; }
+.unity-scroller:hover .unity-scroller__slider .unity-base-slider__dragger { background-color: rgba(150,158,172,0.7); }
+.unity-scroller--vertical:hover .unity-scroller__slider .unity-base-slider__dragger { width: 8px; left: 2px; }
+.unity-scroller--horizontal:hover .unity-scroller__slider .unity-base-slider__dragger { height: 8px; top: 2px; }
+.unity-scroller .unity-scroller__slider .unity-base-slider__dragger:active { background-color: rgba(170,178,192,0.9); }

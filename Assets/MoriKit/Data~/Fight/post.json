@@ -1,0 +1,19 @@
+{
+    "on": true,
+    "bloom": 0.6000000238418579,
+    "threshold": 0.7200000286102295,
+    "knee": 0.25,
+    "steps": 5,
+    "vignette": 0.15000000596046449,
+    "chroma": 0.0,
+    "sat": 1.0,
+    "res": 1.0,
+    "ppu": 100.0,
+    "flipY": false,
+    "mfs": true,
+    "volume": true,
+    "light": true,
+    "charLayer": "",
+    "fxLayer": "Effect",
+    "stageFlip": false
+}

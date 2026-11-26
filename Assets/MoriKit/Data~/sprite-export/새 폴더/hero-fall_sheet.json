@@ -1,0 +1,18 @@
+{
+  "name": "hero-fall",
+  "image": "hero-fall_sheet.png",
+  "canvasW": 512, "canvasH": 512, "scale": 1, "cellW": 512, "cellH": 512, "padding": 0,
+  "columns": 8, "rows": 1, "sheetW": 4096, "sheetH": 512,
+  "fps": 60, "loop": true, "chains": true,
+  "note": "x, y = 칸 왼쪽 위(위 → 아래 좌표). durF = 기준 fps 의 프레임 수",
+  "frames": [
+    { "index": 0, "x": 0, "y": 0, "w": 512, "h": 512, "durF": 6, "ms": 100 },
+    { "index": 1, "x": 512, "y": 0, "w": 512, "h": 512, "durF": 6, "ms": 100 },
+    { "index": 2, "x": 1024, "y": 0, "w": 512, "h": 512, "durF": 6, "ms": 100 },
+    { "index": 3, "x": 1536, "y": 0, "w": 512, "h": 512, "durF": 6, "ms": 100 },
+    { "index": 4, "x": 2048, "y": 0, "w": 512, "h": 512, "durF": 6, "ms": 100 },
+    { "index": 5, "x": 2560, "y": 0, "w": 512, "h": 512, "durF": 6, "ms": 100 },
+    { "index": 6, "x": 3072, "y": 0, "w": 512, "h": 512, "durF": 6, "ms": 100 },
+    { "index": 7, "x": 3584, "y": 0, "w": 512, "h": 512, "durF": 6, "ms": 100 }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+    "key": "foe.damage",
+    "name": "결투자 맞음",
+    "timeUnit": "frame",
+    "fps": 60,
+    "length": 40,
+    "preview": "",
+    "tracks": []
+}

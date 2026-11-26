@@ -1,0 +1,55 @@
+{
+    "list": [
+        {
+            "key": "hero.slash1",
+            "prefab": "Attack1",
+            "dx": -0.10000000149011612,
+            "dy": 0.699999988079071,
+            "scale": 0.5,
+            "rot": 0.0,
+            "life": 0.0,
+            "flip": true,
+            "follow": false,
+            "off": false
+        },
+        {
+            "key": "hero.dash",
+            "prefab": "Dash",
+            "dx": 0.0,
+            "dy": 1.0,
+            "scale": 1.0,
+            "rot": 0.0,
+            "life": 0.0,
+            "flip": true,
+            "follow": false,
+            "off": false
+        },
+        {
+            "key": "hero.slash2",
+            "prefab": "Attack2",
+            "dx": -0.10000000149011612,
+            "dy": 0.699999988079071,
+            "scale": 0.5,
+            "rot": 0.0,
+            "life": 0.0,
+            "flip": true,
+            "follow": false,
+            "off": false
+        },
+        {
+            "key": "hero.slash3",
+            "prefab": "Attack3",
+            "dx": -0.10000000149011612,
+            "dy": 0.699999988079071,
+            "scale": 0.6000000238418579,
+            "rot": 0.0,
+            "life": 0.0,
+            "flip": true,
+            "follow": false,
+            "off": false
+        }
+    ],
+    "res": 1.0,
+    "glowFix": true,
+    "behind": false
+}

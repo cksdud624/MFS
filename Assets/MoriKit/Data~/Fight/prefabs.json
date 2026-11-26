@@ -1,0 +1,19 @@
+{
+    "list": [
+        {
+            "key": "hero.slash1",
+            "prefab": "Attack",
+            "dx": 0.0,
+            "dy": 0.0,
+            "scale": 1.0,
+            "rot": 0.0,
+            "life": 0.0,
+            "flip": true,
+            "follow": false,
+            "off": false
+        }
+    ],
+    "res": 1.0,
+    "glowFix": true,
+    "behind": false
+}

@@ -1,0 +1,23 @@
+{
+    "chains": [
+        {
+            "name": "hero:사슬1",
+            "preset": "리본",
+            "lenPx": 48.0,
+            "widthPx": 5.0,
+            "tipPx": 1.5,
+            "segs": 6,
+            "gravity": 0.5,
+            "drag": 0.14000000059604646,
+            "stiff": 0.2800000011920929,
+            "follow": 0.699999988079071,
+            "angle": 70.0,
+            "root": "#E6E6EE",
+            "tip": "#9C9CB4",
+            "outline": "#1A1420",
+            "outlineOn": true,
+            "off": false
+        }
+    ],
+    "presets": []
+}

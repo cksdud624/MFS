@@ -1,0 +1,154 @@
+/* 타이틀 · 세이브 슬롯 · 설정 · 게임 메뉴 · 확인 창. 트레이딩 화면과 같은 어두운 바탕 + 금색 강조.
+ * 대비(WCAG, 바탕 #0B0E11/#181A20 기준): 본문 #EAECEF ≈ 15:1, 보조 #B7BDC6 ≈ 9.6:1, 흐린 글자 #9AA4B2 ≈ 7:1,
+ * 금색 #F0B90B ≈ 9.9:1, 금 버튼 글자 #14120A/#F0B90B ≈ 10:1, 위험 #FF6B81 ≈ 6.6:1, 비활성 #6B7480 은 글자에 쓰지 않음(장식만). */
+
+/* ───────── 타이틀 ───────── */
+.tm { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-color: #0B0E11; overflow: hidden; }
+.tm-bg { position: absolute; left: 0; top: 0; right: 0; bottom: 0; }
+.tm-shade { position: absolute; left: 0; top: 0; right: 0; bottom: 0; -unity-background-scale-mode: stretch-to-fill; }
+.tm-shade--l { background-image: resource("Title/shade-left"); }
+.tm-shade--r { background-image: resource("Title/shade-right"); opacity: 0; transition: opacity 0.45s ease-out; }
+.tm-shade--b { background-image: resource("Title/shade-bottom"); }
+.tm-shade--v { background-image: resource("Title/vignette"); }
+.tm--slots .tm-shade--r { opacity: 1; }
+.tm-left { position: absolute; left: 0; top: 0; bottom: 0; width: 50%; padding: 64px 72px 72px 84px; justify-content: center; opacity: 0; translate: -18px 0; transition: opacity 0.9s ease-out, translate 0.9s ease-out; }
+.tm--in .tm-left { opacity: 1; translate: 0 0; }
+.tm-kick { font-size: 13px; -unity-font-style: bold; color: #F0B90B; letter-spacing: 5px; white-space: nowrap; margin-bottom: 14px; }
+.tm-brand { font-size: 66px; -unity-font-style: bold; color: #F0B90B; letter-spacing: 3px; white-space: nowrap; text-shadow: 0 0 24px rgba(240,185,11,0.35); }
+.tm-sub { font-size: 17px; color: #B7BDC6; margin-top: 12px; white-space: normal; max-width: 520px; }
+.tm-menu { margin-top: 46px; }
+.tm-btn { flex-direction: row; align-items: center; background-color: rgba(0,0,0,0); border-width: 0; border-radius: 10px; padding: 12px 18px 12px 16px; margin: 0 0 6px 0; align-self: flex-start; min-width: 340px; transition: background-color 0.2s, translate 0.2s; }
+.tm-btn:hover { background-color: rgba(240,185,11,0.10); translate: 6px 0; }
+.tm-btn:disabled { opacity: 0.45; }
+.tm-btn-bar { width: 3px; min-height: 26px; border-radius: 2px; background-color: rgba(240,185,11,0); margin-right: 16px; transition: background-color 0.2s; }
+.tm-btn:hover .tm-btn-bar { background-color: #F0B90B; }
+.tm-btn--main .tm-btn-bar { background-color: #F0B90B; }
+.tm-btn-tx { flex-shrink: 1; }
+.tm-btn-n { font-size: 21px; -unity-font-style: bold; color: #EAECEF; white-space: nowrap; }
+.tm-btn:hover .tm-btn-n { color: #FCD535; }
+.tm-btn-s { font-size: 13px; color: #9AA4B2; margin-top: 3px; white-space: nowrap; }
+.tm-foot { position: absolute; left: 84px; right: 84px; bottom: 26px; font-size: 12px; color: #9AA4B2; white-space: normal; }
+.tm-live { position: absolute; right: 48px; top: 40px; flex-direction: row; align-items: center; background-color: rgba(24,26,32,0.78); border-width: 1px; border-color: #2B3139; border-radius: 20px; padding: 7px 16px; transition: opacity 0.4s; }
+.tm--slots .tm-live { opacity: 0; }
+.tm-live-dot { width: 8px; height: 8px; border-radius: 4px; background-color: #0ECB81; margin-right: 10px; }
+.tm-live-k { font-size: 12px; -unity-font-style: bold; color: #B7BDC6; letter-spacing: 2px; white-space: nowrap; margin-right: 14px; }
+.tm-live-p { font-size: 15px; -unity-font-style: bold; color: #EAECEF; white-space: nowrap; margin-right: 10px; }
+.tm-live-c { font-size: 13px; -unity-font-style: bold; white-space: nowrap; }
+.tm-up { color: #0ECB81; }
+.tm-dn { color: #FF6B81; }
+.tm-loading { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-color: rgba(11,14,17,0.82); align-items: center; justify-content: center; }
+.tm-loading-t { font-size: 18px; -unity-font-style: bold; color: #EAECEF; white-space: nowrap; }
+.tm-loading-s { font-size: 13px; color: #9AA4B2; margin-top: 8px; white-space: nowrap; }
+
+/* 슬롯 목록(오른쪽에서 밀려 들어옴) */
+.tm-slots { position: absolute; top: 0; right: 0; bottom: 0; width: 54%; padding: 56px 64px 48px 40px; opacity: 0; translate: 40px 0; transition: opacity 0.4s ease-out, translate 0.45s ease-out; }
+.tm--slots .tm-slots { opacity: 1; translate: 0 0; }
+.tm-sh { flex-direction: row; align-items: center; margin-bottom: 6px; }
+.tm-sh-t { font-size: 28px; -unity-font-style: bold; color: #EAECEF; white-space: nowrap; flex-grow: 1; }
+.tm-x { background-color: rgba(0,0,0,0); border-width: 1px; border-color: #3B4350; border-radius: 10px; color: #B7BDC6; font-size: 15px; min-width: 38px; min-height: 36px; padding: 0; margin: 0; }
+.tm-x:hover { background-color: #2B3139; color: #EAECEF; }
+.tm-ss { font-size: 14px; color: #9AA4B2; margin-bottom: 20px; white-space: normal; }
+.tm-list > * { margin-bottom: 12px; }
+.tm-slot { flex-direction: row; align-items: center; background-color: rgba(24,26,32,0.92); border-width: 1px; border-color: #2B3139; border-radius: 14px; padding: 16px 18px 16px 20px; transition: border-color 0.2s, background-color 0.2s; }
+.tm-slot:hover { border-color: #5E5124; background-color: rgba(30,35,41,0.96); }
+.tm-slot--last { border-color: #7A6116; }
+.tm-slot--empty { background-color: rgba(18,21,26,0.85); }
+.tm-slot--off { opacity: 0.6; }
+.tm-no { font-size: 30px; -unity-font-style: bold; color: #F0B90B; min-width: 56px; margin-right: 14px; white-space: nowrap; }
+.tm-slot--empty .tm-no { color: #9AA4B2; }
+.tm-info { flex-grow: 1; flex-shrink: 1; }
+.tm-info > * { margin-bottom: 3px; }
+.tm-nm { flex-direction: row; align-items: center; }
+.tm-nm-t { font-size: 18px; -unity-font-style: bold; color: #EAECEF; white-space: nowrap; flex-shrink: 1; overflow: hidden; text-overflow: ellipsis; }
+.tm-badge { font-size: 11px; -unity-font-style: bold; color: #14120A; background-color: #F0B90B; border-radius: 9px; padding: 2px 9px; margin-left: 10px; white-space: nowrap; flex-shrink: 0; }
+.tm-badge--warn { background-color: #FF6B81; color: #2A0C12; }
+.tm-l2 { font-size: 13px; color: #B7BDC6; white-space: nowrap; }
+.tm-l3 { font-size: 15px; -unity-font-style: bold; color: #EAECEF; white-space: nowrap; }
+.tm-l4 { font-size: 12px; color: #9AA4B2; white-space: nowrap; }
+.tm-acts { flex-direction: row; align-items: center; flex-shrink: 0; margin-left: 14px; }
+.tm-acts > * { margin-left: 8px; }
+
+/* 공통 버튼(타이틀·설정·메뉴·확인 창) */
+.mb { background-color: #2B3139; border-width: 1px; border-color: #3B4350; border-radius: 9px; color: #EAECEF; font-size: 14px; -unity-font-style: bold; padding: 8px 16px; min-height: 36px; margin: 0; white-space: nowrap; flex-shrink: 0; transition: background-color 0.15s, border-color 0.15s; }
+.mb:hover { background-color: #363C45; border-color: #4A5260; }
+.mb:disabled { opacity: 0.4; }
+.mb--gold { background-color: #F0B90B; border-color: #F0B90B; color: #14120A; }
+.mb--gold:hover { background-color: #FCD535; border-color: #FCD535; }
+.mb--danger { background-color: rgba(0,0,0,0); border-color: #C42F45; color: #FF6B81; }
+.mb--danger:hover { background-color: #3A1219; }
+.mb--ghost { background-color: rgba(0,0,0,0); border-color: rgba(0,0,0,0); color: #B7BDC6; }
+.mb--ghost:hover { background-color: #2B3139; color: #EAECEF; }
+.mb--big { font-size: 16px; padding: 12px 18px; min-height: 46px; }
+
+/* ───────── 확인 창 ───────── */
+.dg-dim { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.62); align-items: center; justify-content: center; }
+.dg-box { width: 440px; max-width: 92%; background-color: #1E2329; border-width: 1px; border-color: #3B4350; border-radius: 16px; padding: 24px 26px 20px 26px; scale: 0.96 0.96; opacity: 0; transition: scale 0.18s ease-out, opacity 0.18s ease-out; }
+.dg-box--in { scale: 1 1; opacity: 1; }
+.dg-t { font-size: 19px; -unity-font-style: bold; color: #EAECEF; margin-bottom: 10px; white-space: normal; }
+.dg-b { font-size: 14px; color: #B7BDC6; margin-bottom: 18px; white-space: normal; }
+.dg-in { margin: 0 0 6px 0; }
+.dg-in .unity-base-text-field__input, .dg-in .unity-text-field__input { background-color: #1C2333; border-width: 1px; border-color: #7C8AA8; border-radius: 9px; color: #FFFFFF; font-size: 16px; padding: 9px 12px; min-height: 40px; --unity-cursor-color: #FFFFFF; --unity-selection-color: rgba(240,185,11,0.35); }
+.dg-in:focus .unity-base-text-field__input, .dg-in:focus .unity-text-field__input { border-color: #F0B90B; }
+.dg-err { font-size: 13px; color: #FF6B81; min-height: 18px; margin-bottom: 8px; white-space: normal; }
+.dg-btns { flex-direction: row; justify-content: flex-end; }
+.dg-btns > * { margin-left: 10px; }
+
+/* ───────── 설정 ───────── */
+.st-dim { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; }
+.st-w { width: 900px; height: 640px; max-width: 96%; max-height: 94%; background-color: #181A20; border-width: 1px; border-color: #2B3139; border-radius: 16px; overflow: hidden; flex-direction: column; }
+.st-hd { flex-direction: row; align-items: center; min-height: 60px; padding: 10px 16px 10px 26px; background-color: #1E2329; border-bottom-width: 1px; border-color: #2B3139; flex-shrink: 0; }
+.st-hd-t { font-size: 20px; -unity-font-style: bold; color: #EAECEF; flex-grow: 1; white-space: nowrap; }
+.st-main { flex-direction: row; flex-grow: 1; }
+.st-nav { width: 200px; flex-shrink: 0; padding: 16px 12px; background-color: #14171C; border-right-width: 1px; border-color: #2B3139; }
+.st-nb { flex-direction: row; align-items: center; background-color: rgba(0,0,0,0); border-width: 0; border-radius: 9px; color: #B7BDC6; font-size: 15px; -unity-font-style: bold; padding: 11px 14px; margin: 0 0 4px 0; -unity-text-align: middle-left; white-space: nowrap; }
+.st-nb:hover { background-color: #1E2329; color: #EAECEF; }
+.st-nb--on { background-color: #2B2410; color: #F0B90B; }
+.st-body { flex-grow: 1; }
+.st-body-c { padding: 22px 28px 30px 28px; }
+.st-sec { font-size: 12px; -unity-font-style: bold; color: #F0B90B; letter-spacing: 3px; white-space: nowrap; margin: 6px 0 10px 0; }
+.st-row { flex-direction: row; align-items: center; padding: 14px 0; border-bottom-width: 1px; border-color: #252A31; }
+.st-row--col { flex-direction: column; align-items: stretch; }
+.st-l { flex-grow: 1; flex-shrink: 1; margin-right: 20px; }
+.st-k { font-size: 15px; -unity-font-style: bold; color: #EAECEF; white-space: normal; }
+.st-d { font-size: 13px; color: #9AA4B2; margin-top: 4px; white-space: normal; }
+.st-c { flex-shrink: 0; flex-direction: row; align-items: center; }
+.st-row--col .st-c { margin-top: 12px; flex-wrap: wrap; }
+.st-seg { flex-direction: row; flex-wrap: wrap; background-color: #0B0E11; border-width: 1px; border-color: #2B3139; border-radius: 10px; padding: 3px; }
+.st-sb { background-color: rgba(0,0,0,0); border-width: 0; border-radius: 8px; color: #B7BDC6; font-size: 13px; -unity-font-style: bold; padding: 7px 13px; margin: 0; white-space: nowrap; }
+.st-sb:hover { color: #EAECEF; background-color: #1E2329; }
+.st-sb--on { background-color: #F0B90B; color: #14120A; }
+.st-sb--on:hover { background-color: #FCD535; color: #14120A; }
+.st-sb:disabled { opacity: 0.4; }
+.st-sw { width: 46px; min-height: 26px; border-radius: 13px; background-color: #363C45; border-width: 1px; border-color: #474D57; justify-content: center; transition: background-color 0.2s, border-color 0.2s; }
+.st-sw-k { width: 20px; height: 20px; border-radius: 10px; background-color: #EAECEF; margin-left: 2px; transition: translate 0.2s ease-out; }
+.st-sw--on { background-color: #F0B90B; border-color: #F0B90B; }
+.st-sw--on .st-sw-k { translate: 20px 0; background-color: #14120A; }
+.st-dd { min-width: 240px; }
+.st-dd .unity-base-popup-field__input, .st-dd .unity-base-field__input { min-height: 36px; border-radius: 9px; }
+.st-val { font-size: 14px; color: #EAECEF; white-space: normal; -unity-text-align: middle-right; max-width: 420px; }
+.st-ft { flex-direction: row; align-items: center; padding: 12px 18px; border-top-width: 1px; border-color: #2B3139; background-color: #1E2329; flex-shrink: 0; }
+.st-ft-m { flex-grow: 1; font-size: 13px; color: #9AA4B2; margin: 0 14px; white-space: normal; }
+
+/* ───────── 게임 메뉴(Esc) ───────── */
+.gm-dim { position: absolute; left: 0; top: 0; right: 0; bottom: 0; background-color: rgba(5,7,9,0.68); align-items: center; justify-content: center; opacity: 0; transition: opacity 0.18s ease-out; }
+.gm-dim--in { opacity: 1; }
+.gm-box { width: 400px; max-width: 92%; background-color: #181A20; border-width: 1px; border-color: #2B3139; border-radius: 18px; padding: 26px 26px 20px 26px; }
+.gm-k { font-size: 12px; -unity-font-style: bold; color: #F0B90B; letter-spacing: 4px; white-space: nowrap; }
+.gm-t { font-size: 22px; -unity-font-style: bold; color: #EAECEF; margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gm-s { font-size: 13px; color: #9AA4B2; margin-top: 4px; margin-bottom: 18px; white-space: nowrap; }
+.gm-box > .mb { margin-bottom: 8px; }
+.gm-msg { font-size: 13px; color: #0ECB81; min-height: 18px; margin-top: 4px; white-space: normal; }
+.gm-note { font-size: 12px; color: #9AA4B2; margin-top: 8px; white-space: normal; }
+
+/* 입력 창의 빠른 선택 칩(예: 차트 저장 → 이벤트 고르기) */
+.dg-pk-t { font-size: 12px; -unity-font-style: bold; color: #FCD535; margin-bottom: 8px; white-space: normal; }
+.dg-pk { flex-direction: row; flex-wrap: wrap; margin-bottom: 14px; }
+.dg-chip { min-height: 32px; padding: 6px 12px; margin: 0 6px 6px 0; font-size: 13px; background-color: #0B0E11; border-color: #474D57; color: #EAECEF; }
+.dg-chip:hover { background-color: #2B2410; border-color: #F0B90B; color: #FCD535; }
+
+/* 타이틀 메뉴: 칸이 눌려 겹치지 않게 + 버튼 안 글자는 왼쪽 정렬(버튼 기본값 ‘가운데’ 를 물려받아 줄마다 들쭉날쭉하던 것) */
+.tm-kick, .tm-brand, .tm-sub, .tm-menu, .tm-btn { flex-shrink: 0; }
+.tm-btn-tx { flex-shrink: 0; }
+.tm-btn-n, .tm-btn-s { -unity-text-align: middle-left; }
+.tm-left { padding-bottom: 96px; }
+.tm-btn { min-height: 48px; }

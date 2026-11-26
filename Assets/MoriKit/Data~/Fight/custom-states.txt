@@ -1,0 +1,2 @@
+# 작업실 자유 프리셋(한 줄에 하나)
+hero-counter-hit-effect
