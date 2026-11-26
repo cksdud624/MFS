@@ -147,6 +147,7 @@ namespace Mori.Client
 
         public void SetVisible(bool on)
         {
+            if (root == null) return;                                       // 화면이 아직 없으면 아무것도 하지 않음
             Visible = on;
             // display:none 은 크기가 0 이 되어 칸 배치 보정(LayoutGuard)이 망가뜨림 → 크기는 그대로 두고 안 보이게 · 안 눌리게만
             root.style.visibility = on ? Visibility.Visible : Visibility.Hidden;
