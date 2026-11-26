@@ -916,7 +916,7 @@ namespace Mori.Client
                 catch (Exception e) { Status("전체 백업 실패: " + e.Message); }
             });
 
-            var ex = Section("MFS 로 내보내기(킷을 빼기 전에)", "게임이 쓸 것만 킷 밖으로. 그림 = 컷마다 스프라이트 PNG(PPU = 그림 크기 탭의 1U px · 도트 그대로 · 발밑 가운데) + 컷 길이 json. 연출 카드 = StreamingAssets/fx-cards(게임의 MoriFxPlayer 가 읽는 곳). 게임 쪽 파일은 덮어써요(연결 유지).");
+            var ex = Section("MFS 로 내보내기(킷을 빼기 전에)", KitExport.Locked ? "지금은 잠겨 있어요 — 메인(MFS) 형식(.anim 클립 · 이펙트 프리팹)으로 바꾸는 중이라, 눌러도 메인 폴더에 아무것도 쓰지 않아요." : "게임이 쓸 것만 킷 밖으로. 그림 = 컷마다 스프라이트 PNG(PPU = 그림 크기 탭의 1U px · 도트 그대로 · 발밑 가운데) + 컷 길이 json. 연출 카드 = StreamingAssets/fx-cards(게임의 MoriFxPlayer 가 읽는 곳). 게임 쪽 파일은 덮어써요(연결 유지).");
             var gl = Lbl("그림 → " + KitExport.GameDir + "/Sprites", "tp-spec");
             ex.Add(gl);
             var er = new VisualElement(); er.AddToClassList("tp-foot"); ex.Add(er);
@@ -925,10 +925,10 @@ namespace Mori.Client
             Btn(er2, "그림 내보내기", false, () => Status(Try(KitExport.Sprites)));
             Btn(er2, "연출 카드 내보내기", false, () => Status(Try(KitExport.Cards)));
             Btn(er2, "모두 내보내기", true, () => Status(Try(KitExport.All)));
-            var rt = Section("런타임을 킷 밖으로", "연출 재생기(MoriFx) 코드 · 셰이더를 Assets/MoriKit/Runtime → Assets/MoriFx 로 옮겨요(GUID 그대로라 연결이 안 끊겨요). 킷을 빼기 직전에 한 번. 옮긴 뒤에도 킷은 그대로 써요.");
+            var rt = Section("런타임을 킷 밖으로", KitExport.Locked ? "지금은 잠겨 있어요 — MFS 는 연출 재생기(MoriFx)를 쓰지 않아서, 메인 형식이 정해질 때까지 옮기지 않아요." : "연출 재생기(MoriFx) 코드 · 셰이더를 Assets/MoriKit/Runtime → Assets/MoriFx 로 옮겨요(GUID 그대로라 연결이 안 끊겨요). 킷을 빼기 직전에 한 번. 옮긴 뒤에도 킷은 그대로 써요.");
             var rr = new VisualElement(); rr.AddToClassList("tp-foot"); rt.Add(rr);
             Btn(rr, KitExport.RuntimeInside ? "런타임 옮기기" : "이미 옮겼어요", false, () =>
-                Dialog.Confirm("런타임을 킷 밖으로", "Assets/MoriKit/Runtime 을 Assets/MoriFx 로 옮길까요? 킷을 빼기 직전에 하는 작업이에요.", "옮기기", false, () => { Status(Try(KitExport.MoveRuntime)); ShowGroup(FILES_TAB); }));
+                { if (KitExport.Locked) { Status(KitExport.LOCKED_MSG); return; } Dialog.Confirm("런타임을 킷 밖으로", "Assets/MoriKit/Runtime 을 Assets/MoriFx 로 옮길까요? 킷을 빼기 직전에 하는 작업이에요.", "옮기기", false, () => { Status(Try(KitExport.MoveRuntime)); ShowGroup(FILES_TAB); }); });
         }
 
         static string Try(Func<string> f)

@@ -26,7 +26,6 @@ namespace Mori.Client
         //  → 위험 구역 · 맵 위험물 · 탄 · 코드 캐릭터(back1) → 결투자 그림 → 플레이어 그림 → 앞 배경 층(bgFront) → 방패 · 표식 · 잔상 · 박자 · 판정 보기(front)
         readonly VisualElement bgBack, back0, terrain, back, bgFront, front, bgImg, foeImg, heroImg, allyImg, flash, cutIn, cutInPic;
         readonly Label cutInTxt;
-        readonly ChainRig rigHero, rigFoe;
         /// <summary>등록한 3D · 파티클 프리팹(작업실 ‘프리팹’ 칸에서 순간마다 연결).</summary>
         public readonly PrefabFx Fx;
 
@@ -49,16 +48,10 @@ namespace Mori.Client
             back0 = Layer0(); back0.generateVisualContent += Draw0; Add(back0);
             terrain = Layer0(); Add(terrain);
             back = Layer0(); back.generateVisualContent += Draw; Add(back);
-            // 사슬(머리카락 · 옷자락): 캐릭터 그림 바로 뒤 · 앞
             var fxBack = Layer0(); Add(fxBack);          // 프리팹(캐릭터 뒤에)
-            var fcb = Layer0(); Add(fcb);
             foeImg = Sprite0(); Add(foeImg);
-            var fcf = Layer0(); Add(fcf);
             allyImg = Sprite0(); Add(allyImg);           // 동료(여주인공): 플레이어 그림 뒤
-            var hcb = Layer0(); Add(hcb);
             heroImg = Sprite0(); Add(heroImg);
-            var hcf = Layer0(); Add(hcf);
-            rigFoe = new ChainRig(fcb, fcf); rigHero = new ChainRig(hcb, hcf);
             var fxFront = Layer0(); Add(fxFront);        // 프리팹(캐릭터 앞에 — 기본)
             foreach (var v in new[] { fxBack, fxFront }) v.style.backgroundSize = new BackgroundSize(Length.Percent(100), Length.Percent(100));
             Fx = new PrefabFx(fxFront, fxBack);

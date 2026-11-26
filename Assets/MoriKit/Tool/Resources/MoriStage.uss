@@ -305,9 +305,7 @@
 .ae-xf > .ae-int { width: 64px; min-width: 64px; }
 .ae-xf > .ae-btn { margin: 2px 4px 2px 0; }
 
-/* stage21 — 사슬 */
-.ae-anchor-l { position: absolute; font-size: 11px; color: #E8F4FF; background-color: rgba(10, 12, 18, 0.85); padding: 1px 5px; border-radius: 4px; border-width: 1px; border-color: #6FA8FF; white-space: nowrap; }
-.ae-anchor-l--on { color: #1A1420; background-color: #FCD535; border-color: #FCD535; }
+/* 작업실 아래 칸(그림 크기 · 프리팹 · 연출) */
 .ws-tunesv { flex-shrink: 1; flex-grow: 0; max-height: 340px; min-height: 120px; }
 .ws-chain { flex-direction: column; flex-shrink: 0; }
 .ws-fx-used { border-color: #6FD08C; color: #E9FFF0; }

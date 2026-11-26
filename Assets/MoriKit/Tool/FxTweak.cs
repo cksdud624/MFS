@@ -195,7 +195,8 @@ namespace Mori.Client
 
 #if UNITY_EDITOR
         /// <summary>
-        /// 조율 값을 프리팹 파일에 써 넣음(에디터 전용). 먼저 Assets/_backup 에 원본을 복사. 성공하면 조율 파일은 비움(이제 프리팹이 그 값).
+        /// 조율 값을 프리팹 파일에 써 넣음(에디터 전용). 먼저 킷 백업 폴더(프로젝트 밖, KitBackup.Dir/프리팹)에 원본을 복사. 성공하면 조율 파일은 비움(이제 프리팹이 그 값).
+        /// 백업을 Assets 안에 두면 메인 폴더에 킷 파일이 생기고, 복사본 프리팹이 같은 스크립트 · 에셋을 참조하는 에셋으로 프로젝트에 잡힌다.
         /// </summary>
         public static string BakeToPrefab(string prefab)
         {
@@ -207,10 +208,12 @@ namespace Mori.Client
             if (string.IsNullOrEmpty(path) || !path.EndsWith(".prefab", StringComparison.OrdinalIgnoreCase)) return "프리팹 파일이 아니에요(" + path + ").";
             try
             {
-                const string BK = "Assets/_backup";
-                if (!UnityEditor.AssetDatabase.IsValidFolder(BK)) UnityEditor.AssetDatabase.CreateFolder("Assets", "_backup");
-                string bk = $"{BK}/{Path.GetFileNameWithoutExtension(path)}_{DateTime.Now:yyyyMMdd_HHmmss}.prefab";
-                if (!UnityEditor.AssetDatabase.CopyAsset(path, bk)) return "백업에 실패해서 적용하지 않았어요.";
+                string bkDir = Path.Combine(KitBackup.Dir, "프리팹");
+                Directory.CreateDirectory(bkDir);
+                string bk = Path.Combine(bkDir, $"{Path.GetFileNameWithoutExtension(path)}__{DateTime.Now:yyyyMMdd-HHmmss}.prefab");
+                string srcFile = Path.Combine(Path.GetDirectoryName(Application.dataPath) ?? "", path);
+                try { File.Copy(srcFile, bk, true); }
+                catch (Exception be) { return "백업에 실패해서 적용하지 않았어요: " + be.Message; }
                 var root = UnityEditor.PrefabUtility.LoadPrefabContents(path);
                 try
                 {

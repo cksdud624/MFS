@@ -17,6 +17,13 @@ namespace Mori.Client
     public static class KitExport
     {
         const string PREF_DIR = "MoriKit.MfsDir";
+        /// <summary>내보내기 잠금. 지금 내보내기는 메인 폴더(StreamingAssets · MoriFxGame · MoriFx)에 킷 전용 형식으로 파일을 쓴다.
+        /// MFS 는 그 형식을 쓰지 않으므로(애니메이션 = Animation/(번호)/ .anim 클립, 이펙트 = Effect/(번호)/ 프리팹),
+        /// 메인 형식이 프로그래머와 정해질 때까지 메인 폴더에 아무것도 쓰지 않게 막아 둔다.
+        /// const 로 두면 아래 코드가 ‘닿지 않는 코드’ 경고(CS0162)를 내므로 readonly 로 둔다.</summary>
+        public static readonly bool Locked = true;
+        public const string LOCKED_MSG = "내보내기는 잠겨 있어요 — 메인(MFS) 형식(.anim 클립 · 이펙트 프리팹)으로 바꾸는 중이에요. 메인 폴더에는 아무것도 쓰지 않았어요.";
+
         public const string RUNTIME_IN = "Assets/MoriKit/Runtime", RUNTIME_OUT = "Assets/MoriFx", CARDS_OUT = "Assets/StreamingAssets/fx-cards";
 
         /// <summary>게임 쪽 폴더(Assets 아래, 기본 Assets/MoriFxGame).</summary>
@@ -31,6 +38,7 @@ namespace Mori.Client
         /// <summary>폴더 고르기(프로젝트 Assets 안만).</summary>
         public static bool PickGameDir(out string msg)
         {
+            if (Locked) { msg = LOCKED_MSG; return false; }
             string abs = EditorUtility.OpenFolderPanel("게임 쪽 폴더 고르기(Assets 안)", Full(GameDir), "");
             msg = null;
             if (string.IsNullOrEmpty(abs)) return false;
@@ -47,6 +55,7 @@ namespace Mori.Client
         // ───────── 그림 → 스프라이트 PNG ─────────
         public static string Sprites()
         {
+            if (Locked) return LOCKED_MSG;
             var anims = ArtLib.AllAnims.Where(a => a != null && !string.IsNullOrEmpty(a.Key) && a.Frames != null && a.Frames.Length > 0)
                 .GroupBy(a => a.Key).Select(g => g.Last()).ToList();
             if (anims.Count == 0) return "내보낼 그림이 없어요(그림 폴더가 비었거나 아직 읽는 중).";
@@ -132,6 +141,7 @@ namespace Mori.Client
         // ───────── 연출 카드 ─────────
         public static string Cards()
         {
+            if (Locked) return LOCKED_MSG;
             string src = FxCardStore.Dir;
             if (!Directory.Exists(src)) return "연출 카드가 없어요.";
             Directory.CreateDirectory(Full(CARDS_OUT));
@@ -150,6 +160,7 @@ namespace Mori.Client
 
         public static string MoveRuntime()
         {
+            if (Locked) return LOCKED_MSG;
             if (!RuntimeInside) return AssetDatabase.IsValidFolder(RUNTIME_OUT) ? $"런타임은 이미 {RUNTIME_OUT} 에 있어요." : "런타임 폴더를 찾지 못했어요.";
             if (AssetDatabase.IsValidFolder(RUNTIME_OUT)) return $"{RUNTIME_OUT} 가 이미 있어요 — 비우거나 이름을 바꾼 뒤 다시 해 주세요.";
             string err = AssetDatabase.MoveAsset(RUNTIME_IN, RUNTIME_OUT);
@@ -160,6 +171,7 @@ namespace Mori.Client
 
         public static string All()
         {
+            if (Locked) return LOCKED_MSG;
             var a = Sprites();
             var b = Cards();
             return a + "\n" + b;

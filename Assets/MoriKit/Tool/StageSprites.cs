@@ -17,6 +17,14 @@ namespace Mori.Client
     ///  · 배경: bg · 지형: pillar(기둥) · platform(발판)
     /// 방패 · 예고 표식 · 잔상 같은 표시는 그림 위에 그대로 얹힌다. 크기 · 발 위치 · 방향은 튜닝 패널 ‘화면 › 캐릭터 그림’.
     /// </summary>
+    /// <summary>캐릭터 그림을 화면에 놓은 자리(Place 가 돌려줌): 왼쪽 위 · 그림 1px 의 화면 크기(K) · 좌우 뒤집힘.</summary>
+    public struct SpriteGeom
+    {
+        public bool Valid, Flip;
+        public float Left, Top, K;      // K = 그림 1px 의 화면 크기
+        public int TexW, TexH;
+    }
+
     public sealed partial class StageField
     {
         public const string DIR = "Fight/";
@@ -163,7 +171,6 @@ namespace Mori.Client
             if (w == null || !(r.width >= 10) || !(r.height >= 10))
             {
                 heroImg.style.display = foeImg.style.display = bgImg.style.display = allyImg.style.display = cutIn.style.display = DisplayStyle.None;
-                rigHero.Hide(); rigFoe.Hide();
                 Fx.Update(null, 0, 0, 1, 1, Vector2.zero, 0);
                 HideFrom(bgBack, 1); HideFrom(bgFront, 0); HideFrom(terrain, 0);
                 return;
@@ -252,8 +259,6 @@ namespace Mori.Client
                 ok = HeroTex != null, tex = HeroTex, feet = new Vector2((float)h.X, (float)(h.Y - T.HeroImgDown - (HeroTex != null ? hh * hFoot / Mathf.Max(1, HeroTex.height) : 0))),
                 hU = (float)hh * ui * (float)FightTune.Pos(T.ImgScaleHero, 0.05) / Mathf.Max(0.0001f, u), flip = (hFace >= 0) != imgRight,
             };
-            var ha = ArtLib.Get(hk);
-            rigHero.Update(w, W, H, u, shakeNow, ha, ha != null ? (airIdx >= 0 ? Mathf.Clamp(airIdx, 0, ha.Frames.Length - 1) : heroLoopIdx >= 0 ? heroLoopIdx : ha.IndexAt(heroClock.Ms)) : 0, hg, hFace, "hero", heroDtMs / 1000f);
 
             // 결투자
             var f = w.Foe;
@@ -314,8 +319,6 @@ namespace Mori.Client
                 ok = FoeTex != null, tex = FoeTex, feet = new Vector2((float)f.X, (float)(f.Y - T.FoeImgDown - (FoeTex != null ? fh * fFoot / Mathf.Max(1, FoeTex.height) : 0))),
                 hU = (float)fh * ui * (float)FightTune.Pos(T.ImgScaleFoe, 0.05) / Mathf.Max(0.0001f, u), flip = (f.Facing >= 0) != imgRight,
             };
-            var fa = ArtLib.Get(fk);
-            rigFoe.Update(w, W, H, u, shakeNow, fa, fa != null ? (foeIdx >= 0 ? Mathf.Clamp(foeIdx, 0, fa.Frames.Length - 1) : fa.IndexAt(foeClock.Ms)) : 0, fg, f.Facing, "foe", foeDtMs / 1000f);
 
             // 동료(여주인공) · 컷인
             AllySprite(w, W, H, u, ui, heroDtMs);

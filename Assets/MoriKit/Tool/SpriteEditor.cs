@@ -24,7 +24,7 @@ namespace Mori.Client
         public bool Open { get; private set; }
         public bool Freeze = true;
         public bool Pin = true;
-        /// <summary>지금 고른 색(작업실 사슬 색 넣기).</summary>
+        /// <summary>지금 고른 색.</summary>
         public Color32 PickColor => colors.Main;
         public string Key => key;
         public Action OnClosed;
@@ -82,7 +82,7 @@ namespace Mori.Client
         internal static IEnumerable<string> KnownNames() =>
             STATES.Concat(LoadCustom()).Concat(FlowTable.Rows.Select(r => r.Anim)).Concat(ArtLib.Files().Select(f => f.key)).Distinct();
 
-        enum Tool { Pen, Eraser, Picker, Fill, Line, Rect, SelRect, Lasso, Poly, Bone, Hand, LassoFill, LassoErase, Blend }
+        enum Tool { Pen, Eraser, Picker, Fill, Line, Rect, SelRect, Lasso, Poly, Hand, LassoFill, LassoErase, Blend }
 
         // ───────── 문서 모델 ─────────
         sealed class Row
@@ -246,7 +246,7 @@ namespace Mori.Client
                 (Tool.SelRect, "사각선택", "사각 선택 (R) · Shift = 더하기 · Alt = 빼기 · 그냥 누르면 해제"),
                 (Tool.Lasso, "올가미", "올가미 (A) · 끌어서 그린 모양대로 선택"),
                 (Tool.Poly, "꺾은선", "꺾은선 선택 (Q) · 누를 때마다 꼭짓점 · 처음 점 · 두 번 누르기 · Enter = 닫기 · Backspace = 점 하나 빼기"),
-                (Tool.Bone, "뼈대", "뼈대 (K) — 휘는 그림(~레이어) 위에 뿌리 → 끝 순서로 마디를 찍어요 · 끌면 옮김 · Alt+누르기 = 지우기 · Backspace = 마지막 마디 빼기"), (Tool.Hand, "손", "손 (H) · Space+드래그 · 오른쪽 드래그") })
+                (Tool.Hand, "손", "손 (H) · Space+드래그 · 오른쪽 드래그") })
             {
                 var tt = t;
                 toolBtns[t] = Btn(toolCol, n, () => SetTool(tt), tip, "ae-tool");
@@ -312,7 +312,7 @@ namespace Mori.Client
             rigBackEl = Abs(canvasHost);
             img = Abs(canvasHost);
             rigFrontEl = Abs(canvasHost);
-            foreach (var v in new[] { rigBackEl, rigFrontEl }) { v.pickingMode = PickingMode.Ignore; v.style.backgroundSize = new BackgroundSize(Length.Percent(100), Length.Percent(100)); }
+            foreach (var v in new[] { rigBackEl, rigFrontEl }) v.pickingMode = PickingMode.Ignore;      // 빈 칸 — 어니언을 그림 앞 · 뒤에 놓는 기준점
             ApplyOnionOrder();
             gridEl = Abs(canvasHost); gridEl.generateVisualContent += DrawGrid;
             selEl = Abs(canvasHost); selEl.generateVisualContent += DrawSel;
@@ -358,7 +358,6 @@ namespace Mori.Client
             var lc = El(main, "ae-wrap");
             Lbl(lc, "레이어", "ae-k");
             Btn(lc, "+ 레이어", AddRow, "고른 레이어 위에 새 레이어(모든 프레임)");
-            Btn(lc, "+ 사슬", AddAnchorRow, "휘는 그림 레이어(~)와 뼈대 레이어(@)를 한 쌍으로 — ~ 에 머리카락 · 천을 그리고 ‘뼈대’ 도구로 마디를 찍어요. 흔들림은 작업실 ‘사슬’ 칸");
             Btn(lc, "삭제", DelRow, "고른 레이어 지우기(모든 프레임) — 여러 개는 타임라인에서 Ctrl · Shift+누르기");
             Btn(lc, "▲", () => MoveRow(1), "위로(앞으로)");
             Btn(lc, "▼", () => MoveRow(-1), "아래로(뒤로)");
@@ -518,7 +517,6 @@ namespace Mori.Client
             "■ 프레임: , 이전 · . 다음 · ↑↓ 레이어 고르기 · Space 재생 · 되돌리기 Ctrl+Z · 다시 Ctrl+Y · 저장 Ctrl+S",
             "■ 시트 가져오기: ‘자동 나눠 프레임’ = 칸 수를 스스로 찾아 등분(빈 줄 또는 잔상이 옅어지는 골짜기 · 443.5 같은 칸도 정확히). 발끝처럼 조금 넘친 건 원래 컷에, 잔상처럼 크게 이어진 건 칸 경계로. ‘정렬:’ = 원본 · 발밑 · 몸통.",
             "■ 캔버스 잠금(기본 켬): 가져와도 캔버스 크기가 안 바뀜. ‘맞추기:’ 그대로 · 알맞게(칸이 캔버스보다 크면 줄임 — 512 칸 → 512 캔버스 = 1:1) · 꽉 차게. 잠금을 끄면 넘치는 그림에 맞춰 캔버스를 키움.",
-            "■ 사슬(머리카락 · 옷자락): ‘+ 사슬’ = 휘는 그림(~이름) + 뼈대(@이름). ~ 에 직접 그리고, ‘뼈대’(K) 도구로 뿌리 → 끝 순서로 마디를 찍으면(끌면 옮김 · Alt = 지우기 · Backspace = 마지막 빼기) 게임 · 미리보기에서 그 그림이 중력 · 관성대로 휘어요. 몸 앞이면 이름에 ‘(앞)’. 흔들림은 작업실 ‘사슬’ 칸.",
             "■ 여러 개 고르기: 타임라인의 프레임 번호 · 레이어 이름을 Ctrl+누르기(더하기/빼기) · Shift+누르기(범위). 칸을 Ctrl/Shift+누르면 같은 레이어에서 프레임 여러 개. 길이 · 삭제 · 복제 · 옮김 · 칸 버튼 · 레이어 속성이 고른 것 전부에.",
             "■ 단축키: 머리의 ‘단축키’ 에서 편집기의 모든 동작(도구 · 선택 · 프레임 · 칸 · 레이어 · 보기)을 바꿀 수 있어요. 가져오기 목록의 ✕ = 목록에서 빼기(파일은 그대로).",
             "■ 선택: 사각선택(R) · 올가미(A) · 꺾은선(Q, 점 찍고 처음 점 · 두 번 누르기 · Enter 로 닫기). Shift = 더하기 · Alt = 빼기 · Ctrl+A 전체 · Ctrl+D 해제 · Ctrl+Shift+I 반전 · Delete 지우기. 선택 안에만 칠해져요.",
@@ -860,7 +858,7 @@ namespace Mori.Client
         {
             if (!dirty || key == null || readOnly) { dirtyAt = -1; return; }
             if (dirtyAt < 0) dirtyAt = Time.realtimeSinceStartup;
-            if (!AutoSave || drawing || xf != null || moving || selecting || lassoDraw || boneDrag >= 0) { dirtyAt = Time.realtimeSinceStartup; return; }
+            if (!AutoSave || drawing || xf != null || moving || selecting || lassoDraw) { dirtyAt = Time.realtimeSinceStartup; return; }
             float now = Time.realtimeSinceStartup;
             if (now - dirtyAt < AUTOSAVE_DELAY || now - saveFailAt < 2f) return;
             Save(true);
@@ -1055,7 +1053,7 @@ namespace Mori.Client
                 L[r] = new TileComp.Layer
                 {
                     Px = c != null && c.Img != null && tile < c.Img.Count ? c.Img.Tiles[tile] : null,
-                    Visible = row.Visible && !IsAnchor(row) && !IsDeform(row), Clip = row.Clip, Opacity = (float)row.Opacity, Mode = TileComp.ModeOf(row.Blend),
+                    Visible = row.Visible, Clip = row.Clip, Opacity = (float)row.Opacity, Mode = TileComp.ModeOf(row.Blend),
                 };
             }
         }
@@ -1269,7 +1267,7 @@ namespace Mori.Client
         }
 
         /// <summary>
-        /// 위에 = 지금 그림(+ ~ 그림) 위, 아래에 = 밑. 어니언끼리는 이전 프레임(빨강)이 다음 프레임보다 항상 위,
+        /// 위에 = 지금 그림 위, 아래에 = 밑. 어니언끼리는 이전 프레임(빨강)이 다음 프레임보다 항상 위,
         /// 같은 쪽에서는 가까운 프레임이 위. 아래 → 위: 뒤 3 · 2 · 1 → 앞 3 · 2 · 1.
         /// </summary>
         void ApplyOnionOrder()
@@ -1322,7 +1320,6 @@ namespace Mori.Client
             fi = Mathf.Clamp(fi, 0, Math.Max(0, frames.Count - 1));
             ri = Mathf.Clamp(ri, 0, Math.Max(0, rows.Count - 1));
             PruneSel();
-            rigDirty = true;
             dirtyTiles.Clear(); dirtyCel = null;
             for (int i = frameTex.Count - 1; i >= frames.Count; i--) { if (frameTex[i] != null) TexGrave.Kill(frameTex[i]); frameTex.RemoveAt(i); }
             for (int i = silTex.Count - 1; i >= frames.Count; i--) { if (silTex[i] != null) TexGrave.Kill(silTex[i]); silTex.RemoveAt(i); }
@@ -1381,7 +1378,6 @@ namespace Mori.Client
         {
             if (dirtyCel == null || dirtyTiles.Count == 0) { dirtyTiles.Clear(); return; }
             var c = dirtyCel;
-            for (int r = 0; r < rows.Count && frames.Count > 0; r++) if (IsDeform(rows[r]) && r < F.Cels.Count && F.Cels[r] == c) { rigDirty = true; break; }
             int n = TilesX * TilesY;
             stageUsed.Clear();
             for (int f = 0; f < frames.Count; f++)
@@ -1424,262 +1420,11 @@ namespace Mori.Client
         void PushLive()
         {
             if (key == null || frameTex.Count == 0) return;
-            ArtLib.SetLive(key, frameTex.ToArray(), frames.Select((f, i) => MsOf(i)).ToArray(), once, AnchorTracks(), foot, centerPivot);
-            UpdateAnchorLabels();
+            ArtLib.SetLive(key, frameTex.ToArray(), frames.Select((f, i) => MsOf(i)).ToArray(), once, foot, centerPivot);
         }
 
-        // ───────── 사슬: 휘는 그림(~이름) + 뼈대(@이름) ─────────
-        //  ~이름 레이어 = 직접 그린 머리카락 · 천(편집기 캔버스엔 그대로 보이고, 게임 · 미리보기에선 뼈대를 따라 휨).
-        //  @이름 레이어 = 그 그림의 뼈 마디(‘뼈대’ 도구로 뿌리 → 끝 순서로 찍음, 점 색의 초록 값 = 순서). 몸 그림에는 안 들어감.
-        //  이름 뒤 ‘(앞)’ = 몸 앞. 흔들림(중력 · 모양 유지 …)은 작업실 ‘사슬’ 칸.
-        static bool IsAnchor(Row r) => r != null && r.Name != null && r.Name.TrimStart().StartsWith("@");
-        static bool IsDeform(Row r) => r != null && r.Name != null && r.Name.TrimStart().StartsWith("~");
-        static string RigName(Row r) => r != null && ChainAnchors.ParseAny(r.Name, out _, out var nm, out _) ? nm : null;
-        int boneDrag = -1;                       // 끄는 중인 마디(−1 = 없음)
-        int boneRow = -1;                        // 뼈대 도구가 다루는 @ 레이어
-        readonly List<Label> anchorLabels = new List<Label>();
-
-        /// <summary>@ 레이어 칸의 뼈 마디(순서대로).</summary>
-        static List<(double x, double y)> JointsOf(TileImage im)
-        {
-            var px = new List<(int, int, byte, byte)>();
-            if (im != null)
-                for (int i = 0; i < im.Count; i++)
-                {
-                    var t = im.Tiles[i];
-                    if (t == null) continue;
-                    im.TileRect(i, out int x0, out int y0, out int tw, out int th);
-                    for (int yy = 0; yy < th; yy++)
-                        for (int xx = 0; xx < tw; xx++)
-                        {
-                            int k = (yy * tw + xx) * 4;
-                            if (t[k + 3] != 0) px.Add((x0 + xx, y0 + yy, t[k + 1], t[k + 3]));
-                        }
-                }
-            return ChainAnchors.Joints(px);
-        }
-
-        void WriteJoints(Cel c, List<(double x, double y)> j)
-        {
-            c.Img = new TileImage(W, H);
-            for (int i = 0; i < j.Count && i < 16; i++)
-            {
-                var (r, g, b) = ChainAnchors.JointColor(i);
-                c.Img.Set(Mathf.Clamp((int)Math.Floor(j[i].x), 0, W - 1), Mathf.Clamp((int)Math.Floor(j[i].y), 0, H - 1), r, g, b, 255);
-            }
-        }
-
-        /// <summary>프레임 f 의 뼈 마디 — 그 프레임에 없으면 가까운 앞(없으면 뒤) 프레임 것. fromFrame = 실제로 가져온 프레임.</summary>
-        List<(double x, double y)> JointsAt(int r, int f, out int fromFrame)
-        {
-            fromFrame = -1;
-            for (int d = 0; d < frames.Count; d++)
-                foreach (int k in new[] { f - d, f + d })
-                {
-                    if (k < 0 || k >= frames.Count || r >= frames[k].Cels.Count) continue;
-                    var j = JointsOf(frames[k].Cels[r]?.Img);
-                    if (j.Count > 0) { fromFrame = k; return j; }
-                }
-            return new List<(double, double)>();
-        }
-
-        List<ArtLib.Track> AnchorTracks()
-        {
-            var per = new List<Dictionary<string, ArtLib.FrameRig>>();
-            foreach (var fr in frames)
-            {
-                Dictionary<string, ArtLib.FrameRig> d = null;
-                for (int r = 0; r < rows.Count && r < fr.Cels.Count; r++)
-                {
-                    var row = rows[r];
-                    if (!row.Visible || !ChainAnchors.ParseAny(row.Name, out bool deform, out var nm, out bool back)) continue;
-                    var c = fr.Cels[r];
-                    if (c == null || c.Img.Empty) continue;
-                    d ??= new Dictionary<string, ArtLib.FrameRig>();
-                    if (!d.TryGetValue(nm, out var rig)) d[nm] = rig = new ArtLib.FrameRig { Back = back };
-                    if (!deform) { var j = JointsOf(c.Img); if (j.Count > 0) rig.Joints = j; }
-                    else if (c.Img.Bounds(out int l, out int t, out int rr, out int b))
-                    {
-                        var px = new byte[(rr - l) * (b - t) * 4];
-                        c.Img.CopyTo(px, l, t, rr - l, b - t);
-                        rig.Art = new ArtLib.ArtPx { Rgba = px, L = l, T = t, W = rr - l, H = b - t };
-                        rig.Back = back;
-                    }
-                }
-                per.Add(d);
-            }
-            return ArtLib.MakeTracks(per);
-        }
-
-        /// <summary>‘+ 사슬’: 휘는 그림 레이어(~사슬N)와 뼈대 레이어(@사슬N)를 한 쌍으로.</summary>
-        void AddAnchorRow()
-        {
-            if (!Edit()) return;
-            if (xf != null) CommitTransform();
-            SnapStruct();
-            int n = 1;
-            while (rows.Any(r => RigName(r) == "사슬" + n)) n++;
-            int at = rows.Count == 0 ? 0 : ri + 1;
-            rows.Insert(at, new Row { Name = $"@사슬{n}" });
-            rows.Insert(at + 1, new Row { Name = $"~사슬{n}" });
-            foreach (var fr in frames) { fr.Cels.Insert(at, null); fr.Cels.Insert(at + 1, null); }
-            ri = at + 1;
-            dirty = true;
-            tool = Tool.Pen;
-            RecomposeAll();
-            Say($"‘~사슬{n}’ 에 머리카락 · 천을 그리고, ‘뼈대’ 도구로 뿌리 → 끝 순서로 마디를 찍으세요(끌면 옮김 · Alt+누르기 = 지우기 · Backspace = 마지막 마디 빼기). 이름은 두 번 눌러 ‘~뒷머리’ 처럼(@ 쪽도 같은 이름으로).");
-        }
-
-        /// <summary>뼈대 도구가 다룰 @ 레이어 — 지금 레이어가 @ 면 그것, ~ 면 같은 이름의 @(없으면 바로 위에 만듦).</summary>
-        int BoneRowFor(bool create)
-        {
-            if (R == null) return -1;
-            if (IsAnchor(R)) return ri;
-            if (!IsDeform(R)) return -1;
-            string nm = RigName(R);
-            for (int r = 0; r < rows.Count; r++) if (IsAnchor(rows[r]) && RigName(rows[r]) == nm) return r;
-            if (!create) return -1;
-            SnapStruct();
-            var back = !R.Name.Contains("(앞)");
-            rows.Insert(ri, new Row { Name = "@" + nm + (back ? "" : "(앞)") });
-            foreach (var fr in frames) fr.Cels.Insert(ri, null);
-            ri++;
-            RecomposeAll();
-            return ri - 1;
-        }
-
-        void BoneDown(PointerDownEvent e, Vector2 pf)
-        {
-            int br = BoneRowFor(true);
-            if (br < 0) { Say("뼈대는 휘는 그림 레이어(이름 앞에 ~)나 뼈대 레이어(@)에 심어요 — 레이어 이름을 두 번 눌러 ‘~뒷머리’ 처럼 바꾸거나 ‘+ 사슬’ 을 누르세요."); return; }
-            if (rows[br].Locked) { Say("잠긴 레이어예요."); return; }
-            boneRow = br;
-            var j = JointsOf(F.Cels[br]?.Img);
-            bool inherited = j.Count == 0;
-            if (inherited) j = JointsAt(br, fi, out _);                      // 이 프레임에 없으면 이웃 프레임 것을 가져와 고침
-            int hit = -1; float best = 9f;
-            for (int i = 0; i < j.Count; i++)
-            {
-                float d = new Vector2((float)(j[i].x - pf.x), (float)(j[i].y - pf.y)).magnitude * zoom;
-                if (d <= best) { best = d; hit = i; }
-            }
-            if (F.Cels[br] == null) { SnapStruct(); F.Cels[br] = NewCel(); }
-            else SnapPixels(F.Cels[br]);
-            if (hit >= 0 && e.altKey) { j.RemoveAt(hit); boneDrag = -1; }
-            else if (hit >= 0) boneDrag = hit;
-            else
-            {
-                if (j.Count >= 16) { Say("마디는 16개까지예요."); return; }
-                j.Add((Mathf.Floor(pf.x) + 0.5, Mathf.Floor(pf.y) + 0.5));
-                boneDrag = j.Count - 1;
-            }
-            WriteJoints(F.Cels[br], j);
-            if (boneDrag >= 0) view.CapturePointer(e.pointerId);
-            dirty = true; RefreshTitle(); PushLive(); overlay.MarkDirtyRepaint();
-            if (inherited) RebuildTimeline();
-        }
-
-        void BoneMove(Vector2 pf)
-        {
-            if (boneDrag < 0 || boneRow < 0 || boneRow >= rows.Count || F.Cels[boneRow] == null) return;
-            var j = JointsOf(F.Cels[boneRow].Img);
-            if (boneDrag >= j.Count) return;
-            var np = (Mathf.Floor(pf.x) + 0.5, Mathf.Floor(pf.y) + 0.5);
-            if (j[boneDrag].x == np.Item1 && j[boneDrag].y == np.Item2) return;
-            j[boneDrag] = np;
-            WriteJoints(F.Cels[boneRow], j);
-            overlay.MarkDirtyRepaint(); UpdateAnchorLabels();
-        }
-
-        void BoneUp() { boneDrag = -1; PushLive(); RebuildTimeline(); }
-
-        void BonePop()
-        {
-            int br = BoneRowFor(false);
-            if (br < 0 || F.Cels[br] == null) return;
-            var j = JointsOf(F.Cels[br].Img);
-            if (j.Count == 0) return;
-            SnapPixels(F.Cels[br]);
-            j.RemoveAt(j.Count - 1);
-            WriteJoints(F.Cels[br], j);
-            dirty = true; RefreshTitle(); PushLive(); overlay.MarkDirtyRepaint();
-        }
-
-        /// <summary>캔버스 위 사슬 이름표(뿌리 옆, 지금 프레임).</summary>
-        void UpdateAnchorLabels()
-        {
-            int k = 0;
-            if (Open && frames.Count > 0)
-                for (int r = 0; r < rows.Count; r++)
-                {
-                    if (!IsAnchor(rows[r]) || !rows[r].Visible || r >= F.Cels.Count) continue;
-                    var j = JointsAt(r, fi, out _);
-                    if (j.Count == 0) continue;
-                    while (anchorLabels.Count <= k)
-                    {
-                        var l = new Label { pickingMode = PickingMode.Ignore };
-                        l.AddToClassList("ae-anchor-l");
-                        canvasHost.Add(l);
-                        anchorLabels.Add(l);
-                    }
-                    var lb = anchorLabels[k++];
-                    lb.text = rows[r].Name.Trim().Substring(1);
-                    lb.style.display = DisplayStyle.Flex;
-                    lb.style.left = (float)j[0].x * zoom + 10; lb.style.top = (float)j[0].y * zoom - 10;
-                    bool on = r == ri || (IsDeform(R) && RigName(R) == RigName(rows[r]));
-                    lb.EnableInClassList("ae-anchor-l--on", on);
-                    lb.BringToFront();
-                }
-            for (int i = k; i < anchorLabels.Count; i++) anchorLabels[i].style.display = DisplayStyle.None;
-        }
-
-        // ── 캔버스에 ~ 그림 보이기(지금 프레임, 몸 뒤 · 앞 따로) — 프레임 텍스처(게임용)에는 안 들어감
+        // 어니언을 그림 앞 · 뒤에 놓는 기준점(빈 칸)
         VisualElement rigBackEl, rigFrontEl;
-        Texture2D rigTexBack, rigTexFront;
-        bool rigDirty = true;
-        int rigFi = -1;
-        byte[] rigBuf = new byte[0];
-
-        void TickRig()
-        {
-            if (rigBackEl == null) return;
-            if (rigFi != fi) { rigFi = fi; rigDirty = true; }
-            if (!rigDirty) return;
-            rigDirty = false;
-            for (int side = 0; side < 2; side++)
-            {
-                bool backSide = side == 0;
-                var el = backSide ? rigBackEl : rigFrontEl;
-                bool any = frames.Count > 0 && rows.Any(r => IsDeform(r) && r.Visible && (!r.Name.Contains("(앞)")) == backSide);
-                if (!any) { el.style.display = DisplayStyle.None; continue; }
-                if (rigBuf.Length != W * H * 4) rigBuf = new byte[W * H * 4];
-                var L = new TileComp.Layer[rows.Count];
-                var sc = new TileComp.Scratch();
-                int n = TilesX * TilesY;
-                for (int i = 0; i < n; i++)
-                {
-                    TileRect(i, out int x0, out int y0, out int tw, out int th);
-                    for (int r = 0; r < rows.Count; r++)
-                    {
-                        var row = rows[r];
-                        var c = r < F.Cels.Count ? F.Cels[r] : null;
-                        bool on = IsDeform(row) && row.Visible && (!row.Name.Contains("(앞)")) == backSide;
-                        L[r] = new TileComp.Layer { Px = on && c != null ? c.Img.Tiles[i] : null, Visible = on, Clip = false, Opacity = (float)row.Opacity, Mode = TileComp.ModeOf(row.Blend) };
-                    }
-                    TileComp.Compose(L, tw, th, sc, rigBuf, x0, y0, W, H, true);
-                }
-                ref Texture2D tex = ref (backSide ? ref rigTexBack : ref rigTexFront);
-                if (tex == null || tex.width != W || tex.height != H)
-                {
-                    if (tex != null) TexGrave.Kill(tex);
-                    tex = new Texture2D(W, H, TextureFormat.RGBA32, false) { filterMode = FilterMode.Point, wrapMode = TextureWrapMode.Clamp, name = "Mori edit rig" };
-                }
-                tex.SetPixelData(rigBuf, 0);
-                tex.Apply(false);
-                el.style.display = DisplayStyle.Flex;
-                el.style.backgroundImage = new StyleBackground(tex);
-            }
-        }
 
         // ───────── 프레임 · 셀 · 레이어 조작 ─────────
         bool Edit() { if (readOnly) { Say("보기 전용 파일이에요."); return false; } return true; }
@@ -2280,13 +2025,6 @@ namespace Mori.Client
             if (tool == Tool.Picker || Mod(pickMod)) { picking = true; view.CapturePointer(e.pointerId); Pick(p); e.StopPropagation(); return; }
             if (!Edit()) return;
             if (R.Locked) { Say("잠긴 레이어예요 — 레이어 속성에서 잠금을 풀어 주세요."); return; }
-            if (tool == Tool.Bone || IsAnchor(R))
-            {
-                // 뼈대: 뿌리 → 끝 순서로 마디(끌면 옮김 · Alt = 지우기). @ 레이어에선 어느 그리기 도구든 뼈대로
-                if (play) { play = false; Refresh(); }
-                BoneDown(e, pf);
-                e.StopPropagation(); return;
-            }
             if (play) { play = false; Refresh(); }
             if (tool == Tool.LassoFill || tool == Tool.LassoErase)
             {
@@ -2326,7 +2064,6 @@ namespace Mori.Client
             if (picking) Pick(p);
             hoverF = PxAtF(vl);
             if (moving && xf != null) XfDrag(hoverF, e.shiftKey, e.altKey);
-            if (boneDrag >= 0) BoneMove(hoverF);
             if (selecting) SelMove(hoverF, p);
             if (lassoDraw && (lasso.Count == 0 || (hoverF - lasso[lasso.Count - 1]).magnitude >= 0.5f)) lasso.Add(hoverF);
             if (poly != null) overlay.MarkDirtyRepaint();
@@ -2350,7 +2087,6 @@ namespace Mori.Client
             if (panning) { panning = false; view.ReleasePointer(e.pointerId); return; }
             if (picking) { picking = false; view.ReleasePointer(e.pointerId); return; }
             if (moving) { XfUp(); view.ReleasePointer(e.pointerId); return; }
-            if (boneDrag >= 0) { BoneUp(); view.ReleasePointer(e.pointerId); return; }
             if (selecting) { SelUp(e); return; }
             if (lassoDraw) { lassoDraw = false; view.ReleasePointer(e.pointerId); LassoPaint(); return; }
             if (!drawing) return;
@@ -2681,7 +2417,6 @@ namespace Mori.Client
             gridEl.MarkDirtyRepaint();
             selEl.MarkDirtyRepaint();
             overlay.MarkDirtyRepaint();
-            UpdateAnchorLabels();
         }
 
         static Texture2D checkerTex, checkerLightTex;
@@ -2804,34 +2539,6 @@ namespace Mori.Client
                 }
                 p.Fill();
             }
-            // 사슬 뼈대(지금 프레임 — 이 프레임에 없으면 이웃 프레임 것을 흐리게)
-            if (frames.Count > 0)
-                for (int r = 0; r < rows.Count && r < F.Cels.Count; r++)
-                {
-                    if (!IsAnchor(rows[r]) || !rows[r].Visible) continue;
-                    var j = JointsAt(r, fi, out int from);
-                    if (j.Count == 0) continue;
-                    bool on = r == ri || r == boneRow && tool == Tool.Bone || (IsDeform(R) && RigName(R) == RigName(rows[r]));
-                    bool own = from == fi;
-                    var col = on ? new Color(1f, 0.84f, 0.21f, own ? 1 : 0.55f) : new Color(0.55f, 0.85f, 1f, own ? 0.9f : 0.45f);
-                    for (int pass = 0; pass < 2; pass++)
-                    {
-                        p.strokeColor = pass == 0 ? new Color(0, 0, 0, own ? 0.9f : 0.5f) : col;
-                        p.lineWidth = pass == 0 ? 5 : 2;
-                        if (j.Count >= 2)
-                        {
-                            p.BeginPath();
-                            p.MoveTo(new Vector2((float)j[0].x * zoom, (float)j[0].y * zoom));
-                            for (int i = 1; i < j.Count; i++) p.LineTo(new Vector2((float)j[i].x * zoom, (float)j[i].y * zoom));
-                            p.Stroke();
-                        }
-                        for (int i = 0; i < j.Count; i++)
-                        {
-                            float rad = i == 0 ? 7 : 5;
-                            p.BeginPath(); p.Arc(new Vector2((float)j[i].x * zoom, (float)j[i].y * zoom), rad, new Angle(0, AngleUnit.Degree), new Angle(360, AngleUnit.Degree)); p.Stroke();
-                        }
-                    }
-                }
             // 선택 미리보기
             if (selecting && tool == Tool.SelRect)
             {
@@ -2862,7 +2569,7 @@ namespace Mori.Client
             }
             // 변형 상자
             if (xf != null) DrawXfBox(p);
-            if (hoverPx.x >= 0 && hoverPx.y >= 0 && hoverPx.x < W && hoverPx.y < H && tool != Tool.Hand && tool != Tool.Bone && tool != Tool.LassoFill && tool != Tool.LassoErase && !IsAnchor(R) && !IsSelTool(tool) && xf == null)
+            if (hoverPx.x >= 0 && hoverPx.y >= 0 && hoverPx.x < W && hoverPx.y < H && tool != Tool.Hand && tool != Tool.LassoFill && tool != Tool.LassoErase && !IsSelTool(tool) && xf == null)
             {
                 int r0 = -(brush - 1) / 2;
                 p.strokeColor = new Color(1, 1, 1, 0.9f); p.lineWidth = 1.5f;
@@ -3820,7 +3527,6 @@ namespace Mori.Client
             if (xf != null) CommitTransform();
             var c = CurCel;
             if (c == null || c.Img.Empty || R == null) { Say("이 칸에 그림이 없어요."); return; }
-            if (IsAnchor(R)) { Say("뼈대(@) 레이어는 복사하지 않아요 — 그림 레이어를 골라 주세요."); return; }
             int l, t, r, b;
             if (sel != null) { l = selL; t = selT; r = selR; b = selB; }
             else if (!c.Img.Bounds(out l, out t, out r, out b)) { Say("이 칸에 그림이 없어요."); return; }
@@ -3859,7 +3565,6 @@ namespace Mori.Client
                 ri = at;
                 RecomposeAll();
             }
-            if (IsAnchor(R)) { Say("뼈대(@) 레이어에는 붙일 수 없어요 — 그림 레이어(~ 포함)를 골라 주세요."); return; }
             if (R.Locked) { Say("잠긴 레이어예요."); return; }
             if (play) { play = false; }
             // 원래 자리 그대로 — 캔버스 크기가 달라서 밖으로 나가면 가운데로
@@ -4429,7 +4134,7 @@ namespace Mori.Client
 
         // ───────── 저장 폴더 열기 ─────────
         // ───────── 시트 내보내기(PNG + json · 프레임별 PNG) — PSD 저장과 따로 ─────────
-        //  · 레이어를 합친 한 장(칸 = 캔버스 크기, 발밑 위치 그대로). 숨긴 레이어 · @뼈대는 빼고, ~사슬은 고른 대로(쉬는 자세).
+        //  · 레이어를 합친 한 장(칸 = 캔버스 크기, 발밑 위치 그대로). 숨긴 레이어는 뺌.
         //  · json = 칸 크기 · 배치 · 프레임별 길이(f · ms) · fps · 반복 — 다시 가져오거나 다른 툴로 옮길 때 타이밍 그대로.
         //  · 내보내는 곳: 사용자 데이터 폴더/sprite-export (빌드에 들어가지 않음).
         VisualElement exportOpts;
@@ -4440,7 +4145,6 @@ namespace Mori.Client
         int expFormat = Mathf.Clamp(PlayerPrefs.GetInt("mori.export.format", 0), 0, 1);      // 0 PNG(합친 한 장) · 1 PSD(레이어 살림)
         int expScale = ScaleOk(PlayerPrefs.GetInt("mori.export.scale", 1));
         static int ScaleOk(int v) => v == 2 || v == 4 ? v : 1;
-        bool expChains = PlayerPrefs.GetInt("mori.export.chains", 1) == 1;
         bool expFrames = PlayerPrefs.GetInt("mori.export.frames", 0) == 1;
 
         public static string ExportDir => Path.Combine(KitPaths.Data, "sprite-export");
@@ -4449,7 +4153,7 @@ namespace Mori.Client
         {
             PlayerPrefs.SetInt("mori.export.layout", expLayout); PlayerPrefs.SetInt("mori.export.cols", expCols);
             PlayerPrefs.SetInt("mori.export.pad", expPad); PlayerPrefs.SetInt("mori.export.scale", expScale);
-            PlayerPrefs.SetInt("mori.export.chains", expChains ? 1 : 0); PlayerPrefs.SetInt("mori.export.frames", expFrames ? 1 : 0);
+            PlayerPrefs.SetInt("mori.export.frames", expFrames ? 1 : 0);
             PlayerPrefs.SetInt("mori.export.format", expFormat);
             ExpUpdate();
         }
@@ -4459,7 +4163,7 @@ namespace Mori.Client
         Label expTitle, expInfo;
         IntegerField expColsF, expPadF;
         readonly List<Button> expFmtB = new List<Button>(), expLayB = new List<Button>(), expPadB = new List<Button>(), expScaleB = new List<Button>();
-        Button expChainOn, expChainOff, expFrOn, expFrOff;
+        Button expFrOn, expFrOff;
         Texture2D expTex;
         float expPrevK = 1;
         int pvCols, pvRows, pvCw, pvCh, pvPad;
@@ -4472,9 +4176,9 @@ namespace Mori.Client
             expTitle = Lbl(card, "", "ae-dlg-t");
             var pr = El(card, "ae-wrap");
             Lbl(pr, "빠른 설정", "ae-k");
-            Btn(pr, "게임용으로 채우기", () => { expFormat = 0; expLayout = 1; expPad = 2; expScale = 1; expChains = true; expFrames = true; SaveExportPrefs(); },
-                "아래 값을 게임(MFS)에 넣기 좋게 채워요: PNG · 가로 한 줄 · 여백 2px · ×1 · 사슬 넣기 · 프레임별 PNG");
-            Btn(pr, "보여주기용으로 채우기", () => { expFormat = 0; expLayout = 0; expPad = 0; expScale = 4; expChains = true; expFrames = false; SaveExportPrefs(); },
+            Btn(pr, "게임용으로 채우기", () => { expFormat = 0; expLayout = 1; expPad = 2; expScale = 1; expFrames = true; SaveExportPrefs(); },
+                "아래 값을 게임(MFS)에 넣기 좋게 채워요: PNG · 가로 한 줄 · 여백 2px · ×1 · 프레임별 PNG");
+            Btn(pr, "보여주기용으로 채우기", () => { expFormat = 0; expLayout = 0; expPad = 0; expScale = 4; expFrames = false; SaveExportPrefs(); },
                 "발표 · SNS: PNG · 자동 배치 · 여백 없음 · 도트 ×4");
             expPrev = El(card, "ae-dlg-prev");
             expPrev.style.backgroundSize = new BackgroundSize(Length.Percent(100), Length.Percent(100));
@@ -4512,10 +4216,6 @@ namespace Mori.Client
             Lbl(r3, "배율", "ae-k");
             foreach (var v in new[] { 1, 2, 4 }) { int vv = v; expScaleB.Add(Btn(r3, "×" + v, () => { expScale = vv; SaveExportPrefs(); }, v == 1 ? "도트 그대로(게임에 쓸 때)" : "도트를 깨짐 없이 확대 — 발표 · SNS 용")); }
 
-            var r4 = El(card, "ae-wrap");
-            Lbl(r4, "사슬(머리카락 · 천) 넣기", "ae-k");
-            expChainOn = Btn(r4, "켬", () => { expChains = true; SaveExportPrefs(); }, "화면에 보이는 그대로(~ 그림은 쉬는 자세로)");
-            expChainOff = Btn(r4, "끔", () => { expChains = false; SaveExportPrefs(); }, "게임이 사슬을 따로 움직일 때");
             expFramesRow = El(card, "ae-wrap");
             Lbl(expFramesRow, "프레임별 낱장도 같이", "ae-k");
             expFrOn = Btn(expFramesRow, "켬", () => { expFrames = true; SaveExportPrefs(); }, "시트와 함께 프레임마다 한 장씩(이름_01.png …)");
@@ -4560,7 +4260,7 @@ namespace Mori.Client
         byte[] BuildSheet(int s, int pad, int cols, long sw, long sh, Action<int, byte[]> frameCb = null)
         {
             int n = frames.Count, cw = W * s, ch = H * s;
-            var order = ExportOrder(expChains);
+            var order = ExportOrder();
             var frameBuf = new byte[W * H * 4];
             var sheet = new byte[sw * sh * 4];
             for (int f = 0; f < n; f++)
@@ -4596,7 +4296,6 @@ namespace Mori.Client
             expColsRow.style.display = expLayout == 3 ? DisplayStyle.Flex : DisplayStyle.None;
             int[] sv = { 1, 2, 4 };
             for (int i = 0; i < expScaleB.Count; i++) expScaleB[i].EnableInClassList("ae-btn--on", sv[i] == expScale);
-            expChainOn.EnableInClassList("ae-btn--on", expChains); expChainOff.EnableInClassList("ae-btn--on", !expChains);
             expFrOn.EnableInClassList("ae-btn--on", expFrames); expFrOff.EnableInClassList("ae-btn--on", !expFrames);
             expFramesRow.style.display = expFormat == 0 ? DisplayStyle.Flex : DisplayStyle.None;
             if (!ExportOpen) return;
@@ -4625,7 +4324,7 @@ namespace Mori.Client
             string what = expFormat == 0
                 ? $"{unique}_sheet.png + .json{(expFrames ? $" + 낱장 {frames.Count}장({unique}_01.png …)" : "")}"
                 : $"{unique}_sheet.psd(칸마다 폴더 · 레이어 살림)";
-            expInfo.text = $"시트 {sw}×{sh}px · {cols}열 × {rowsN}줄 · 칸 {W * expScale}×{H * expScale} · 여백 {expPad}px · 사슬 {(expChains ? "넣음" : "뺌")}\n→ 킷 데이터/sprite-export/{what}" +
+            expInfo.text = $"시트 {sw}×{sh}px · {cols}열 × {rowsN}줄 · 칸 {W * expScale}×{H * expScale} · 여백 {expPad}px\n→ 킷 데이터/sprite-export/{what}" +
                 (big ? "\n너무 커요(최대 16384) — 격자로 바꾸거나 배율을 낮춰 주세요." : "");
             expInfo.EnableInClassList("ae-dlg-info--bad", big);
         }
@@ -4646,19 +4345,12 @@ namespace Mori.Client
                 p.Stroke();
             }
         }
-        /// <summary>내보낼 레이어 순서: (~ 뒤) → 보통 레이어 → (~ 앞). @뼈대 · 숨긴 레이어는 Compose 에서 빠짐.</summary>
-        List<int> ExportOrder(bool chains)
+        /// <summary>내보낼 레이어 순서(아래 → 위). 숨긴 레이어는 Compose 에서 빠짐.</summary>
+        List<int> ExportOrder()
         {
-            var back = new List<int>(); var main = new List<int>(); var front = new List<int>();
-            for (int r = 0; r < rows.Count; r++)
-            {
-                var row = rows[r];
-                if (IsAnchor(row)) continue;
-                if (IsDeform(row)) { if (chains) (row.Name.Contains("(앞)") ? front : back).Add(r); }
-                else main.Add(r);
-            }
-            back.AddRange(main); back.AddRange(front);
-            return back;
+            var order = new List<int>();
+            for (int r = 0; r < rows.Count; r++) order.Add(r);
+            return order;
         }
 
         /// <summary>프레임 f 를 위 → 아래 줄 순서 RGBA 로(PNG 용).</summary>
@@ -4676,11 +4368,10 @@ namespace Mori.Client
                     int r = order[k];
                     var row = rows[r];
                     var c = r < fr.Cels.Count ? fr.Cels[r] : null;
-                    bool deform = IsDeform(row);
                     L[k] = new TileComp.Layer
                     {
                         Px = c != null && c.Img != null && i < c.Img.Count ? c.Img.Tiles[i] : null,
-                        Visible = row.Visible, Clip = !deform && row.Clip, Opacity = (float)row.Opacity, Mode = TileComp.ModeOf(row.Blend),
+                        Visible = row.Visible, Clip = row.Clip, Opacity = (float)row.Opacity, Mode = TileComp.ModeOf(row.Blend),
                     };
                 }
                 TileComp.Compose(L, tw, th, sc, dst, x0, y0, W, H, false);
@@ -4716,7 +4407,7 @@ namespace Mori.Client
                 json.Append($"  \"name\": \"{Esc(name)}\",\n  \"image\": \"{Esc(name)}_sheet.png\",\n");
                 json.Append($"  \"canvasW\": {W}, \"canvasH\": {H}, \"foot\": {foot * s}, \"scale\": {s}, \"cellW\": {cw}, \"cellH\": {ch}, \"padding\": {pad},\n");
                 json.Append($"  \"columns\": {cols}, \"rows\": {rowsN}, \"sheetW\": {sw}, \"sheetH\": {sh},\n");
-                json.Append($"  \"fps\": {fps}, \"loop\": {(once ? "false" : "true")}, \"chains\": {(expChains ? "true" : "false")},\n");
+                json.Append($"  \"fps\": {fps}, \"loop\": {(once ? "false" : "true")},\n");
                 json.Append("  \"note\": \"x, y = 칸 왼쪽 위(위 → 아래 좌표). durF = 기준 fps 의 프레임 수\",\n");
                 json.Append("  \"frames\": [\n");
                 for (int f = 0; f < n; f++)
@@ -4745,7 +4436,7 @@ namespace Mori.Client
         void ExportPsdSheet(string file, int s, int pad, int cols, int sw, int sh)
         {
             var doc = new PsdDoc { W = sw, H = sh };
-            var order = ExportOrder(expChains);
+            var order = ExportOrder();
             int cw = W * s, ch = H * s;
             for (int f = 0; f < frames.Count; f++)
             {
@@ -4769,7 +4460,7 @@ namespace Mori.Client
                         l = cx + l * s; t = cy + t * s; rr = l + w0 * s; b = t + h0 * s;
                     }
                     else { l = t = rr = b = 0; }
-                    g.Kids.Add(new PsdNode { Name = row.Name.Replace('/', '·'), Visible = row.Visible, Clip = row.Clip && !IsDeform(row), Opacity = row.Opacity, Blend = row.Blend, L = l, T = t, R = rr, B = b, Rgba = px, Parent = g });
+                    g.Kids.Add(new PsdNode { Name = row.Name.Replace('/', '·'), Visible = row.Visible, Clip = row.Clip, Opacity = row.Opacity, Blend = row.Blend, L = l, T = t, R = rr, B = b, Rgba = px, Parent = g });
                 }
                 doc.Root.Kids.Add(g);
             }
@@ -4861,7 +4552,7 @@ namespace Mori.Client
             svTitle.text = $"저장 — {key}{(dirty ? "  · 저장 안 됨" : "  · 저장됨")}";
             float k = Mathf.Min(300f / Mathf.Max(1, W), 220f / Mathf.Max(1, H), 8f);
             svPrev.style.width = W * k; svPrev.style.height = H * k;
-            int nLayers = rows.Count(r => !IsAnchor(r));
+            int nLayers = rows.Count;
             svInfo.text = $"캔버스 {W}×{H} · 프레임 {frames.Count}개 = 폴더 {frames.Count}개 · 레이어 {nLayers}개 · {fps}fps{(once ? " · 한 번만 재생" : " · 반복")}";
             // 구성: 폴더(프레임) 마다 그림이 있는 레이어 이름 — 길면 앞쪽만
             var sb = new System.Text.StringBuilder();
@@ -4981,7 +4672,6 @@ namespace Mori.Client
                 if (fe == null || fe.panel == null) Root.Focus();
             }
             TickXf();                // 옮기기(한 화면에 한 번)
-            TickRig();               // 캔버스의 ~ 그림
             TickOnion();             // 어니언 윤곽선 · 실루엣
             CatchUp();               // 미뤄 둔 프레임
             if (play && frameTex.Count > 0)
@@ -5130,7 +4820,6 @@ namespace Mori.Client
                 if (IsArrow(e.keyCode)) { arrowSeen[e.keyCode] = Time.unscaledTime; if (heldArrows.Add(e.keyCode)) { arrowPollOk.Remove(e.keyCode); StepArrows(); arrowRep = 0.28f; } e.StopPropagation(); return; }
                 if (e.keyCode == KeyCode.Return || e.keyCode == KeyCode.KeypadEnter) { CommitTransform(); e.StopPropagation(); return; }
             }
-            if (tool == Tool.Bone && e.keyCode == KeyCode.Backspace && !e.ctrlKey && !e.altKey) { BonePop(); e.StopPropagation(); return; }
             if (poly != null)
             {
                 if (e.keyCode == KeyCode.Return || e.keyCode == KeyCode.KeypadEnter) { ClosePoly(); e.StopPropagation(); return; }
@@ -5281,8 +4970,6 @@ namespace Mori.Client
                 case "celUnlink": CelUnlink(); break;
                 case "shareAll": CelShareAll(); break;
                 case "delLayer": DelRow(); break;
-                case "addAnchor": AddAnchorRow(); break;
-                case "bone": SetTool(Tool.Bone); break;
                 case "layerUp": MoveRow(1); break;
                 case "layerDown": MoveRow(-1); break;
                 case "layerVis": if (R != null) { bool v = !R.Visible; RowProp(r => r.Visible = v); } break;
@@ -5339,7 +5026,7 @@ namespace Mori.Client
             ("shareAll", "모든 프레임 같은 그림", null, null),
             ("#", "레이어", null, null),
             ("rowUp", "위 레이어 고르기", "UpArrow", null), ("rowDown", "아래 레이어 고르기", "DownArrow", null),
-            ("addLayer", "레이어 추가", null, null), ("addAnchor", "사슬 추가(~그림 + @뼈대)", null, null), ("bone", "뼈대 도구", "K", null), ("delLayer", "레이어 삭제(고른 것)", null, null),
+            ("addLayer", "레이어 추가", null, null), ("delLayer", "레이어 삭제(고른 것)", null, null),
             ("layerUp", "레이어 위로 옮김", null, null), ("layerDown", "레이어 아래로 옮김", null, null), ("selAllRows", "레이어 모두 고르기", null, null),
             ("layerVis", "보임 · 숨김(고른 것)", null, null), ("layerLock", "잠금(고른 것)", null, null), ("layerClip", "클리핑(고른 것)", null, null),
             ("renameLayer", "레이어 이름 바꾸기", null, null), ("splitLayers", "레이어 → 프레임 나누기", null, null),
@@ -5391,7 +5078,7 @@ namespace Mori.Client
             lookupList.Clear();
             foreach (var kv in lookup) { var c = CodeOf(kv.Key); if (Pollable(c)) lookupList.Add((kv.Key, kv.Value, c)); }
             // 도구 버튼 설명에 지금 키
-            foreach (var (t, id) in new[] { (Tool.Pen, "pen"), (Tool.Eraser, "eraser"), (Tool.Picker, "picker"), (Tool.Fill, "fill"), (Tool.Line, "line"), (Tool.Rect, "rect"), (Tool.SelRect, "selRect"), (Tool.Lasso, "lasso"), (Tool.Poly, "polyLasso"), (Tool.Bone, "bone"), (Tool.Hand, "hand"), (Tool.LassoFill, "lassoFill"), (Tool.LassoErase, "lassoErase"), (Tool.Blend, "blend") })
+            foreach (var (t, id) in new[] { (Tool.Pen, "pen"), (Tool.Eraser, "eraser"), (Tool.Picker, "picker"), (Tool.Fill, "fill"), (Tool.Line, "line"), (Tool.Rect, "rect"), (Tool.SelRect, "selRect"), (Tool.Lasso, "lasso"), (Tool.Poly, "polyLasso"), (Tool.Hand, "hand"), (Tool.LassoFill, "lassoFill"), (Tool.LassoErase, "lassoErase"), (Tool.Blend, "blend") })
                 if (toolBtns.TryGetValue(t, out var b)) b.tooltip = $"{b.text} ({Pretty(keys[id][0])}) · 도구 위아래 {Pretty(keys["toolPrev"][0])}/{Pretty(keys["toolNext"][0])}";
         }
 
@@ -5598,7 +5285,7 @@ namespace Mori.Client
             BuildKeys(); BuildPresets();
         }
 
-        static readonly Tool[] TOOL_ORDER = { Tool.Pen, Tool.Eraser, Tool.Picker, Tool.Fill, Tool.Blend, Tool.LassoFill, Tool.LassoErase, Tool.Line, Tool.Rect, Tool.SelRect, Tool.Lasso, Tool.Poly, Tool.Bone, Tool.Hand };
+        static readonly Tool[] TOOL_ORDER = { Tool.Pen, Tool.Eraser, Tool.Picker, Tool.Fill, Tool.Blend, Tool.LassoFill, Tool.LassoErase, Tool.Line, Tool.Rect, Tool.SelRect, Tool.Lasso, Tool.Poly, Tool.Hand };
 
         /// <summary>도구 줄에서 위 · 아래로 옮겨 고르기(S 아래 · D 위).</summary>
         void StepTool(int d)

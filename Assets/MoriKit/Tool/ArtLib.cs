@@ -45,8 +45,6 @@ namespace Mori.Client
             /// <summary>캔버스 기준 = 가운데(이펙트용 그림 — 파일 이름 ‘가운데’). 아니면 발밑 기준.</summary>
             public bool Center;
             public float TotalMs;
-            /// <summary>사슬 기준점(@이름 레이어) — 컷마다 캔버스 좌표.</summary>
-            public List<Track> Tracks = new List<Track>();
             /// <summary>시작부터 지난 시간(ms) → 컷.</summary>
             public Texture2D At(float ms) => Frames[IndexAt(ms)];
             public int IndexAt(float ms)
@@ -56,52 +54,6 @@ namespace Mori.Client
                 for (int i = 0; i < Frames.Length; i++) { if (t < Ms[i]) return i; t -= Ms[i]; }
                 return Frames.Length - 1;
             }
-        }
-
-        /// <summary>휘는 그림 한 장(캔버스의 (L, T) 에 놓인 W×H RGBA, 위 → 아래).</summary>
-        public sealed class ArtPx { public byte[] Rgba; public int L, T, W, H; public double HalfW = -1; }
-
-        /// <summary>컷 하나의 사슬: 뼈 마디(캔버스 좌표, 첫 점 = 뿌리) · 휘는 그림(없을 수 있음) · 몸 뒤인지.</summary>
-        public sealed class FrameRig { public List<(double x, double y)> Joints; public ArtPx Art; public bool Back = true; }
-
-        /// <summary>사슬 하나(@이름 뼈 + ~이름 그림) — 컷마다. 빈 컷은 가까운 컷 것으로 채움.</summary>
-        public sealed class Track
-        {
-            public string Name;
-            public bool Back = true;
-            public List<(double x, double y)>[] Joints;
-            public ArtPx[] Art;
-        }
-
-        /// <summary>컷별 사슬(없으면 null) → Track 들. 뼈가 한 컷에도 없으면 만들지 않음.</summary>
-        public static List<Track> MakeTracks(List<Dictionary<string, FrameRig>> perFrame)
-        {
-            var o = new List<Track>();
-            var names = new List<string>();
-            foreach (var d in perFrame) if (d != null) foreach (var kv in d) if (kv.Value.Joints != null && kv.Value.Joints.Count > 0 && !names.Contains(kv.Key)) names.Add(kv.Key);
-            int n = perFrame.Count;
-            foreach (var nm in names)
-            {
-                var t = new Track { Name = nm, Joints = new List<(double, double)>[n], Art = new ArtPx[n] };
-                for (int i = 0; i < n; i++)
-                    if (perFrame[i] != null && perFrame[i].TryGetValue(nm, out var fr))
-                    {
-                        if (fr.Joints != null && fr.Joints.Count > 0) t.Joints[i] = fr.Joints;
-                        t.Art[i] = fr.Art;
-                        t.Back = fr.Back;
-                    }
-                Fill(t.Joints); Fill(t.Art);
-                o.Add(t);
-            }
-            return o;
-        }
-
-        static void Fill<T>(T[] a) where T : class
-        {
-            int first = Array.FindIndex(a, x => x != null);
-            if (first < 0) return;
-            for (int i = 0; i < first; i++) a[i] = a[first];
-            for (int i = first + 1; i < a.Length; i++) if (a[i] == null) a[i] = a[i - 1];
         }
 
         public sealed class Tile { public Texture2D Tex; public int X, Y, W, H; }
@@ -137,10 +89,10 @@ namespace Mori.Client
         // ───────── 편집기 실시간 그림(저장 전에도 결투에 바로 보이게) ─────────
         static readonly Dictionary<string, Anim> live = new Dictionary<string, Anim>();
         /// <summary>편집 중인 그림을 그 이름으로 덮어 보인다(텍스처는 편집기 것 — 여기서 지우지 않음).</summary>
-        public static void SetLive(string key, Texture2D[] frames, float[] ms, bool once, List<Track> tracks = null, int foot = 0, bool center = false)
+        public static void SetLive(string key, Texture2D[] frames, float[] ms, bool once, int foot = 0, bool center = false)
         {
             if (string.IsNullOrEmpty(key) || frames == null || frames.Length == 0) return;
-            var a = new Anim { Key = key, Frames = frames, Ms = ms.Select(x => Mathf.Max(1, x)).ToArray(), Once = once, W = frames[0].width, H = frames[0].height, Tracks = tracks ?? new List<Track>(), Foot = Mathf.Clamp(foot, 0, Mathf.Max(0, frames[0].height - 1)), Center = center };
+            var a = new Anim { Key = key, Frames = frames, Ms = ms.Select(x => Mathf.Max(1, x)).ToArray(), Once = once, W = frames[0].width, H = frames[0].height, Foot = Mathf.Clamp(foot, 0, Mathf.Max(0, frames[0].height - 1)), Center = center };
             a.TotalMs = a.Ms.Sum();
             live[key] = a;
         }
@@ -324,34 +276,6 @@ namespace Mori.Client
             var frames = new List<Px>();
             var ms = new List<float>();
             int W = doc.W, H = doc.H;
-            // 사슬 레이어(@이름 = 뼈 마디 · ~이름 = 휘는 그림)는 몸 그림에서 빼고 따로
-            var anchors = ChainAnchors.Strip(doc);
-            var perFrame = new List<Dictionary<string, FrameRig>>();
-            Dictionary<string, FrameRig> AnchorsOf(PsdNode frameGroup)
-            {
-                Dictionary<string, FrameRig> d = null;
-                // 컷 폴더 안 것을 먼저, 공통(폴더 밖)은 비어 있는 것만 채움
-                foreach (bool common in new[] { false, true })
-                    foreach (var (leaf, topG) in anchors)
-                    {
-                        if (common ? topG != null : topG != frameGroup) continue;
-                        if (!ChainAnchors.ParseAny(leaf.Name, out bool deform, out var nm, out bool back) || !leaf.Visible) continue;
-                        if (d == null) d = new Dictionary<string, FrameRig>();
-                        if (!d.TryGetValue(nm, out var fr)) d[nm] = fr = new FrameRig { Back = back };
-                        if (!deform)
-                        {
-                            if (fr.Joints != null) continue;
-                            var j = ChainAnchors.Joints(leaf);
-                            if (j.Count > 0) { fr.Joints = j; fr.Back = back; }
-                        }
-                        else if (fr.Art == null && leaf.Rgba != null && leaf.W > 0 && leaf.H > 0)
-                        {
-                            fr.Art = new ArtPx { Rgba = leaf.Rgba, L = leaf.L, T = leaf.T, W = leaf.W, H = leaf.H };
-                            fr.Back = back;
-                        }
-                    }
-                return d;
-            }
             var top = doc.Root.Kids;
             if (spec.CellW > 0 && spec.CellH > 0)
             {
@@ -379,7 +303,6 @@ namespace Mori.Client
                     var g = groups[i];
                     var list = top.Where(n => !n.Group || n == g).ToList();
                     frames.Add(new Px { Rgba = Psd.Compose(list, 0, 0, W, H, true), W = W, H = H });
-                    perFrame.Add(AnchorsOf(g));
                     var gs = specs[g];
                     // 컷 길이: 폴더 이름의 프레임(3f — 파일 이름의 fps, 기본 60) > ms > 파일 이름의 ms
                     ms.Add(gs.Frames > 0 ? gs.Frames * 1000f / spec.Fps : gs.Ms != null && gs.Ms.Length > 0 ? gs.Ms[0] : spec.MsAt(i));
@@ -388,16 +311,14 @@ namespace Mori.Client
             else
             {
                 frames.Add(new Px { Rgba = Psd.Compose(top, 0, 0, W, H), W = W, H = H });
-                perFrame.Add(AnchorsOf(null));
                 ms.Add(spec.MsAt(0));
             }
             if (frames.Count == 0) frames.Add(new Px { Rgba = new byte[W * H * 4], W = W, H = H });
-            var tracks = perFrame.Count == frames.Count ? MakeTracks(perFrame) : new List<Track>();
             bool point = !spec.Smooth;          // 캐릭터는 도트가 기본
             int fw = W, fh = H;
             return () =>
             {
-                var a = new Anim { Key = spec.Key, Once = spec.Once, W = fw, H = fh, Frames = frames.Select(f => MakeTex(f, point, spec.Key)).ToArray(), Ms = ms.Select(x => Mathf.Max(1, x)).ToArray(), Tracks = tracks, Foot = Mathf.Clamp(spec.Foot, 0, Mathf.Max(0, fh - 1)), Center = spec.Center };
+                var a = new Anim { Key = spec.Key, Once = spec.Once, W = fw, H = fh, Frames = frames.Select(f => MakeTex(f, point, spec.Key)).ToArray(), Ms = ms.Select(x => Mathf.Max(1, x)).ToArray(), Foot = Mathf.Clamp(spec.Foot, 0, Mathf.Max(0, fh - 1)), Center = spec.Center };
                 a.TotalMs = a.Ms.Sum();
                 if (anims.TryGetValue(spec.Key, out var old)) Destroy(old);
                 anims[spec.Key] = a;

@@ -41,7 +41,6 @@ namespace Mori.Client
         readonly FxPanel fx;
         readonly CardPanel cards;
         int tab;
-        readonly ChainPanel chains;                      // 테스트 환경: 대쉬 · 카운터 충전 무제한, 플레이어 체력 안 닳음
         Button freeBtn;
         bool foeActive;
         Button allyBtn;
@@ -189,32 +188,27 @@ namespace Mori.Client
             el.RegisterCallback<NavigationSubmitEvent>(e => { if (play) e.StopImmediatePropagation(); }, TrickleDown.TrickleDown);
             el.RegisterCallback<NavigationCancelEvent>(e => { if (play) e.StopImmediatePropagation(); }, TrickleDown.TrickleDown);
 
-            // 아래 칸: ‘그림 크기’ · ‘사슬’ 탭(넘치면 스크롤 — 미리보기가 찌그러지지 않게)
+            // 아래 칸: ‘그림 크기’ · ‘프리팹’ · ‘연출’ 탭(넘치면 스크롤 — 미리보기가 찌그러지지 않게)
             var tabs = new VisualElement(); tabs.AddToClassList("ae-wrap"); right.Add(tabs);
             var sv = new ScrollView(ScrollViewMode.Vertical); sv.AddToClassList("ws-tunesv"); right.Add(sv);
             var tb = new VisualElement(); tb.AddToClassList("ws-tune"); sv.Add(tb);
-            var chainHost = new VisualElement(); sv.Add(chainHost);
-            chains = new ChainPanel(chainHost, () => editor.PickColor);
             var fxHost = new VisualElement(); sv.Add(fxHost);
             fx = new FxPanel(fxHost, () => world, () => field);
             var cardHost = new VisualElement(); sv.Add(cardHost);
             cards = new CardPanel(cardHost, () => world, () => field, () => play);
-            Button tabSize = null, tabChain = null, tabFx = null, tabCard = null;
+            Button tabSize = null, tabFx = null, tabCard = null;
             void Tab(int k)
             {
                 tab = k;
                 tb.style.display = k == 0 ? DisplayStyle.Flex : DisplayStyle.None;
-                chainHost.style.display = k == 1 ? DisplayStyle.Flex : DisplayStyle.None;
                 fxHost.style.display = k == 2 ? DisplayStyle.Flex : DisplayStyle.None;
                 cardHost.style.display = k == 3 ? DisplayStyle.Flex : DisplayStyle.None;
                 sv.EnableInClassList("ws-tunesv--tall", k == 3);      // 연출 칸은 시간표 · 수치가 많아 더 높게
-                tabSize.EnableInClassList("ae-btn--on", k == 0); tabChain.EnableInClassList("ae-btn--on", k == 1); tabFx.EnableInClassList("ae-btn--on", k == 2); tabCard.EnableInClassList("ae-btn--on", k == 3);
-                if (k == 1) chains.Rebuild();
+                tabSize.EnableInClassList("ae-btn--on", k == 0); tabFx.EnableInClassList("ae-btn--on", k == 2); tabCard.EnableInClassList("ae-btn--on", k == 3);
                 if (k == 2) fx.Rebuild();
                 if (k == 3) cards.Rebuild();
             }
             tabSize = new Button(() => Tab(0)) { text = "그림 크기", tooltip = "1U = px(PPU) · 내리기 · 보이는 크기 배율" }; tabSize.AddToClassList("ae-btn"); tabs.Add(tabSize);
-            tabChain = new Button(() => Tab(1)) { text = "사슬", tooltip = "머리카락 · 옷자락 사슬(@ 기준점) — 프리셋 · 수치 · 색" }; tabChain.AddToClassList("ae-btn"); tabs.Add(tabChain);
             tabFx = new Button(() => Tab(2)) { text = "프리팹", tooltip = "다른 프로젝트에서 가져온 3D · 파티클 프리팹을 순간(대쉬 · 공격 · 카운터 …)마다 붙이기" }; tabFx.AddToClassList("ae-btn"); tabs.Add(tabFx);
             tabCard = new Button(() => Tab(3)) { text = "연출", tooltip = "연출 카드: 순간마다 이펙트 · 그림 · 히트스톱 · 흔들림 · 줌 · 섬광을 시간표로(프레임 단위)" }; tabCard.AddToClassList("ae-btn"); tabs.Add(tabCard);
             Tab(0);
@@ -712,7 +706,6 @@ namespace Mori.Client
             tune.Tick();
             editor.KeysOff = play || tune.Typing || tuneCtl;      // 미리보기 조작 · 튜닝 패널 조작 중엔 편집기 단축키 끔
             editor.Tick(dt);
-            chains.Tick();
             fx.Tick();
             cards.Tick(tab == 3, dt);
             if (world == null) return;

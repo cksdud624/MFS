@@ -8,7 +8,7 @@ namespace Mori.Client
 {
     /// <summary>
     /// 킷 데이터 폴더 = Assets/MoriKit/Data~ (끝의 ~ 때문에 Unity 가 에셋으로 가져오지 않고, 게임 빌드에도 안 들어감).
-    ///  · 그림(PSD) · 연출 카드 · 프리팹 연결 · 사슬 · 팔레트 = Data~/Fight
+    ///  · 그림(PSD) · 연출 카드 · 프리팹 연결 · 팔레트 = Data~/Fight
     ///  · 전투 튜닝 · 차트 · 음악 · 설정 · 조작 키 · 시트 내보내기 = Data~ 바로 아래
     /// 킷을 뺄 때는 Assets/MoriKit 하나만 지우면 된다(빼기 전에 ‘MFS 로 내보내기’ · 백업은 프로젝트 밖에 따로 남음).
     /// 처음 한 번: 예전 위치(사용자 데이터 폴더/MoriKit · StreamingAssets/Fight)의 파일을 복사해 옮겨 온다(원래 파일은 그대로 둠).

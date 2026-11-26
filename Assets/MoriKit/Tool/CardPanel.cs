@@ -692,7 +692,7 @@ namespace Mori.Client
             if (any)
                 Note(body, "바꾼 값: " + string.Join(" · ", cur.systems.Where(x => !x.IsDefault).Select(Describe)));
 #if UNITY_EDITOR
-            var bb = Btn(ft, bakeArm ? "정말 적용? (원본은 Assets/_backup 에)" : "프리팹에 적용", () =>
+            var bb = Btn(ft, bakeArm ? "정말 적용? (원본은 킷 백업에)" : "프리팹에 적용", () =>
             {
                 if (!bakeArm) { bakeArm = true; bakeMsg = null; Rebuild(); return; }
                 bakeArm = false;
