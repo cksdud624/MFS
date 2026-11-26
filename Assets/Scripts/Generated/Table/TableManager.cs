@@ -8,6 +8,9 @@ namespace Generated.Table
 		public ActorRecord ActorRecord {get; private set;}
 		public AttackCommandRecord AttackCommandRecord {get; private set;}
 		public AttackHitBoxRecord AttackHitBoxRecord {get; private set;}
+		public BossRecord BossRecord {get; private set;}
+		public BossCommandRecord BossCommandRecord {get; private set;}
+		public BossPatternRecord BossPatternRecord {get; private set;}
 		public CharacterRecord CharacterRecord {get; private set;}
 		public DialogueRecord DialogueRecord {get; private set;}
 		public MapRecord MapRecord {get; private set;}
@@ -28,6 +31,12 @@ namespace Generated.Table
 			await AttackCommandRecord.Init();
 			AttackHitBoxRecord = new ();
 			await AttackHitBoxRecord.Init();
+			BossRecord = new ();
+			await BossRecord.Init();
+			BossCommandRecord = new ();
+			await BossCommandRecord.Init();
+			BossPatternRecord = new ();
+			await BossPatternRecord.Init();
 			CharacterRecord = new ();
 			await CharacterRecord.Init();
 			DialogueRecord = new ();

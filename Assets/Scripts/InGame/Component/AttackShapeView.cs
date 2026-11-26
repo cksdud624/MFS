@@ -127,7 +127,7 @@ namespace InGame.Component
         //예고하는 동안에는 대상을 따라 돌아설 수 있다. 판정은 보는 쪽에 생기므로 예고도 다시 그린다
         private void HandleDirectionChanged(Direction direction) => RefreshPreview();
 
-        //예고의 색은 예고 종류를 따른다. 위장하던 카운터 자세가 진짜 색을 보일 때처럼 도중에 바뀔 수 있다
+        //예고의 색은 예고 종류를 따른다. 범위를 보여주는 도중에 종류가 바뀌면 새 색으로 다시 그린다
         private void HandleTelegraphChanged(AttackTelegraph telegraph) => RefreshPreview();
         #endregion
 

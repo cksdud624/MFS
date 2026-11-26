@@ -1,0 +1,10 @@
+Id	Boss	Name	Phases	Weight	Priority	Cooldown	MinDistance	MaxDistance	RecoveryDuration	Note
+long	string	string	List<int>	float	int	float	float	float	float	string
+101	Duelist	베기		1				15	1	한 번 벤다. 거리를 벌리거나 카운터로 받아낸다
+102	Duelist	2연격		1				15	1	
+103	Duelist	3연격	2,3	1				16.5	1	칠 때마다 밀고 들어온다. 2페이즈부터
+104	Duelist	바닥 쓸기		1				16.5	1	낮게 쓴다. 점프로 넘거나 카운터로 받아낸다
+105	Duelist	돌진		0.9		4	4	16	1.2	제자리에서 준비하고 돌진한다. 대시로 빠지거나 뛰어넘는다
+106	Duelist	카운터 자세		0.7		6		15	1	이때 때리면 반격당한다
+107	Duelist	물러나 돌진	2,3	0.6		8		7	1.2	붙어 있으면 물러났다가 돌진한다. 2페이즈부터
+108	Duelist	다가가기		1			16.5		0	멀리 있으면 먼저 붙는다. 끝나면 쉬지 않고 다음 패턴을 고른다

@@ -1,58 +1,61 @@
+using System.Threading;
+using Cysharp.Threading.Tasks;
+
 namespace InGame.Component.Controller.Boss.Patterns
 {
     /// <summary>
-    /// 보스 패턴 하나. 준비(다가가기, 예고)부터 타격, 끝날 때까지를 박에 맞춰 진행한다.
-    /// 패턴은 플레이어와 같은 입력(이동, 공격, 카운터)만 낸다. 그래서 공격의 판정과 위력, 받아내기와 경직은 플레이어의 공격과 같은 경로로 처리된다.
-    /// 패턴 종류 하나당 클래스 하나를 만들고, 어느 보스가 어떤 수치로 쓰는지는 보스 클래스(BossProfile)가 정한다
+    /// 보스 패턴 하나를 실행하는 객체. 보스마다 따로 만들어서 쿨타임을 들고 있는다.
+    /// 거의 모든 패턴은 표의 커맨드를 차례로 실행하는 BossCommandPattern이고, 표로 나타낼 수 없는 패턴만 이 클래스를 상속해서 만든다
+    /// (ControllerBossAI.RegisterPatterns). 맞아서 굳거나 페이즈가 바뀌면 토큰이 취소되므로 패턴은 끼어들기를 직접 처리하지 않는다
     /// </summary>
     public abstract class BossPattern
     {
         #region Fields
-        //로그에 남기는 이름
-        public string Name { get; }
-        public BossPatternPick Pick { get; }
-        //패턴이 끝났는지. 끝나면 보스는 거리 재기로 돌아간다
-        public bool IsFinished { get; protected set; }
+        private readonly BossPatternSettings _settings;
+        //다시 뽑힐 수 있는 시각(초. Time.time)
+        private float _nextAvailableTime;
 
-        protected ControllerBossAI Controller { get; private set; }
-        //패턴이 시작되는 박 (보스의 시계 기준). 반응으로 나가는 패턴은 지금보다 조금 뒤의 박에서 시작한다
-        private float _startBeat;
-        //패턴이 시작된 뒤 지난 박 수. 아직 시작 전이면 음수다
-        protected float Beat => Controller.Beat - _startBeat;
+        //체력바 아래에 띄우고 로그에 남기는 이름
+        public string Name { get; }
+        public float Weight => _settings.Weight;
+        public int Priority => _settings.Priority;
+        public float RecoveryDuration => _settings.RecoveryDuration;
+        //거리를 따지는 패턴인지. 대상이 없으면 거리를 모르므로 이런 패턴은 뽑지 않는다
+        public bool HasDistanceLimit => _settings.MinDistance > 0f || _settings.MaxDistance > 0f;
         #endregion
 
         #region Init
-        protected BossPattern(string name, BossPatternPick pick)
+        protected BossPattern(string name, BossPatternSettings settings)
         {
             Name = name;
-            Pick = pick;
+            _settings = settings;
         }
-        #endregion
-
-        #region LifeCycle
-        /// <summary>물리 스텝마다 패턴을 진행한다. 끝났으면 IsFinished를 켠다</summary>
-        public abstract void OnFixedUpdate();
         #endregion
 
         #region Public
-        /// <summary>지금 단계에서 뽑힐 비중. 단계에 따라 비중이 달라지는 패턴이 다시 정한다</summary>
-        public virtual float GetWeight(int stage) => Pick.Weight;
-
-        /// <summary>거리와 단계 말고 따로 맞아야 하는 조건. 카운터 자세처럼 쓸 수 있을 때만 고르는 패턴이 다시 정한다</summary>
-        public virtual bool CanStart(ControllerBossAI controller) => true;
-
-        /// <summary>패턴을 시작한다. 패턴은 보스가 들고 있다가 다시 쓰므로 앞에서 쓴 상태를 여기서 비운다</summary>
-        public void Begin(ControllerBossAI controller, float startBeat)
+        /// <summary>
+        /// 지금 시작할 수 있는지. 패턴을 고르는 조건은 모두 여기 한 곳에서 본다. 상태를 바꾸지 않는다.
+        /// 기본은 가중치가 0보다 큰지, 쿨타임이 끝났는지, 대상이 거리 범위 안인지 본다.
+        /// 재정의할 때는 base.CanStart를 같이 확인한다. 빠뜨리면 쿨타임과 거리 검사가 모두 사라진다
+        /// </summary>
+        public virtual bool CanStart(in BossPatternContext context)
         {
-            Controller = controller;
-            _startBeat = startBeat;
-            IsFinished = false;
-            OnBegin();
-        }
-        #endregion
+            if (Weight <= 0f || context.Time < _nextAvailableTime) return false;
+            if (!HasDistanceLimit) return true;
+            if (!context.HasTarget) return false;
 
-        #region Protected
-        protected virtual void OnBegin() { }
+            if (_settings.MinDistance > 0f && context.TargetDistance < _settings.MinDistance) return false;
+            return _settings.MaxDistance <= 0f || context.TargetDistance <= _settings.MaxDistance;
+        }
+
+        /// <summary>time에 시작했다고 기록해 쿨타임을 건다. BossPatternSelector.MarkStarted가 부른다. 여러 페이즈에 등록된 패턴도 쿨타임은 하나다</summary>
+        public void MarkStarted(float time) => _nextAvailableTime = time + _settings.Cooldown;
+
+        /// <summary>
+        /// 패턴을 끝까지 하면 끝난다. 상태가 바뀌거나 보스가 사라지면 cancellationToken이 취소되고 OperationCanceledException으로 끝나야 한다.
+        /// 패턴이 바꾼 값(입력, 예고)은 패턴 상태(BossPatternState)가 끝날 때 거둔다
+        /// </summary>
+        public abstract UniTask Run(CancellationToken cancellationToken);
         #endregion
     }
 }

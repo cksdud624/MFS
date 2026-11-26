@@ -6,7 +6,7 @@ namespace InGame.UI
     /// <summary>
     /// 화면 위쪽 가운데의 보스 체력바. 보스의 이름과 지금 체력바가 얼마나 남았는지, 몇 번째 페이즈인지를 띄우고,
     /// 그 아래에 보스가 지금 내는 패턴의 이름을 띄운다 (확인용).
-    /// 무엇을 언제 띄울지는 StoryHudPresenter가 매 프레임 정하고 여기서는 보여주기만 한다.
+    /// 무엇을 언제 띄울지는 BossBattleController가 매 프레임 정하고 여기서는 보여주기만 한다.
     /// 프리팹은 에디터 메뉴 UI > Build Boss View가 코드로 조립해서 만든다
     /// </summary>
     public class BossView : MonoBehaviour
@@ -17,7 +17,7 @@ namespace InGame.UI
 
         //체력바 전체. 보스전이 아닐 때는 꺼둔다
         [SerializeField] private GameObject _panel;
-        //보스의 이름 (Actor 표의 Name)
+        //보스의 이름 (BossBattleController가 받은 이름)
         [SerializeField] private TMP_Text _nameText;
         //남은 Hp만큼 채워지는 막대. 왼쪽에 붙어 있고, 오른쪽 끝을 남은 비율의 자리로 옮긴다
         [SerializeField] private RectTransform _hpFill;

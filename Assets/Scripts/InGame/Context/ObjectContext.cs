@@ -61,7 +61,7 @@ namespace InGame.Context
         public ObjectData ObjectData {get; private set;}
         public CharacterData CharacterData {get; private set;}
 
-        //보스 이름 (Character 표의 Boss 칸). 보스가 아니면 비어 있다. 이 이름으로 보스 AI가 정해진다
+        //보스 이름 (Character 표의 Boss 칸). 보스가 아니면 비어 있다. 이 이름으로 Boss 표에서 보스의 설계를 찾는다
         public string BossName => CharacterData?.Boss ?? string.Empty;
         public bool IsBoss => !string.IsNullOrEmpty(BossName);
         #endregion

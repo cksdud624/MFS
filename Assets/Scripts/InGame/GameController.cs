@@ -1,34 +1,33 @@
-using System.Collections.Generic;
 using System.Threading;
 using Common;
 using Common.Scene.Parameter;
 using Cysharp.Threading.Tasks;
+using Generated.Table;
+using InGame.Battle;
 using InGame.Context;
 using InGame.Object;
-using InGame.Story;
-using InGame.UI;
 using InGame.World;
 using UnityEngine;
-using static Common.AssetKeys;
 using static Common.GameDefine;
 
 namespace InGame
 {
+    /// <summary>
+    /// Main 씬의 게임을 준비한다. 지금은 이야기(Quest 표)를 거치지 않고, 들어오자마자 보스전을 벌인다.
+    /// 여기서는 맵과 카메라를 만들고 시작 Zone에 플레이어를 세운다. 그 플레이어를 BossBattleController에 넘기면,
+    /// 플레이어가 선 Zone이 보스 스테이지가 되고 보스를 세우는 것부터 끝까지는 BossBattleController가 맡는다
+    /// </summary>
     public class GameController : MonoBehaviour
     {
         #region Fields
         private InGameContext _inGameContext;
         private ObjectSpawner _objectSpawner;
-        //씬이 내려갈 때 반납할 UI 프리팹 이름. 인스턴스가 먼저 파괴될 수 있으므로 인스턴스가 아니라 받아둔 이름으로 반납한다
-        private readonly List<string> _loadedViews = new();
-        //퀘스트 밖에서 Npc에게 말을 걸면 대화를 띄운다. Interact 입력 구독을 씬이 내려갈 때 해제한다
-        private TalkPlayer _talkPlayer;
         //플레이어 주변 Zone만 불러둔다. 매 프레임 갱신 등록을 씬이 내려갈 때 해제한다
         private ZoneStreamer _zoneStreamer;
-        //플레이어를 따라가고 연출을 맡는 카메라. 매 프레임 갱신 등록을 씬이 내려갈 때 해제한다. 메인 카메라가 없으면 null
+        //플레이어를 따라가는 카메라. 매 프레임 갱신 등록을 씬이 내려갈 때 해제한다. 메인 카메라가 없으면 null
         private CameraDirector _cameraDirector;
-        //퀘스트 안내와 목표/대화 아이콘을 정해서 띄운다. 매 프레임 갱신 등록을 씬이 내려갈 때 해제한다
-        private StoryHudPresenter _hudPresenter;
+        //보스전. 이벤트 구독과 Zone 잠금, 체력바 프리팹을 씬이 내려갈 때 거둔다
+        private BossBattleController _bossBattle;
         #endregion
 
         #region Init
@@ -38,101 +37,59 @@ namespace InGame
             _objectSpawner = gameObject.AddComponent<ObjectSpawner>();
             _objectSpawner.Init(_inGameContext);
 
-            var dialogueView = await CreateView<DialogueView>(UIDialogueView);
-            if (dialogueView != null)
-                dialogueView.Init(Camera.main);
-            var screenFadeView = await CreateView<ScreenFadeView>(UIScreenFadeView);
-            if (screenFadeView != null)
-                screenFadeView.Init();
-            var markerView = await CreateView<MarkerView>(UIMarkerView);
-            if (markerView != null)
-                markerView.Init(Camera.main);
-            var questView = await CreateView<QuestView>(UIQuestView);
-            if (questView != null)
-                questView.Init();
-            var bossView = await CreateView<BossView>(UIBossView);
-            if (bossView != null)
-                bossView.Init();
-
             var tableManager = Global.Instance.TableManager;
             var cancellationToken = this.GetCancellationTokenOnDestroy();
 
-            //맵은 Zone 프리팹을 격자에 이어 붙여 만든다. 표가 틀리면 에러만 남기고 맞는 Zone으로 진행한다 (이야기 검사가 없는 Zone을 다시 잡는다)
+            //맵은 Zone 프리팹을 격자에 이어 붙여 만든다. 표가 틀리면 에러만 남기고 맞는 Zone으로 진행한다
             ZoneLayout.TryBuild(tableManager.MapRecord.GetAllRecord(), tableManager.ZoneRecord.GetAllRecord(), out var zoneLayout);
             var zoneRoot = new GameObject("Zones").transform;
             _zoneStreamer = new ZoneStreamer(zoneLayout, new PrefabZoneLoader(Global.Instance.AssetManager, zoneRoot),
                 _inGameContext, Camera.main, cancellationToken);
-            //처음부터 서 있는 캐릭터가 바닥이 생기기 전에 놓이지 않게, 시작 Zone을 다 불러온 뒤에 이야기를 시작한다
-            await _zoneStreamer.LoadInitial();
             //카메라는 Zone 끝을 넘어 보여주지 않으므로 Zone 배치와 지금 맵을 받는다
             _cameraDirector = CreateCameraDirector(zoneLayout);
 
-            //플레이어 배치부터 적 등장까지 인게임 흐름은 퀘스트 표가 정하고, 연출은 퀘스트가 부르는 시나리오 표가 정한다
-            var storyContext = new StoryContext(_inGameContext, _objectSpawner, tableManager,
-                dialogueView != null ? new DialoguePlayer(_inGameContext, dialogueView) : null,
-                screenFadeView,
-                _cameraDirector,
-                zoneLayout,
-                _zoneStreamer);
-            _talkPlayer = new TalkPlayer(storyContext, cancellationToken);
-            //프리팹이 없는 뷰는 null로 넘어가고, 있는 것만 띄운다
-            _hudPresenter = new StoryHudPresenter(storyContext, markerView, questView, bossView);
-            await StartStory(storyContext, cancellationToken);
+            //플레이어와 보스가 선 뒤에 Init을 끝낸다. Init이 끝나면 로딩 화면이 걷히므로, 먼저 끝내면 아무도 없는 맵이 보인다
+            var player = await SpawnPlayer(zoneLayout, tableManager, cancellationToken);
+            if (player == null) return;
+
+            _bossBattle = new BossBattleController();
+            await _bossBattle.Init(_inGameContext, zoneLayout, _zoneStreamer);
+            await _bossBattle.StartStage(player, _objectSpawner, tableManager);
         }
         #endregion
 
         #region LifeCycle
         private void OnDestroy()
         {
-            _talkPlayer?.Dispose();
-            _hudPresenter?.Dispose();
+            //잠근 Zone을 풀어야 하므로 Zone보다 먼저 거둔다
+            _bossBattle?.Dispose();
             _zoneStreamer?.Dispose();
             _cameraDirector?.Dispose();
-
-            var assetManager = Global.Instance?.AssetManager;
-            if (assetManager == null) return;
-
-            foreach (var viewName in _loadedViews)
-                assetManager.ReleaseAsset<GameObject>(LoadTarget.UI, viewName);
-            _loadedViews.Clear();
         }
         #endregion
 
         #region Private
         /// <summary>
-        /// 이야기를 시작하고, 플레이어가 월드에 설 때까지만 기다린다. 이야기 자체는 끝까지 기다리지 않고 계속 진행된다.
-        /// Init이 끝나면 로딩 화면이 걷히는데, 이야기는 그 뒤에야 플레이어를 세우므로 바로 걷히면 아무도 없는 맵이 먼저 보인다.
-        /// 플레이어가 서지 못하고 이야기가 끝났으면(검사에 걸려 시작하지 못했을 때) 기다리지 않는다. 로딩 화면이 걷히지 않으면 원인을 볼 수 없다
+        /// 시작 Zone(PlayerStartZoneId)에 플레이어를 세운다. 그 Zone을 다 불러온 뒤에 세운다. 바닥이 생기기 전에 세우면 떨어진다.
+        /// Zone이 없거나 세우지 못하면 null
         /// </summary>
-        private async UniTask StartStory(StoryContext storyContext, CancellationToken cancellationToken)
+        private async UniTask<ObjectBase> SpawnPlayer(ZoneLayout zoneLayout, TableManager tableManager, CancellationToken cancellationToken)
         {
-            //UniTask는 한 번만 기다릴 수 있다. 끝났는지를 아래에서 계속 물어봐야 하므로 여러 번 볼 수 있게 바꿔 둔다
-            var story = new StoryPlayer(storyContext).Run(cancellationToken).Preserve();
-            story.Forget();
-
-            await UniTask.WaitUntil(() => _inGameContext.Player != null || story.Status != UniTaskStatus.Pending,
-                cancellationToken: cancellationToken);
-        }
-
-        /// <summary>
-        /// UI 프리팹을 받아 띄운다. 없으면 null을 돌려준다.
-        /// 프리팹이 없어도 배치와 전투는 확인할 수 있어야 하므로 여기서 멈추지 않고, 그 UI를 쓰는 시나리오 명령만 에러를 남긴다
-        /// </summary>
-        //InGame.Component 네임스페이스가 같은 이름을 가리므로 UnityEngine을 붙여 쓴다
-        private async UniTask<T> CreateView<T>(string viewName) where T : UnityEngine.Component
-        {
-            var prefab = await Global.Instance.AssetManager.LoadAssetAsync<GameObject>(LoadTarget.UI, viewName);
-            if (prefab == null)
+            if (zoneLayout == null || !zoneLayout.HasZone(PlayerStartZoneId))
             {
-                Debug.LogError($"{viewName} is missing. Build it with the editor menu UI > Build All UI.");
+                Debug.LogError($"Player start zone {PlayerStartZoneId} is not defined in Zone table.");
                 return null;
             }
-            _loadedViews.Add(viewName);
 
-            if (Instantiate(prefab).TryGetComponent(out T view)) return view;
+            //플레이어가 서기 전에는 컬링 기준이 없어서 고정해야 올라온다. 고정은 풀지 않는다.
+            //풀면 플레이어를 기준으로 한 컬링이 돌기 전에(기준 Zone이 없는 채로) 그 Zone이 내려간다
+            await _zoneStreamer.Pin(new[] { PlayerStartZoneId }, cancellationToken);
+            await _objectSpawner.SpawnPlayer(tableManager.ObjectRecord.GetRecord(PlayerObjectId),
+                zoneLayout.ToWorld(PlayerStartZoneId, PlayerStartPosition));
 
-            Debug.LogError($"{viewName} has no {typeof(T).Name}.");
-            return null;
+            if (_inGameContext.Player == null)
+                Debug.LogError($"Player ({PlayerObjectId}) could not be spawned.");
+            return _inGameContext.Player;
         }
 
         private CameraDirector CreateCameraDirector(ZoneLayout zoneLayout)

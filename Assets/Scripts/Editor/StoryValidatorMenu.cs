@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Generated.Table;
-using InGame.Component.Controller.Boss;
 using InGame.Story;
 using InGame.World;
 using UnityEditor;
@@ -23,12 +22,15 @@ public static class StoryValidatorMenu
     {
         private readonly Dictionary<long, ObjectData> _objects;
         private readonly Dictionary<long, CharacterData> _characters;
+        //Boss 표의 이름. Character 표의 Boss 칸이 여기 있어야 보스다
+        private readonly HashSet<string> _bossNames;
         private readonly ZoneLayout _zoneLayout;
 
-        public BytesReferences(List<ObjectData> objects, List<CharacterData> characters, ZoneLayout zoneLayout)
+        public BytesReferences(List<ObjectData> objects, List<CharacterData> characters, List<BossData> bosses, ZoneLayout zoneLayout)
         {
             _objects = objects.ToDictionary(data => data.Id);
             _characters = characters.ToDictionary(data => data.Id);
+            _bossNames = bosses.Select(data => data.Id).ToHashSet();
             _zoneLayout = zoneLayout;
         }
 
@@ -36,7 +38,7 @@ public static class StoryValidatorMenu
         public bool IsCharacter(long objectId) => _objects.TryGetValue(objectId, out var data) && data.IsCharacter;
         public bool HasCharacter(long characterId) => _characters.ContainsKey(characterId);
         public bool IsBoss(long characterId)
-            => _characters.TryGetValue(characterId, out var data) && BossFactory.IsRegistered(data.Boss);
+            => _characters.TryGetValue(characterId, out var data) && !string.IsNullOrEmpty(data.Boss) && _bossNames.Contains(data.Boss);
         public bool HasZone(long zoneId) => _zoneLayout.HasZone(zoneId);
 
         //이펙트 프리팹은 오브젝트마다 Effect/(ObjectId)/ 아래에 있다
@@ -53,6 +55,7 @@ public static class StoryValidatorMenu
     private const string TalkTable = "Talk";
     private const string ObjectTable = "Object";
     private const string CharacterTable = "Character";
+    private const string BossTable = "Boss";
     private const string DialogueTable = "Dialogue";
     private const string MapTable = "Map";
     private const string ZoneTable = "Zone";
@@ -67,7 +70,7 @@ public static class StoryValidatorMenu
     {
         //폴더가 틀렸으면 여기서도 에러가 남는다. Update Table이 멈추는 원인이므로 같이 보이게 두고 검사는 이어서 한다
         TableUpdater.TryCollectTables(out var tableFiles);
-        foreach (var table in new[] { ActorTable, ScenarioTable, QuestTable, QuestInfoTable, TalkTable, ObjectTable, CharacterTable, DialogueTable, MapTable, ZoneTable })
+        foreach (var table in new[] { ActorTable, ScenarioTable, QuestTable, QuestInfoTable, TalkTable, ObjectTable, CharacterTable, BossTable, DialogueTable, MapTable, ZoneTable })
             WarnIfStale(table, tableFiles);
 
         var actors = TableBytes.Read(ActorTable, reader => new ActorData(reader));
@@ -77,15 +80,16 @@ public static class StoryValidatorMenu
         var talks = TableBytes.Read(TalkTable, reader => new TalkData(reader));
         var objects = TableBytes.Read(ObjectTable, reader => new ObjectData(reader));
         var characters = TableBytes.Read(CharacterTable, reader => new CharacterData(reader));
+        var bosses = TableBytes.Read(BossTable, reader => new BossData(reader));
         var dialogues = TableBytes.Read(DialogueTable, reader => new DialogueData(reader));
         var maps = TableBytes.Read(MapTable, reader => new MapData(reader));
         var zones = TableBytes.Read(ZoneTable, reader => new ZoneData(reader));
         if (actors == null || scenarios == null || quests == null || questInfos == null || talks == null
-            || objects == null || characters == null || dialogues == null || maps == null || zones == null) return false;
+            || objects == null || characters == null || bosses == null || dialogues == null || maps == null || zones == null) return false;
 
         //Zone 배치가 틀려도 이야기 검사는 이어서 한다. 틀린 Zone을 가리키는 줄까지 한 번에 보이게 하려는 것이다
         bool zoneValid = ZoneLayout.TryBuild(maps, zones, out var zoneLayout);
-        var validator = new StoryValidator(new BytesReferences(objects, characters, zoneLayout));
+        var validator = new StoryValidator(new BytesReferences(objects, characters, bosses, zoneLayout));
         bool storyValid = validator.Validate(new StoryTables(actors, scenarios, quests, questInfos, talks, dialogues), out var book);
         if (zoneValid && storyValid)
             Debug.Log($"[이야기 검사] Zone {zones.Count}개, 퀘스트 {book.Quests.Count}개 통과");

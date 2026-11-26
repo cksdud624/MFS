@@ -11,7 +11,6 @@ using Direction = Common.GameDefine.Direction;
 using EffectType = Common.GameDefine.EffectType;
 using InGame.Component;
 using InGame.Component.Controller;
-using InGame.Component.Controller.Boss;
 #if UNITY_EDITOR
 using Common.Test;
 #endif
@@ -60,6 +59,8 @@ namespace InGame.Object
         public int PhaseCount => ObjectContext.PhaseCount;
         //보스가 지금 하고 있는 것의 이름 (패턴 이름 등). 보스 체력바 아래에 띄운다. 하는 것이 없으면 비어 있다
         public string PatternName => ObjectContext.PatternName;
+        //보스 이름 (Character 표의 Boss 칸). 보스전이 이 이름으로 Boss 표들에서 보스의 설계(BossDefinition)를 만든다. 보스가 아니면 비어 있다
+        public string BossName => ObjectContext.BossName;
         #endregion
 
         #region Init
@@ -222,6 +223,10 @@ namespace InGame.Object
         public void PlayEffect(EffectType effectType, int variant, Vector2 offset, float duration)
             => ObjectContext.PlayEffect(effectType, variant, ObjectContext.GetDirectionalOffset(offset), duration: duration);
 
+        /// <summary>
+        /// 컨트롤러를 붙인다. 플레이어는 입력, 나머지는 일반 AI다.
+        /// 보스도 처음에는 일반 AI가 붙고, 보스전이 시작될 때 보스 AI로 바꾼다 (BossBattleController.Begin → ReplaceController)
+        /// </summary>
         public void AttachController()
         {
             if(Controller != null)
@@ -231,16 +236,23 @@ namespace InGame.Object
             }
 
             if (IsPlayer)
-                Controller = gameObject.AddComponent<ControllerPlayer>();
-            else if (IsRegisteredBoss())
-                Controller = gameObject.AddComponent<ControllerBossAI>();
+                SetController(gameObject.AddComponent<ControllerPlayer>());
             else
-                Controller = gameObject.AddComponent<ControllerAI>();
-            Controller.Init(InGameContext, InputContext, ObjectContext);
-#if UNITY_EDITOR
-            if (Controller is ControllerAI)
-                EditorTestKeys.OnAIAttack += OnTestAIAttack;
-#endif
+                SetController(gameObject.AddComponent<ControllerAI>());
+        }
+
+        /// <summary>
+        /// 컨트롤러를 T로 바꾼다. 이미 T면 그대로 두고, 다른 컨트롤러가 붙어 있으면 떼어내고 새로 붙인다. 붙어 있는 T를 돌려준다.
+        /// 떼어낸 컨트롤러는 하던 이동 입력을 비우고 나간다(ControllerBase.Dispose). 멈춰 있던 것(시나리오의 Suspend)은 새 컨트롤러로 넘어가지 않는다
+        /// </summary>
+        public T ReplaceController<T>() where T : ControllerBase
+        {
+            if (Controller is T current) return current;
+
+            DetachController();
+            var controller = gameObject.AddComponent<T>();
+            SetController(controller);
+            return controller;
         }
 
         public void DetachController()
@@ -252,18 +264,6 @@ namespace InGame.Object
             Controller.Dispose();
             Destroy(Controller);
             Controller = null;
-        }
-
-        /// <summary>
-        /// 보스전을 시작한다. arena는 전투가 벌어지는 구역이다. 보스는 이때부터 패턴을 내고 맞기 시작한다.
-        /// 보스가 아니면(보스 컨트롤러가 붙지 않았으면) 아무것도 하지 않고 false를 돌려준다
-        /// </summary>
-        public bool BeginBossBattle(Rect arena)
-        {
-            if (Controller is not ControllerBossAI boss) return false;
-
-            boss.Engage(arena);
-            return true;
         }
         #endregion
 
@@ -291,17 +291,14 @@ namespace InGame.Object
         #endregion
 
         #region Private
-        /// <summary>
-        /// 보스 컨트롤러를 붙일 오브젝트인지. Character 표의 Boss 칸에 등록된 보스 이름이 적혀 있어야 한다.
-        /// 이름이 틀렸으면 에러를 남기고 일반 AI로 둔다. 보스의 패턴 없이 서 있기만 하는 것보다 원인이 바로 보인다
-        /// </summary>
-        private bool IsRegisteredBoss()
+        private void SetController(ControllerBase controller)
         {
-            if (!ObjectContext.IsBoss) return false;
-            if (BossFactory.IsRegistered(ObjectContext.BossName)) return true;
-
-            Debug.LogError($"Character {ObjectId} : Boss '{ObjectContext.BossName}' is not registered in BossFactory.");
-            return false;
+            Controller = controller;
+            Controller.Init(InGameContext, InputContext, ObjectContext);
+#if UNITY_EDITOR
+            if (Controller is ControllerAI)
+                EditorTestKeys.OnAIAttack += OnTestAIAttack;
+#endif
         }
         #endregion
 

@@ -13,6 +13,18 @@
             "hash": "4fbbde651e9fc46a6f1b1ef2c6d96ecb"
         },
         {
+            "fileName": "Boss",
+            "hash": "76cc31b25fd327c1b5c122fbb99922ef"
+        },
+        {
+            "fileName": "BossCommand",
+            "hash": "6e51596c5103d4ebceb285495d519e35"
+        },
+        {
+            "fileName": "BossPattern",
+            "hash": "33a59fc4520556ec53d15e5c6961244f"
+        },
+        {
             "fileName": "Character",
             "hash": "205f7c932ef34e70daac906a3d8d908d"
         },

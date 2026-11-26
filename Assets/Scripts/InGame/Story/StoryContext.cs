@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Generated.Table;
+using InGame.Battle;
 using InGame.Context;
 using InGame.Object;
 using InGame.UI;
@@ -66,14 +67,14 @@ namespace InGame.Story
         //지금 줄 바로 다음이 시나리오 재생인지. 목표를 채우면 바로 연출이 이어진다는 뜻이라 목표 아이콘이 시나리오 아이콘으로 바뀐다
         public bool IsScenarioNext { get; private set; }
 
-        //지금 보스전을 벌이고 있는 보스. 전투 중이 아니면 None이다. 화면의 보스 체력바가 읽는다
-        public StoryActor BattleBoss { get; private set; }
+        //보스전을 맡는 곳. Boss 명령이 시작과 끝을 넘긴다. 없으면 null이고 Boss 명령은 에러를 남긴다
+        private readonly BossBattleController _bossBattle;
         #endregion
 
         #region Init
         public StoryContext(InGameContext inGameContext, ObjectSpawner objectSpawner, TableManager tableManager,
             DialoguePlayer dialoguePlayer, ScreenFadeView screenFade, CameraDirector cameraDirector,
-            ZoneLayout zoneLayout, ZoneStreamer zoneStreamer)
+            ZoneLayout zoneLayout, ZoneStreamer zoneStreamer, BossBattleController bossBattle)
         {
             InGameContext = inGameContext;
             ObjectSpawner = objectSpawner;
@@ -83,6 +84,7 @@ namespace InGame.Story
             CameraDirector = cameraDirector;
             ZoneLayout = zoneLayout;
             _zoneStreamer = zoneStreamer;
+            _bossBattle = bossBattle;
         }
         #endregion
 
@@ -252,55 +254,29 @@ namespace InGame.Story
         #endregion
 
         #region Public - Boss
-        /// <summary>
-        /// 플레이어가 보스전이 벌어질 Zone(보스가 서 있는 Zone) 안으로 들어왔는지. 경계에서 BossArenaEnterMargin만큼 안쪽이어야 한다.
-        /// 보스가 Zone 밖에 서 있으면 들어올 Zone이 없으므로, 가까이 다가온 것으로 대신한다 (말 걸기 거리)
-        /// </summary>
-        public bool IsPlayerInBossZone(ObjectBase boss)
-        {
-            var player = InGameContext.Player;
-            if (player == null || boss == null) return false;
+        //보스전은 BossBattleController가 맡는다. 이야기는 언제 시작하고 끝낼지만 정해서 넘긴다
 
-            Vector2 position = player.transform.position;
-            if (!TryFindBossZone(boss, out var zone))
-                return Mathf.Abs(position.x - boss.transform.position.x) <= InteractDistance;
-
-            var rect = zone.Rect;
-            return position.x >= rect.xMin + BossArenaEnterMargin && position.x <= rect.xMax - BossArenaEnterMargin
-                   && position.y >= rect.yMin && position.y <= rect.yMax;
-        }
+        /// <summary>플레이어가 보스전이 벌어질 Zone(보스가 서 있는 Zone) 안으로 들어왔는지 (BossBattleController.IsPlayerInArena)</summary>
+        public bool IsPlayerInBossZone(ObjectBase boss) => _bossBattle != null && _bossBattle.IsPlayerInArena(boss);
 
         /// <summary>
-        /// 보스전을 시작한다. 보스가 서 있는 Zone을 잠가서 전투가 끝날 때까지 다른 Zone으로 나가지 못하게 하고(카메라도 그 Zone 안만 보여준다),
-        /// 보스를 깨워서 싸우게 한다. 보스가 아닌 대상이면 에러를 남기고 false를 돌려준다
+        /// 보스전을 시작한다. 체력바에는 Actor 표의 Name을 띄운다. 보스가 아닌 대상이거나 보스전을 맡을 곳이 없으면 에러를 남기고 false를 돌려준다
         /// </summary>
         public bool BeginBossBattle(StoryStep step, ObjectBase boss)
         {
-            //Zone 밖에 서 있으면 잠글 Zone이 없다. 구역 없이 그 자리를 중심으로 싸우게 한다
-            bool inZone = TryFindBossZone(boss, out var zone);
-            var arena = inZone ? zone.Rect : new Rect(boss.transform.position, Vector2.zero);
-            if (!boss.BeginBossBattle(arena))
+            if (_bossBattle == null)
             {
-                Debug.LogError($"{step} : {step.Actor} is not a boss. Write a boss name in the Boss column of Character table.");
+                Debug.LogError($"{step} : There is no BossBattleController. The boss battle cannot start.");
                 return false;
             }
+            if (_bossBattle.Begin(boss, Book.GetActorName(step.Actor))) return true;
 
-            if (inZone)
-                _zoneStreamer.Lock(zone.Id);
-            else
-                Debug.LogWarning($"{step} : {step.Actor} stands outside of any zone. The boss battle starts without locking a zone.");
-            BattleBoss = step.Actor;
-            return true;
+            Debug.LogError($"{step} : {step.Actor} could not start a boss battle.");
+            return false;
         }
 
-        /// <summary>보스전을 끝낸다. 잠근 Zone을 풀어서 다시 옆 Zone으로 갈 수 있게 한다. 시작하지 않았어도 불러도 된다</summary>
-        public void EndBossBattle()
-        {
-            if (BattleBoss.IsNone) return;
-
-            BattleBoss = StoryActor.None;
-            _zoneStreamer?.Unlock();
-        }
+        /// <summary>보스전을 끝낸다. 시작하지 않았어도 불러도 된다</summary>
+        public void EndBossBattle() => _bossBattle?.End();
         #endregion
 
         #region Public - Scenario
@@ -348,13 +324,6 @@ namespace InGame.Story
         #endregion
 
         #region Private
-        //보스가 지금 서 있는 Zone. 보스전은 이 Zone에서 벌어진다
-        private bool TryFindBossZone(ObjectBase boss, out ZoneLayout.ZoneEntry zone)
-        {
-            zone = null;
-            return _zoneStreamer != null && ZoneLayout.TryFindZone(_zoneStreamer.MapId, boss.transform.position, out zone);
-        }
-
         //컨트롤러가 없는 대상(Npc)은 SuspendControl이 아무것도 하지 않으므로 종류를 가리지 않고 부른다
         private void HoldForScenario(ObjectBase actor)
         {

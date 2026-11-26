@@ -1,0 +1,36 @@
+Id	Pattern	Command	Param1	Param2	Note
+long	long	string	string	string	string
+101010	101	Telegraph	Melee		베기
+101020	101	Approach	5.7	2	
+101030	101	FaceTarget			
+101040	101	Wait	0.4		
+101050	101	Attack	1		
+102010	102	Telegraph	Melee		2연격
+102020	102	Approach	5.7	2	
+102030	102	FaceTarget			
+102040	102	Wait	0.4		
+102050	102	Attack	22		
+103010	103	Telegraph	Melee		3연격
+103020	103	Approach	6	2	
+103030	103	FaceTarget			
+103040	103	Wait	0.4		
+103050	103	Attack	333		
+104010	104	Telegraph	Low		바닥 쓸기
+104020	104	Approach	7.2	2	
+104030	104	FaceTarget			
+104040	104	Wait	0.5		
+104050	104	Attack	4		
+105010	105	Telegraph	Charge		돌진
+105020	105	FaceTarget			
+105030	105	Wait	0.8		
+105040	105	Attack	5		
+106010	106	FaceTarget			카운터 자세
+106020	106	Telegraph	Counter		
+106030	106	Wait	0.3		
+106040	106	Counter			
+107010	107	Retreat	10	1.5	물러나 돌진
+107020	107	Telegraph	Charge		
+107030	107	FaceTarget			
+107040	107	Wait	0.6		
+107050	107	Attack	5		
+108010	108	Approach	6	3	다가가기

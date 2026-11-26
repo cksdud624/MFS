@@ -58,7 +58,7 @@ namespace InGame.Component.Controller
             if (ObjectContext.IsDamaged) return;
             //시나리오가 강제로 제어하는 동안에도 판단을 멈춘다. 돌리면 AI 입력이 시나리오 입력을 덮어쓴다
             if (IsSuspended) return;
-            UpdateBrain();
+            FixedUpdateBrain();
         }
 
         private void OnDestroy() => Dispose();
@@ -183,7 +183,7 @@ namespace InGame.Component.Controller
         }
 
         /// <summary>물리 스텝마다 판단한다. 피격 중이거나 강제 제어 중에는 불리지 않는다</summary>
-        protected virtual void UpdateBrain() => _stateMachine.OnFixedUpdate();
+        protected virtual void FixedUpdateBrain() => _stateMachine.OnFixedUpdate();
 
         /// <summary>하던 행동을 내려놓고 처음부터 다시 판단한다 (맞아서 굳었을 때, 강제 제어가 끝났을 때)</summary>
         protected virtual void ResetBrain() => _stateMachine.ChangeState(AIState.Idle);

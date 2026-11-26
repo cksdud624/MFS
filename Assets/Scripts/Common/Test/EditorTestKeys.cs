@@ -27,8 +27,6 @@ namespace Common.Test
         public static event Action OnToggleStaggerImmune;
         //공격력 증가 걸기. 캐릭터가 구독하고 플레이어만 반응한다. 누를 때마다 겹친다
         public static event Action OnAddAttackBuff;
-        //보스의 지금 체력바 비우기 (페이즈 전환과 쓰러짐 확인). 보스 컨트롤러가 구독하고 전투 중인 보스만 반응한다
-        public static event Action OnBossPhaseSkip;
 
         //빠르게 켰을 때의 이동 속도 배율
         public const float FastMoveMultiplier = 10f;
@@ -45,7 +43,6 @@ namespace Common.Test
             (Key.Digit2, "플레이어 이동 속도 빠르게 켜기/끄기", () => OnToggleFastMove?.Invoke()),
             (Key.Digit3, "경직 면역 켜기/끄기 (플레이어와 적 모두)", () => OnToggleStaggerImmune?.Invoke()),
             (Key.Digit4, "플레이어 공격력 증가 걸기 (10초, 3번까지 겹침)", () => OnAddAttackBuff?.Invoke()),
-            (Key.Digit5, "보스 체력바 하나 비우기 (전투 중인 보스)", () => OnBossPhaseSkip?.Invoke()),
         };
 
         //누르고 있는 동안만 켜지는 테스트 키 목록. 누를 때 true, 뗄 때 false를 보낸다

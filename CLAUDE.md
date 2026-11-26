@@ -5,7 +5,9 @@ R3는 코어(`R3.dll`)를 NuGetForUnity로(`Assets/packages.config`, `Assets/Pac
 코드는 `Assets/Scripts` 아래에 있고, 공개 포트폴리오로 쓰이는 코드라서 읽히는 품질을 기능만큼 중요하게 본다.
 씬은 `BootStrap`(전역 준비) → `Title`(타이틀 메뉴) → `Main`(게임) 순으로 넘어가고, Build Settings에도 이 순서로 둔다(빌드는 첫 씬에서 시작한다).
 씬을 넘어갈 때는 `Global.Instance.SceneLoader.LoadScene`을 쓴다. 로딩 화면이 바로 덮고, 새 씬의 `InitScene`(에셋과 Zone 불러오기)이 끝나면 걷힌다.
-Main은 이야기가 플레이어를 세울 때까지 `InitScene`을 끝내지 않는다(`GameController.StartStory`). 먼저 걷히면 아무도 없는 맵이 보인다.
+**지금 Main은 이야기(Quest 표)를 돌리지 않고, 들어오자마자 보스전을 벌인다.** `GameController`가 맵과 카메라를 만들고 시작 Zone(`GameDefine.PlayerStartZoneId`)에 플레이어를 세운 뒤 `BossBattleController.StartStage`에 넘긴다.
+플레이어가 선 Zone이 그대로 보스 스테이지가 되고, `BossBattleController`가 그 Zone에 보스를 세워서 싸움을 시작한다.
+둘이 선 뒤에야 `InitScene`이 끝난다. 먼저 걷히면 아무도 없는 맵이 보인다.
 
 ## 폴더와 네임스페이스
 
@@ -24,15 +26,16 @@ Main은 이야기가 플레이어를 세울 때까지 `InitScene`을 끝내지 �
 | `InGame/Context/` | `InGameContext`, `ObjectContext`, `InputContext`: 컴포넌트 사이를 이어주는 상태와 이벤트 |
 | `InGame/Component/` | 오브젝트에 붙는 기능 컴포넌트 (물리, 애니메이션, 이펙트, 판정) |
 | `InGame/Component/State/` | 오브젝트 FSM 상태 (`Ground`, `Air`, `Action`, `Damage`, `Event`, `Dead`). 뒤로 갈수록 높은 단계라 앞의 상태를 끊고 들어간다 |
-| `InGame/Component/Controller/` | 플레이어/AI 컨트롤러, AI 상태. `ControllerBossAI`는 `ControllerAI`를 상속해서 행동 상태 머신만 보스의 것으로 바꾼다 |
-| `InGame/Component/Controller/Boss/` | 보스 AI. 상태(`Standby`, `Spacing`, `Pattern`, `Evade`, `PhaseBreak`), 보스의 설계(`BossProfile`)와 그것을 이름으로 만드는 `BossFactory`. 아래 "보스전" 참고 |
-| `InGame/Component/Controller/Boss/Patterns/` | 보스 패턴. 종류 하나당 클래스 하나 (`BossAttackPattern`, `BossCounterPattern`). `BossPattern`을 상속한다 |
-| `InGame/Component/Controller/Boss/Profiles/` | 보스 하나당 클래스 하나 (`DuelistProfile`). `BossFactory`에 이름을 등록한다 |
+| `InGame/Component/Controller/` | 플레이어/AI 컨트롤러, AI 상태. `ControllerBossAI`는 `ControllerAI`를 상속해서 행동 상태 머신만 보스의 것으로 바꾼다. 모든 보스가 이 하나를 쓴다 |
+| `InGame/Component/Controller/Boss/` | 보스 AI의 큰 상태(`Intro`, `Idle`, `Pattern`, `Groggy`, `PhaseTransition`, `Dead`), 보스의 설계(`BossDefinition`)와 그것을 표에서 만드는 `BossFactory`. 아래 "보스전" 참고 |
+| `InGame/Component/Controller/Boss/Patterns/` | 패턴 실행 객체(`BossPattern`, 표에서 만든 `BossCommandPattern`), 패턴 설계(`BossPatternDefinition`, `BossPatternSettings`), 고르기(`BossPatternSelector`, `BossPatternContext`) |
+| `InGame/Component/Controller/Boss/Commands/` | 보스 커맨드(패턴을 이루는 동작) 하나당 클래스 하나. `BossCommand`를 상속하고 `BossCommandFactory`에 이름을 등록한다. Param1~2를 어떻게 쓰는지는 각 클래스 summary에 적는다 |
 | `InGame/Story/` | 인게임 흐름. `StoryPlayer`가 퀘스트를 번호 순으로 실행하고, `StoryValidator`가 실행 전에 표 전체를 검사해 `StoryBook`을 만든다. 월드에 세운 대상은 `StoryContext`가 들고, `TalkPlayer`가 일반 대화를, `DialoguePlayer`가 대사를 띄운다. `StoryHudPresenter`가 지금 띄울 퀘스트 안내와 목표/대화 아이콘을 정한다 |
 | `InGame/Story/Steps/` | 시나리오와 퀘스트가 같이 쓰는 명령 (`DialogueStep`. 어디서 쓰는지에 따라 카메라를 쓸지 정한다) |
 | `InGame/Story/Scenario/Steps/` | 시나리오(연출) 명령 하나당 클래스 하나. `ScenarioStepFactory`에 이름을 등록한다 |
 | `InGame/Story/Quest/Steps/` | 퀘스트(목표, 시나리오 재생, 보스전) 명령 하나당 클래스 하나. `QuestStepFactory`에 이름을 등록한다. 새 명령은 시나리오/퀘스트 모두 `StoryStep`을 상속해서 `Parse`(칸 형식), `Validate`(앞뒤 정합성), `Run`을 구현하고, 시작/종료/목표 명령이면 `Kind`를 다시 정한다. Actor와 Param1~2를 어떻게 쓰는지는 각 클래스 summary에 적는다 |
 | `InGame/UI/` | UI 뷰 (`DialogueView`: 말하는 캐릭터의 머리 위를 따라다니는 말풍선, `ScreenFadeView`, `MarkerView`: 대상이나 지점 위의 아이콘, `QuestView`: 왼쪽 위의 퀘스트 안내, `BossView`: 위쪽 가운데의 보스 체력바). 프리팹은 `Editor/UIPrefabBuilder`의 메뉴(UI > Build All UI)가 코드로 조립해서 `AddressableAssets/UI/`에 저장한다. 레이아웃은 프리팹이 아니라 빌더 코드를 고친다 |
+| `InGame/Battle/` | 전투 진행. 보스와 관련된 것은 모두 `BossBattleController`가 맡는다: 스테이지(`StartStage`: 세워진 플레이어를 넘겨받아, 플레이어가 선 Zone을 보스 스테이지로 삼고 그 Zone에 보스를 세운다), 시작(`Begin`: `BossFactory`로 Boss 표들에서 그 보스의 `BossDefinition`을 만들고, 보스의 컨트롤러를 `ControllerBossAI`로 붙이거나 바꿔서(`ObjectBase.ReplaceController`) 설계를 넣은 뒤, 보스가 선 Zone을 잠그고 `Engage`를 부른다), 진행(보스 체력바 `BossView`를 띄운다), 끝(보스가 쓰러지면 잠금을 풀고 체력바를 숨긴다). 이야기의 `Boss` 명령도 `StoryContext`를 거쳐 이것을 쓴다 |
 | `InGame/World/` | 맵과 Zone. `ZoneLayout`이 Map/Zone 표로 격자 배치를 만들고 로컬↔월드 좌표를 바꾼다. `ZoneStreamer`가 플레이어 주변 Zone과 시나리오의 무대 Zone만 불러두고(보스전이 벌어지는 Zone은 잠근다), `IZoneLoader`(지금은 `PrefabZoneLoader`)가 Zone 내용물을 불러오고 내린다 |
 | `InGame/CameraDirector.cs` | 게임 카메라를 움직이는 유일한 곳. 평소에는 플레이어를 따라가고, 연출(시나리오 Zoom, 대화 확대) 동안에는 바라볼 곳으로 옮긴다. 화면은 Zone 밖을 보여주지 않는다. 씬 카메라의 처음 화각을 배율 1로 본다 |
 | `Generated/Table/` | **자동 생성 코드. 직접 고치지 않는다** (`Custom/` 폴더의 partial만 손으로 작성) |
@@ -113,6 +116,7 @@ Main은 이야기가 플레이어를 세울 때까지 `InitScene`을 끝내지 �
   값은 EditorPrefs에 남는다(이 PC에만 저장되고 레포에 올라가지 않는다). 설정을 추가할 때는 `EditorTestSettings`에 값을 만들고 `TestMenu`에 메뉴 항목과 체크 표시 함수를 한 쌍 추가한다.
   - **Test > Start At Boss Battle** : 켜고 Play하면 타이틀을 건너뛰고(`Global.Load`), 이야기를 보스전(`Boss` 명령)이 있는 첫 퀘스트부터 시작한다(`StoryPlayer.FindTestStart`).
     플레이어는 보스가 설 자리에서 `BossBattleStartDistance`만큼 떨어진 Zone 안쪽에 선다. 앞 퀘스트가 세웠을 다른 대상은 월드에 없다.
+    지금 Main은 이야기를 돌리지 않으므로 타이틀을 건너뛰는 것만 의미가 있다.
 - 판정 범위 같은 시각 디버그는 `OnDrawGizmos`를 `#if UNITY_EDITOR`로 감싸서 쓴다.
 - 입력은 새 Input System만 쓴다. `UnityEngine.Input`(구 입력)은 쓰지 않는다.
 
@@ -144,7 +148,7 @@ Main은 이야기가 플레이어를 세울 때까지 `InitScene`을 끝내지 �
 | 어디 | 무엇 |
 |---|---|
 | `Object.tsv` | `IsCharacter`, `MoveSpeed`, 콜라이더, `Tint`(스프라이트에 곱하는 색 r,g,b 0~1. 빈칸이면 원래 색. 같은 그림을 쓰는 오브젝트를 색으로 구분한다) |
-| `Character.tsv` | 캐릭터의 전투 수치. `Hp`, `MachineAttack`/`MachineDefense`(기계), `MagicAttack`/`MagicDefense`(마법), `StatusEffects`(타고난 상태 효과 번호들), `Boss`(보스 이름. 빈칸이면 보스가 아니다. 아래 "보스전"). 캐릭터(`IsCharacter`)는 꼭 한 줄 있어야 한다 |
+| `Character.tsv` | 캐릭터의 전투 수치. `Hp`, `MachineAttack`/`MachineDefense`(기계), `MagicAttack`/`MagicDefense`(마법), `StatusEffects`(타고난 상태 효과 번호들), `Boss`(보스 이름. Boss 표의 Id. 빈칸이면 보스가 아니다. 아래 "보스전"). 캐릭터(`IsCharacter`)는 꼭 한 줄 있어야 한다 |
 | `AttackCommand.tsv`, `AttackHitBox.tsv` | 공격 커맨드와 판정. Id가 오브젝트 번호로 시작한다 (1001 → 100101, 10010101). `Damage`는 그 공격의 위력, `Stagger`는 맞은 쪽을 굳히는 시간(초), `AttackTime`은 그 단계 동안 제자리에 묶이는 시간(초)이다. `AdvanceDistance`/`AdvanceTime`은 그 단계가 시작될 때 앞으로 나아가는 거리와 걸리는 시간(초. 빈칸이면 물리 스텝 한 번에 간다)이다. AttackHitBox의 `Shape`는 판정을 화면에 보여줄 임시 도형이다 (`Square`, `Triangle`, `Circle`. 빈칸이면 보여주지 않는다) |
 | `AddressableAssets/Animation/(번호)/`, `Effect/(번호)/` | 애니메이션 클립(`Idle`, `Move`, `Jump`, `Fly`, `Damage`, `Death`, `Attack1`…)과 이펙트 프리팹 |
 
@@ -154,7 +158,7 @@ Main은 이야기가 플레이어를 세울 때까지 `InitScene`을 끝내지 �
 - **피해:** 깎이는 Hp = `공격의 Damage + 공격한 쪽의 공격력 − 맞은 쪽의 방어력` (0보다 작으면 0). 한 커맨드에 마법과 기계 판정이 따로 나가므로 각각 한 번씩 계산한다.
   때린 쪽이 `AttackHit`(종류, 위력, 경직 시간, 카운터로 받아낼 수 있는지)을 만들어 넘기고(`GetAttackHit`), 맞은 쪽이 `RequestDamage` 안에서 방어력을 빼고 깎는다.
   맞았을 때(`Hit`)만 깎고, 카운터로 받아냈거나 무적이면 깎지 않는다.
-  무적은 연출 중(`Event`), 대시하는 동안, `ObjectContext.IsInvincible`(보스의 전투 시작 전과 페이즈 전환 중)이다.
+  무적은 연출 중(`Event`), 대시하는 동안, `ObjectContext.IsInvincible`(보스 AI가 페이즈 전환 중에 켠다)이다.
 - **경직:** 맞으면 그 공격의 `Stagger`만큼 `Damage` 상태로 굳는다. 굳은 채로 또 맞으면 남은 시간과 새 경직 중 긴 쪽으로 다시 정한다.
   맞은 쪽이 고친 값(`ObjectContext.StaggerDuration`)이 0이면 **맞기는 하되 굳지 않는다**. Hp는 깎이지만 `Damage` 상태에 들어가지 않고 하던 행동과 콤보가 이어진다.
   경직이 없는 공격(`Stagger` 빈칸)과 경직 면역이 이 한 곳으로 모인다.
@@ -186,47 +190,78 @@ Main은 이야기가 플레이어를 세울 때까지 `InitScene`을 끝내지 �
 
 ### 보스전 (Boss)
 
-mori-kit의 결투(Duel)를 옮겼다. **행동 트리가 아니라 지금의 `StateMachine`과 패턴 클래스로 만든다.**
-보스는 "거리를 잰다 → 마디 첫 박에 패턴을 고른다 → 박에 맞춰 진행한다"를 되풀이하는 구조라서 상태가 적고 전이가 뻔하다.
-조건을 매 틱 다시 훑는 트리의 장점이 쓰이지 않고, AI 방식이 둘(일반 AI는 FSM)이 되는 부담만 남는다. 보스마다 다른 것은 패턴과 그 수치다.
+mori-kit의 결투(Duel)를 옮기는 중이다. **큰 상태는 FSM, 패턴은 커맨드 목록을 차례로 기다리며 실행하는 async 시퀀스, 패턴 고르기는 조건 + 우선순위 + 가중치다.**
+행동 트리는 쓰지 않는다. 보스는 "쉰다 → 패턴을 고른다 → 정해진 동작을 차례로 한다"를 되풀이하는 정해진 안무라서 상태가 적고 전이가 뻔하다.
+
+**보스는 코드가 아니라 공통 코드 + 표 데이터로 조립한다.** 모든 보스가 `ControllerBossAI` 하나와 같은 상태, 같은 커맨드를 쓰고, 보스마다 다른 것(페이즈, 패턴, 커맨드와 그 값)은 표에 있다.
+보스 전용 클래스, 보스 전용 상태 enum, 보스 전용 패턴 클래스를 만들지 않는 것이 기본이다.
+보스는 스폰될 때 다른 적처럼 일반 AI(`ControllerAI`)가 붙고, 보스전이 시작될 때 `BossBattleController.Begin`이 `BossFactory`로 설계(`BossDefinition`)를 만들어 `ControllerBossAI`로 바꾸고 넣는다(`SetDefinition`) → `Engage`.
+
+| 층 | 공통 코드 | 보스마다 다른 데이터 |
+|---|---|---|
+| 큰 상태 | `ControllerBossAI` + 상태 6개(`GameDefine.BossState`) | `Boss.tsv` : 체력바 수, 쉬는 시간, 페이즈 전환 시간 |
+| 패턴 | `BossCommandPattern`, `BossPatternSelector` | `BossPattern.tsv` : 이름, 쓸 페이즈, 가중치, 우선순위, 쿨타임, 거리, 끝난 뒤 쉬는 시간 |
+| 동작 | `Boss/Commands/`의 커맨드 (`BossApproachCommand` …) | `BossCommand.tsv` : 패턴마다 커맨드 목록과 Param |
+
+| 표 | 칸 |
+|---|---|
+| `Boss.tsv` | `Id`(보스 이름. Character 표의 `Boss` 칸에 적는 이름 `Duelist`), `PhaseCount`(체력바 수), `IdleDuration`(패턴이 끝나서 온 게 아닐 때 쉬는 초), `PhaseTransitionDuration`(전환 중 무적으로 멈춰 있는 초), `Note` |
+| `BossPattern.tsv` | `Id`(보스마다 100 단위로 묶는다. 첫 보스 101~, 둘째 201~), `Boss`, `Name`(체력바 아래에 뜬다), `Phases`(1부터. `2,3`. 빈칸이면 모든 페이즈), `Weight`(0보다 커야 한다), `Priority`, `Cooldown`(초), `MinDistance`/`MaxDistance`(대상과의 **좌우** 거리. 빈칸이면 제한 없음), `RecoveryDuration`(끝까지 했을 때 다음 패턴까지 쉬는 초. 0이면 바로 잇는다), `Note` |
+| `BossCommand.tsv` | `Id`(패턴 × 1000부터 10 단위. 101 → 101010, 101020 …. 끼울 때는 사이 번호), `Pattern`, `Command`, `Param1`, `Param2`, `Note`. 패턴은 Id 순으로 하나씩 끝나기를 기다리며 실행한다 |
+
+| 커맨드 | 하는 일 | Param1 / Param2 |
+|---|---|---|
+| `Approach` | 대상 쪽으로 걷는다. 멈출 거리 안, 최대 시간, 벽이나 낭떠러지에서 끝난다 | 멈출 거리 / 최대 초 |
+| `Retreat` | 대상에게서 멀어지는 쪽으로 걷는다 (등을 돌린다) | 벌릴 거리 / 최대 초 |
+| `FaceTarget` | 대상 쪽으로 돌아선다. 공격은 시작한 방향으로 잠기므로 `Attack` 앞에 둔다 | |
+| `Attack` | 공격 버튼을 눌러 콤보를 끝까지 잇는다. 앞 공격의 콤보가 풀릴 때까지(`AttackCommandResetTime`) 기다린 뒤 누른다 | AttackCommand 표의 `Command` (`1`, `22`, `333`) / |
+| `Counter` | 카운터 대기. 받아내면 반격(`C`)까지 끝나야 끝난다. 카운터가 차지 않았으면 그냥 넘어간다 | |
+| `Telegraph` | 예고 색을 건다. 패턴이 끝나거나 끊기면 저절로 지워진다 | `Melee`, `Low`, `Charge`, `Counter`, `None` / |
+| `Wait` | 기다린다 (예고를 보여준 뒤의 틈) | 초 / |
+
+- **상태:** `Intro`(Engage 전) → `Idle`(쉬는 동안 대상을 본다) ⇄ `Pattern`(하나 골라 끝까지). 끼어드는 것은 `ControllerBossAI`가 직접 바꾼다:
+  반격을 맞고 굳으면 `Groggy`(굳는 시간은 오브젝트의 `Damage` 상태가 센다. 풀리면 `Idle`), 체력바가 넘어가면(`OnPhaseChanged`) `PhaseTransition`(무적, 끝나면 `Idle`), 쓰러지면(`OnDead`) `Dead`.
+  상태가 바뀌면 `BossPatternState.OnExit`이 패턴을 취소하고 이동 입력, 예고, 패턴 이름을 거둔다. 시나리오가 보스를 붙잡을 때(`Suspend`)도 패턴을 내려놓는다.
+  쉬는 시간은 패턴이 끝까지 갔을 때만 그 패턴의 `RecoveryDuration`이고, 그 밖(전투 시작, 굳음과 전환 뒤)은 `IdleDuration`이다.
+- **고르기 (`BossPatternSelector.TrySelect`):** 강제 지정(`ForceNextPattern`)이 있으면 그것 → 지금 페이즈의 패턴 중 `CanStart`(가중치, 쿨타임, 거리)를 통과한 것 → 그중 우선순위가 가장 높은 것만 →
+  둘 이상이면 바로 앞 패턴을 빼고 → 가중치로 뽑는다. 대상이 없으면 거리 제한이 있는 패턴은 뽑히지 않는다. 고를 것이 없으면 쉬기로 돌아가서 다시 고른다.
+  모든 페이즈에 패턴이 하나는 있어야 한다(`BossFactory`가 확인한다).
+- **설계와 실행 객체:** `BossDefinition`(`BossPatternDefinition`, 커맨드)은 바뀌지 않는 설계다. 쿨타임처럼 싸우는 동안 바뀌는 것은 보스마다 만드는 `BossCommandPattern`이 든다.
+  그래서 **커맨드 클래스는 칸에서 읽은 값만 필드에 두고, 실행 중의 값은 `Run`의 지역 변수로만 둔다.**
+- **표 검사:** 보스전이 시작될 때 `BossFactory.TryCreate`가 세 표를 읽으며 틀린 곳을 모두 에러로 남기고, 하나라도 틀리면 보스전을 시작하지 않는다
+  (없는 보스 이름, 칸 형식, 쓰지 않는 칸에 값, 없는 커맨드, 페이즈 범위, 비어 있는 페이즈, 그 보스의 AttackCommand 표에 없는 콤보 단계와 반격). Update Table과 Validate Story는 이 내용을 검사하지 않는다.
+- **새 보스 (코드 없음):** Object, Character(`Boss` 칸), AttackCommand, AttackHitBox에 줄을 만들고, Boss, BossPattern, BossCommand 표에 줄을 더한다.
+- **코드가 필요할 때만:** 새 동작은 `BossCommand`를 상속해 `Commands`에 만들고(`Parse`, 다른 표를 봐야 하면 `Validate`, `Run`) `BossCommandFactory`에 이름을 등록한다. 모든 보스가 같이 쓸 수 있게 만든다.
+  그 보스만 쓰는 상태는 `ControllerBossAI`를 상속해서 `RegisterStates`(base 뒤에, 키는 `BossState` 100번부터), 표로 나타낼 수 없는 패턴은 `BossPattern`을 상속해 `RegisterPatterns`에서 등록한다.
+  패턴이 새 입력이나 규칙을 필요로 하면 `ObjectContext`를 거치게 한다.
 
 | 무엇 | 어디 |
 |---|---|
-| 보스인지 | `Character.tsv`의 `Boss` 칸에 보스 이름(`Duelist`). `BossFactory`가 이 이름으로 `BossProfile`을 만든다. 이름이 있으면 `ControllerAI` 대신 `ControllerBossAI`가 붙는다 |
-| 보스의 설계 | `Boss/Profiles/`의 `BossProfile` 하나. 체력바 수(`PhaseCount`), 고르는 패턴과 그 거리/비중/단계, 반응으로 내는 패턴, 단계와 페이즈마다의 배율 |
-| 패턴의 종류 | `Boss/Patterns/`의 `BossPattern` 하나. 준비(다가가기, 예고) → 타격 → 끝을 박에 맞춰 진행한다 |
-| 공격의 위력, 판정, 전진 | `AttackCommand`, `AttackHitBox` 표. 패턴이 누르는 공격 버튼 번호가 `Command`다 (`"2"` → `"22"`로 콤보가 이어진다) |
-| 언제 싸우는지 | Quest 표의 `Boss` 명령 (아래 "이야기 표") |
+| 공격의 위력, 판정, 전진 | `AttackCommand`, `AttackHitBox` 표. `Attack` 커맨드의 Param1이 그 `Command`다 (`"2"` → `"22"`로 콤보가 이어진다) |
+| 어디서 누구와 싸우는지 | 플레이어가 서 있는 Zone이 보스 스테이지다. 플레이어가 서는 곳은 `GameDefine`의 `PlayerStartZoneId`/`PlayerStartPosition`, 보스는 `BossBattleBossObjectId`, `BossBattleBossName`(체력바의 이름), `BossBattleBossPosition`(스테이지 Zone의 로컬 좌표). Main에 들어오면 바로 싸운다 |
+| 전투 진행 | `BossBattleController` (`InGame/Battle/`). 스테이지(플레이어를 넘겨받아 그 Zone에 보스 스폰), 시작(설계 생성, `ControllerBossAI`로 교체, Zone 잠금, `Engage`), 체력바(`BossView`), 끝(보스가 쓰러지면(`InGameContext.OnObjectDefeated`) 잠금 해제)을 모두 맡는다. 보스 AI는 여기서만 붙이고 깨운다 |
+| 이야기 안의 보스전 | Quest 표의 `Boss` 명령 (아래 "이야기 표"). 지금 Main은 이야기를 돌리지 않아서 쓰이지 않는다 |
 
-- **입력만 낸다:** 패턴은 플레이어와 같은 입력(이동, 공격 버튼, 카운터, 대시)만 낸다. 판정, 피해, 받아내기, 경직은 플레이어의 공격과 같은 경로로 처리된다.
-- **박:** 보스는 자기 시계(`ControllerBossAI.Beat`)를 따른다. 한 박은 `BossBeatDuration`(0.5초)이고 한 마디는 4박이다. 곡이 붙으면 이 시계를 곡의 박으로 바꾼다.
-  패턴은 마디 첫 박에만 시작한다. 패턴이 일찍 끝나거나 쉬는 마디면 다음 마디까지가 플레이어의 공격 기회다.
-- **고르기:** 대상과의 가로 거리와 단계가 맞고 지금 쓸 수 있는(카운터 스택) 패턴 중에서 비중대로 뽑는다 (`BossPatternPick`).
-- **예고:** 타격 `BossTelegraphBeats`박 전부터 스프라이트에 공격 종류의 색을 섞는다 (`ObjectContext.SetTelegraph` → `AnimationPlayer`).
+보스 AI와 같이 쓰는 것:
+- **입력만 낸다 (원칙):** 보스도 플레이어와 같은 입력(이동, 공격 버튼, 카운터, 대시)만 낸다. 판정, 피해, 받아내기, 경직은 플레이어의 공격과 같은 경로로 처리된다.
+- **예고:** 스프라이트에 공격 종류의 색을 섞는다 (`ObjectContext.SetTelegraph` → `AnimationPlayer`). `Telegraph` 커맨드가 건다.
   근접(빨강)은 거리를 벌리고, 하단(노랑)은 뛰어넘고, 돌진(분홍)은 대시로 빠지고, 카운터 자세(하늘색)는 때리지 않는다. 그림이 없어서 색으로 대신한 것이다.
 - **판정 도형 (임시 이펙트):** 공격 이펙트의 그림이 없어서, 판정이 있는 자리를 기본 도형으로 보여준다 (`AttackShapeView`. 캐릭터마다 붙는다).
   AttackHitBox 표의 `Shape` 칸에 도형을 적은 판정만 보인다. 판정이 켜져 있는 동안 그 크기로 흰 도형이 뜨고, 꺼지면 `AttackShapeFadeDuration` 동안 사라진다.
-  패턴은 타격 전에 그 공격의 범위를 예고 색으로 옅게 미리 보여준다 (`ControllerBossAI.PreviewAttack` → `ObjectContext.SetAttackPreview`).
+  곧 나갈 공격의 범위를 예고 색으로 옅게 미리 보여주는 기능(`ObjectContext.SetAttackPreview`)도 있다. 지금은 부르는 곳이 없다.
   전진하는 공격은 나아간 뒤의 자리에, 돌진처럼 전진하는 내내 판정이 켜져 있는 공격은 지나가는 길 전체에 그린다.
   도형의 스프라이트는 파일이 아니라 코드가 그린다 (`AttackShapeSprite`). 이펙트 그림이 생기면 `Shape` 칸을 비우고 `Effect` 칸을 쓴다.
   이펙트를 쓰는 공격(`Effect` 칸)은 판정을 이펙트가 들고 다니므로 도형을 띄우지 않는다.
-- **패턴 이름 표시 (확인용):** 보스가 지금 내는 패턴의 이름(회피, 페이즈 전환 포함)을 보스 체력바 아래에 띄운다
-  (`ObjectContext.SetPatternName` → `BossView`). 패턴이 제대로 나오는지 보려는 것이라 예고 연출이 자리 잡으면 지울지 판단한다.
-- **경직 면역과 반격:** 보스는 타고난 경직 면역(`StatusEffects`에 1)이라 맞아도 패턴이 끊기지 않는다. **보스의 공격을 카운터로 받아낸 반격만 보스를 굳힌다.**
-  굳은 동안이 공격 기회이고, 풀리면 보스는 대시로 빠지거나 카운터 자세를 잡는다.
-- **반응:** 짧은 시간에 여러 번 맞으면(연타) 하던 패턴을 끊고 카운터 자세로 받아친다. 카운터가 없으면 밀쳐낸다. 패턴 사이에 맞으면 가끔 대시로 빠진다.
-  보스의 카운터는 스택이 따로 있고 느리게 찬다(`BossCounterMaxStack`).
-- **단계와 페이즈:** 체력바 하나가 페이즈 하나다 (`ObjectContext.Phase`, `PhaseCount`). 체력바가 다 깎이면 쓰러지지 않고 다음 체력바가 가득 찬다.
-  전환하는 동안(`PhaseBreak`)은 맞지 않고 전투 구역 가운데로 간다. 단계(0~2)는 체력바 하나 안에서 Hp가 66%, 33% 아래로 내려갈 때 오른다.
-  단계와 페이즈가 오르면 빨라지고 덜 쉬고, 단계가 되어야 쓰는 패턴이 풀린다. 페이즈에 들어갈 때 상태 효과를 건다(공격력).
-- **전투 시작 전:** 보스는 `Standby`로 서 있고 맞지 않는다. 밖에서 미리 깎아둘 수 없다.
-- **새 보스:** Object, Character(`Boss` 칸), AttackCommand, AttackHitBox에 줄을 만들고, `BossProfile`을 상속한 클래스를 `Profiles`에 만들어 `BossFactory`에 이름을 등록한다.
-  새 종류의 패턴이 필요하면 `BossPattern`을 상속해서 `Patterns`에 만든다. 패턴이 새 입력이나 규칙을 필요로 하면 `ObjectContext`를 거치게 한다.
-- 패턴의 수치(박, 거리, 비중)는 지금 보스 클래스에 있다. 테이블로 차후 관리해야 하는 부분이다.
-- 테스트 키 `5` : 전투 중인 보스의 지금 체력바를 비운다 (페이즈 전환과 쓰러짐 확인).
+- **패턴 이름 표시 (확인용):** 보스 체력바 아래에 지금 하는 것의 이름(BossPattern 표의 `Name`, 전환 중에는 `BossPhaseTransitionName`)을 띄운다 (`ObjectContext.SetPatternName` → `BossView`).
+- **경직 면역과 반격:** 보스는 타고난 경직 면역(`StatusEffects`에 1)이라 맞아도 굳지 않는다. **보스의 공격을 카운터로 받아낸 반격만 보스를 굳힌다.**
+- **체력바와 페이즈:** 체력바 하나가 페이즈 하나다 (`ObjectContext.Phase`, `PhaseCount`). 체력바가 다 깎이면 쓰러지지 않고 다음 체력바가 가득 찬다.
+  체력바 수는 `SetDefinition`이 Boss 표의 `PhaseCount`로 정한다(`ObjectContext.SetPhaseCount`). 페이즈 번호는 체력바가 넘어갈 때 `ObjectContext`가 올리고, 보스 AI는 그 알림을 받아 전환 상태로 간다.
+  전환 중에는 `ObjectContext.SetInvincible`로 맞지 않는다.
 - 메뉴 **Test > Start At Boss Battle** : 체크하고 Play하면 타이틀과 앞 퀘스트를 건너뛰고 바로 보스전으로 들어간다.
-- **아직 옮기지 않은 것 (예정):** 에너지탄, 내려찍기, 맵 패턴(미사일, 낙뢰, 레이저, 장벽), 넉백과 월 바운스, 카운터 크래시, 빈틈 찌르기와 습관 읽기,
-  박 스텝과 구석 탈출, 리듬 판정과 그루브, 페이즈 전환 때의 플레이어 회복.
+- **옮긴 것:** 거리 재기와 패턴 고르기, 패턴(베기, 2연격, 3연격, 바닥 쓸기, 돌진, 카운터 자세, 물러나 돌진, 다가가기. 1004 결투자), 예고, 페이즈 전환(무적과 멈춤).
+- **mori-kit에서 옮길 것:** 연타에 받아치기(밀쳐내기 `6`), 경직이 풀린 뒤의 회피(대시 커맨드), 페이즈마다 빨라지기와 공격력 오르기, 곧 나갈 공격 범위 미리 보기(`SetAttackPreview`),
+  에너지탄, 내려찍기, 맵 패턴(미사일, 낙뢰, 레이저, 장벽), 넉백과 월 바운스, 카운터 크래시, 빈틈 찌르기와 습관 읽기, 구석 탈출, 페이즈 전환 때의 플레이어 회복.
+  mori-kit의 박(곡의 박자에 맞추는 진행, 리듬 판정)은 옮기지 않는다. 보스의 시간은 초로 잰다.
 
 ### 상태 효과 (StatusEffect, StatusModifier)
 
@@ -254,6 +289,8 @@ mori-kit의 결투(Duel)를 옮겼다. **행동 트리가 아니라 지금의 `S
 - 지금은 효과를 거는 스킬이나 아이템이 없어서, 타고난 효과와 테스트 키(`3` 경직 면역 켜기/끄기, `4` 플레이어 공격력 증가)로만 걸린다.
 
 ### 이야기 표 (Actor, Scenario, Quest, Talk)
+
+지금 Main은 보스전만 벌이고 이야기를 돌리지 않는다(맨 위 참고). 아래 표와 코드, 시나리오 툴, Validate Story는 그대로 남아 있다.
 
 인게임 흐름은 네 표가 나눠 맡는다. 시나리오와 퀘스트 번호는 표마다 따로 `챕터 × 100 + 순번`으로 매긴다 (1장 1번 → 101, 1장 2번 → 102, 2장 1번 → 201).
 대상(Actor)은 `챕터 × 10000 + 순번`으로 매긴다 (1장 1번 → 10001). 다섯 자리라서 시나리오/퀘스트 번호, Object 번호, 대화 번호와 눈으로 구분된다.
@@ -295,7 +332,7 @@ mori-kit의 결투(Duel)를 옮겼다. **행동 트리가 아니라 지금의 `S
   `Clear`는 대상을 적으면 그 적, 비우면 월드의 적 전부가 쓰러질 때까지 기다리고, 통과한 적은 월드에서 나간 것으로 본다.
 - **보스전(`Boss`):** 대상(보스)이 서 있는 Zone이 보스 전투 Zone이다. 플레이어가 그 Zone에 들어오면(경계에서 `BossArenaEnterMargin` 안쪽)
   Zone을 잠그고 보스를 깨우고, 보스가 쓰러지면 잠금을 풀고 넘어간다. 잠긴 동안에는 다른 Zone으로 나갈 수 없고 카메라도 그 Zone 밖을 보여주지 않는다.
-  전투 중에는 화면 위쪽에 보스의 이름(Actor 표의 `Name`)과 체력바, 페이즈를 띄운다 (`StoryHudPresenter` → `BossView`).
+  전투 중에는 화면 위쪽에 보스의 이름(Actor 표의 `Name`)과 체력바, 페이즈를 띄운다 (`BossBattleController` → `BossView`). Zone 잠금과 시작 판정도 `BossBattleController`가 한다.
   대상은 적이고 Character 표의 `Boss` 칸이 적혀 있어야 한다(검사가 확인한다). `Clear`처럼 통과한 보스는 월드에서 나간 것으로 본다.
   등장 연출은 앞 줄에 `Scenario`로 둔다. Zone이나 위치 칸은 쓰지 않는다 (보스의 자리는 Actor 표와 `Spawn`이 정한다).
 - 일반 대화는 시나리오 재생 중이나 다른 대화 중에는 나오지 않고, `Interact` 목표가 기다리는 Npc에게 건 말은 목표로 간다.
@@ -321,7 +358,7 @@ mori-kit의 결투(Duel)를 옮겼다. **행동 트리가 아니라 지금의 `S
   앞뒤 관계(세우기 전 사용, 나간 뒤 참조, 이미 있는 대상을 다시 세움, 플레이어 두 번 세움, 목표를 지난 적을 다룸, 덮인 화면으로 끝나는 시나리오, 열린 말풍선 없이 CloseDialogue,
   대사를 말하는 대상이 그 시점에 월드에 없음),
   표 참조(Actor 번호, 대상이 캐릭터인지 — Object의 IsCharacter와 Character 표, 없는 시나리오/퀘스트 번호, Dialogue 번호와 대사 Id, 대사의 Speaker와 그 대상의 Name,
-  이펙트 프리팹, Talk 대상이 Npc인지, Talk 대사를 그 Npc나 플레이어가 말하는지, 없는 Zone, `Boss`의 대상이 보스인지 — Character 표의 Boss 칸과 `BossFactory`).
+  이펙트 프리팹, Talk 대상이 Npc인지, Talk 대사를 그 Npc나 플레이어가 말하는지, 없는 Zone, `Boss`의 대상이 보스인지 — Character 표의 Boss 칸이 Boss 표에 있는지. 보스의 패턴과 커맨드는 보스전이 시작될 때 `BossFactory`가 따로 검사한다).
   어느 퀘스트도 부르지 않는 시나리오는 경고로 알린다. Zone 배치(Map, Zone 표)도 같이 검사한다.
   같은 검사(`StoryValidator`)가 이야기 시작 직전에도 돌고, 틀리면 이야기를 시작하지 않는다.
 

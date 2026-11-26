@@ -76,19 +76,22 @@ namespace Common
             Attack,
         }
 
-        //보스 AI 행동 상태
-        public enum BossAIState
+        //보스 AI의 큰 상태. 공격 하나하나는 상태가 아니라 패턴(BossPattern)과 커맨드(BossCommand)로 둔다.
+        //보스만 쓰는 상태가 필요하면 ControllerBossAI를 상속해서 RegisterStates에 더하고, 값은 100부터 쓴다. 있는 값의 숫자는 바꾸지 않는다
+        public enum BossState
         {
-            //전투가 시작되기 전. 제자리에 서 있고 맞지 않는다
-            Standby,
-            //패턴 사이. 거리를 재면서 마디 첫 박마다 다음 패턴을 고른다
-            Spacing,
-            //패턴 진행 중
-            Pattern,
-            //뒤로 물러나는 중 (회피, 경직이 풀린 뒤)
-            Evade,
-            //페이즈 전환 중. 맞지 않고 전투 구역 가운데로 간다
-            PhaseBreak,
+            //전투가 시작되기 전. Engage를 기다린다
+            Intro = 0,
+            //패턴 사이에 쉰다
+            Idle = 1,
+            //패턴 하나를 골라 끝까지 한다
+            Pattern = 2,
+            //반격을 맞고 굳어 있다
+            Groggy = 3,
+            //체력바 하나가 다 깎여서 다음 체력바로 넘어가는 중이다
+            PhaseTransition = 4,
+            //쓰러졌다. 다른 상태로 넘어가지 않는다
+            Dead = 5,
         }
         #endregion
 
@@ -325,8 +328,19 @@ namespace Common
 
         #region Boss
         //테이블로 차후 관리해야하는 부분
-        //보스전의 규칙은 mori-kit의 결투(Duel)를 옮긴 것이다. 보스마다 다른 것(패턴, 페이즈)은 보스 클래스(BossProfile)에 있고,
-        //여기는 보스가 같이 쓰는 값이다
+        //보스전의 규칙은 mori-kit의 결투(Duel)를 옮긴 것이다. 보스마다 다른 것(페이즈, 패턴, 커맨드)은 Boss, BossPattern, BossCommand 표에 있고,
+        //여기는 보스전을 어디서 누구와 벌이는지와, 보스의 공격을 알리는 예고와 판정 도형의 값이다
+
+        //Main 씬에 들어오면 바로 벌이는 보스전. 플레이어가 서 있는 Zone이 보스 스테이지가 되고, 그 Zone에 이 보스를 세운다.
+        //이야기(Quest 표)를 거치지 않으므로 보스와 서는 자리를 여기서 정한다
+        public const long BossBattleBossObjectId = 1004;
+        //체력바에 띄우는 보스의 이름. 이야기의 보스전은 Actor 표의 Name을 쓴다
+        public const string BossBattleBossName = "결투자";
+        //보스가 서는 자리 (보스 스테이지 Zone의 로컬 좌표). Zone 가운데다
+        public static readonly Vector2 BossBattleBossPosition = new(57.6f, 5.95f);
+
+        //페이즈 전환 동안 체력바 아래에 띄우는 이름. 패턴이 아니어서 BossPattern 표에 이름이 없다
+        public const string BossPhaseTransitionName = "페이즈 전환";
 
         //보스가 공격하기 전에 어떤 공격이 오는지 색으로 알리는 예고. 피하는 법이 종류마다 다르다
         public enum AttackTelegraph
@@ -374,74 +388,6 @@ namespace Common
         public const float AttackShapeFadeDuration = 0.25f;
         //곧 나갈 공격의 범위를 미리 보여줄 때의 투명도. 색은 예고 색을 쓴다
         public const float AttackShapePreviewAlpha = 0.3f;
-
-        //보스 패턴의 시간 단위(박)의 길이(초). mori-kit은 곡의 박에 맞추지만 아직 곡이 없어서 120BPM의 한 박을 고정으로 쓴다.
-        //곡이 붙으면 보스의 시계(ControllerBossAI.Beat)를 곡의 박으로 바꾼다
-        public const float BossBeatDuration = 0.5f;
-        //한 마디의 박 수. 보스는 마디 첫 박에만 패턴을 시작한다. 패턴이 일찍 끝나면 다음 마디까지가 공격 기회다
-        public const int BossBeatsPerBar = 4;
-        //마디 첫 박에서 이 박 수 안일 때만 패턴을 시작한다. 경직이 마디 중간에 풀리면 다음 마디를 기다린다
-        public const float BossPatternStartWindow = 0.25f;
-        //전투가 시작되고 첫 패턴 전에 쉬는 마디 수
-        public const int BossFirstRestBars = 1;
-        //첫 타격 이 박 수 전부터 다가가기를 멈추고 자세를 잡는다
-        public const float BossApproachStopBeats = 0.5f;
-        //패턴을 준비하며 다가갈 때의 속도 배율과, 원하는 거리에서 이 안쪽이면 멈추는 오차
-        public const float BossApproachSpeedScale = 1.15f;
-        public const float BossApproachDeadZone = 0.2f;
-        //마지막 타격 뒤 패턴이 끝나기까지의 여유(박)
-        public const float BossPatternEndBeats = 0.6f;
-        //타격 이 박 수 전부터 예고 색을 입힌다
-        public const float BossTelegraphBeats = 2f;
-
-        //패턴 사이의 거리 재기. 플레이어가 멀면(BossFarDistance 밖) BossFarKeepDistance까지만 다가가고, 아니면 BossKeepDistance를 유지한다
-        public const float BossFarDistance = 9f;
-        public const float BossFarKeepDistance = 6f;
-        public const float BossKeepDistance = 6.6f;
-        //유지 거리에서 이 안쪽이면 걷지 않는다
-        public const float BossSpacingDeadZone = 0.3f;
-
-        //단계. 체력바 하나 안에서 Hp가 이 비율 아래로 내려갈 때마다 한 단계 오른다 (0 기본, 1 격해짐, 2 격노)
-        public const float BossStage1HpRatio = 0.66f;
-        public const float BossStage2HpRatio = 0.33f;
-        public const int BossMaxStage = 2;
-        //단계가 오를 때마다 걸음 속도에 더해지는 값(U/s)
-        public const float BossStageSpeedBonus = 1.6f;
-
-        //보스의 카운터. 쓸 때마다 스택을 하나 쓰고 쿨타임(초)이 돈다. 오브젝트 공통의 카운터 스택보다 훨씬 느리게 차서 아껴 쓰게 된다
-        public const int BossCounterMaxStack = 3;
-        public const float BossCounterChargeInterval = 18.5f;
-        public const float BossCounterCooldown = 2.5f;
-        //가장 높은 단계(격노)에서는 카운터 자세 패턴을 고르는 비중에 이 값을 곱한다. 몰아붙일수록 받아치려 든다
-        public const float BossRageCounterWeightScale = 1.6f;
-
-        //연타 대응. 이 시간(초) 안에 이 횟수만큼 맞으면 카운터 자세(카운터가 없으면 밀쳐내기)로 받아친다
-        public const int BossSpamHitCount = 5;
-        public const float BossSpamWindow = 1.6f;
-        //반응으로 나가는 패턴은 지금부터 이 박 수 뒤, 반 박 단위 자리에서 시작한다. 플레이어가 보고 멈출 틈이다
-        public const float BossReactionLeadBeats = 1f;
-        public const float BossReactionQuantBeats = 0.5f;
-        //회피. 패턴 사이에 맞으면 이 확률로 대상의 반대쪽으로 대시해서 빠진다. 한 번 빠지면 쿨타임(초) 동안은 회피하지 않는다.
-        //대시 스택(오브젝트 공통)이 없으면 빠지지 못한다
-        public const float BossDodgeChance = 0.2f;
-        public const float BossDodgeCooldown = 1.2f;
-        //경직이 풀렸을 때 플레이어가 이 거리 안이면 이 확률로 대시해서 빠지고, 아니면 카운터 자세를 잡는다
-        public const float BossRecoverDistance = 4f;
-        public const float BossRecoverEvadeChance = 0.6f;
-
-        //페이즈 전환(체력바가 바뀌는 동안)의 길이(박). 이 동안 보스는 맞지 않고 전투 구역 가운데로 간다
-        public const float BossPhaseBreakBeats = 4f;
-        //전환 시간 중 가운데로 가는 데 쓰는 비율. 나머지는 도착해서 자세를 잡는 시간이다
-        public const float BossPhaseBreakMoveRatio = 0.6f;
-        //플레이어가 가운데에서 이 거리 안에 있으면 가운데 대신 옆(BossPhaseBreakSideOffset)으로 간다. 플레이어와 겹쳐 서지 않게 한다
-        public const float BossPhaseBreakClearDistance = 4f;
-        public const float BossPhaseBreakSideOffset = 7f;
-        //가운데로 갈 때의 속도 배율. 정해진 시간 안에 닿지 못할 만큼 멀면 가다가 멈춘다
-        public const float BossPhaseBreakSpeedScale = 3f;
-
-        //패턴이 아닌 행동을 화면에 띄울 때의 이름 (확인용). 패턴은 자기 이름을 띄운다
-        public const string BossLabelEvade = "회피";
-        public const string BossLabelPhaseBreak = "페이즈 전환";
         #endregion
 
         #region Title
@@ -554,6 +500,11 @@ namespace Common
         //메인 씬에서 시작할 맵. 맵 이동이 생기면 씬 파라미터나 진행 저장으로 넘긴다
         //테이블로 차후 관리해야하는 부분
         public const long StartMapId = 1;
+        //Main 씬에 들어오면 플레이어가 서는 Zone과 자리 (Zone 로컬 좌표). 지금은 이 Zone이 그대로 보스 스테이지가 되어서,
+        //보스(BossBattleBossPosition, Zone 가운데)의 첫 공격이 바로 닿지 않게 왼쪽으로 떨어진 자리에 선다
+        //테이블로 차후 관리해야하는 부분
+        public const long PlayerStartZoneId = 1002;
+        public static readonly Vector2 PlayerStartPosition = new(45.6f, 5.95f);
         //Zone 번호는 맵 × 이 값 + 순번이다 (1번 맵 1번 Zone → 1001). 한 맵에 999칸까지 둔다
         public const long ZoneMapRange = 1000;
         //Zone 컬링 거리. 플레이어가 있는 Zone에서 상하좌우와 대각선으로 이 칸 수 이상 떨어진 Zone은 내린다.
